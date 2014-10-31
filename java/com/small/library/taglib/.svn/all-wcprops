@@ -1,0 +1,179 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/runningjournal/!svn/ver/321/small-library/trunk/java/com/small/library/taglib
+END
+OptionButtonsElement.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/OptionButtonsElement.java
+END
+AlertTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/AlertTag.java
+END
+AnchorTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/AnchorTag.java
+END
+Alert.java
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/Alert.java
+END
+ValueTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/ValueTag.java
+END
+RadioButtonsTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/RadioButtonsTag.java
+END
+TextAreaTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/TextAreaTag.java
+END
+DateControlTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/DateControlTag.java
+END
+CheckBoxesTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/CheckBoxesTag.java
+END
+LabelTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/LabelTag.java
+END
+SelectTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/SelectTag.java
+END
+ListItemImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/runningjournal/!svn/ver/272/small-library/trunk/java/com/small/library/taglib/ListItemImpl.java
+END
+small-library.tld
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/taglib/small-library.tld
+END
+FormElement.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/FormElement.java
+END
+PageMessageTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/PageMessageTag.java
+END
+ImageTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/ImageTag.java
+END
+MonthTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/MonthTag.java
+END
+SelectionTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/SelectionTag.java
+END
+ListItemFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/runningjournal/!svn/ver/321/small-library/trunk/java/com/small/library/taglib/ListItemFactory.java
+END
+CheckBoxTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/CheckBoxTag.java
+END
+ErrorTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/ErrorTag.java
+END
+PageElement.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/PageElement.java
+END
+HiddenTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/HiddenTag.java
+END
+TextBoxTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/TextBoxTag.java
+END
+ListItem.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/taglib/ListItem.java
+END
+BooleanButtonsTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/BooleanButtonsTag.java
+END
+InputTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/InputTag.java
+END
+DateControlTag2.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/DateControlTag2.java
+END
+PasswordTag.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/runningjournal/!svn/ver/113/small-library/trunk/java/com/small/library/taglib/PasswordTag.java
+END

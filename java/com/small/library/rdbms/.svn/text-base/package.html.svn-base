@@ -1,0 +1,6 @@
+<HTML>
+<BODY>
+Base classes for constructing the Data Services Layer on top of a Relational Database
+Management System. The set of classes are derived from the "data" package.
+</BODY>
+</HTML>

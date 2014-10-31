@@ -1,0 +1,134 @@
+10
+
+dir
+1542
+https://candicestern.svn.beanstalkapp.com/runningjournal/small-library/trunk/java/com/small/library
+https://candicestern.svn.beanstalkapp.com/runningjournal
+
+
+
+2012-01-13T20:06:52.446641Z
+1540
+davidls
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+c7c5d5e0-890c-4813-ac70-556aa5f9cd95
+
+log4j
+dir
+
+http
+dir
+
+metadata
+dir
+
+ruby
+dir
+
+session
+dir
+
+jasper
+dir
+
+biz
+dir
+
+servlet
+dir
+
+net
+dir
+
+generator
+dir
+
+swing
+dir
+
+tomcat
+dir
+
+ejb
+dir
+
+xml
+dir
+
+taglib
+dir
+
+soap
+dir
+
+LibraryException.java
+file
+
+
+
+
+2012-10-15T19:38:54.000000Z
+55243fa83d114268050bca132604ed2b
+2008-06-16T23:14:51.242804Z
+3
+davidls
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1832
+
+html
+dir
+
+doc
+dir
+
+rdbms
+dir
+
+data
+dir
+
+atg
+dir
+
+jdo
+dir
+
+rest
+dir
+
+util
+dir
+

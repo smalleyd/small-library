@@ -1,0 +1,141 @@
+package com.small.library.html;
+
+import java.io.*;
+
+/***************************************************************************************
+*
+*	Helps create HTML/client-side scripts.
+*	This class can only be instantiated by the Page object.
+*	@author Xpedior\David Small
+*	@version 1.0.0.0
+*	@date 4/4/2000
+*
+***************************************************************************************/
+
+public class Script extends Base
+{
+	/******************************************************************************
+	*
+	* Public constants
+	*
+	******************************************************************************/
+
+	/** Constant - represents the <I>VBScript</I> language attribute. */
+	public static final String LANGUAGE_VBSCRIPT = "VBScript";
+
+	/** Constant - represents the <I>JavaScript</I> language attribute. */
+	public static final String LANGUAGE_JAVASCRIPT = "JavaScript";
+
+	/** Constant - represents the <I>JScript</I> language attribute. */
+	public static final String LANGUAGE_JSCRIPT = "JScript";
+
+	/** Constant - represents the <I>default</I> language attribute. */
+	public static final String DEFAULT_LANGUAGE = LANGUAGE_JAVASCRIPT;
+	
+	/******************************************************************************
+	*
+	* Constructors & Destructor
+	*
+	******************************************************************************/
+
+	/** Accepts any OutputStream object. */
+	Script(OutputStream pStream) { super(pStream); }
+
+	/** Accepts any object implementing the DataOutput interface. */
+	Script(DataOutput pStream) { super(pStream); }
+
+	/******************************************************************************
+	*
+	* Open/close table functionality
+	*
+	******************************************************************************/
+
+	/** Writes the opening <I>SCRIPT</I> tag to the stream. */
+	public void open() throws IOException
+	{ open(DEFAULT_LANGUAGE); }
+
+	/** Writes the opening <I>SCRIPT</I> tag to the stream.
+		@param strLanguage Represents the scripting language attribute.
+	*/
+	public void open(String strLanguage) throws IOException
+	{
+		writeNewLine();
+
+		openTag(Page.TAG_SCRIPT);
+
+		writeAttribute("LANGUAGE", strLanguage);
+
+		closeTag();
+
+		writeNewLine();
+
+		writeLine("<!--");
+	}
+
+	/** Writes the closing <I>SCRIPT</I> tag to the stream. */
+	public void close() throws IOException
+	{ writeLine("// -->"); writeTagClosing(Page.TAG_SCRIPT); writeNewLine(); }
+
+	/** Writes the opening piece of a function and its parameters.
+		@param strName Represents the name of the function.
+	*/
+	public void openFunction(String strName) throws IOException
+	{ openFunction(strName, (String) null); }
+
+	/** Writes the opening piece of a function and its parameters.
+		@param strName Represents the name of the function.
+		@param strParameters Represents the parameters of the function already
+			separated with commas.
+	*/
+	public void openFunction(String strName, String strParameters) throws IOException
+	{
+		if (null == strParameters)
+			strParameters = "";
+
+		writeLine("\tfunction " + strName + "(" + strParameters + ")");
+		writeLine("\t{");
+	}
+
+	/** Writes the opening piece of a function and its parameters.
+		@param strName Represents the name of the function.
+		@param strParameters Represents an array of parameters.
+	*/
+	public void openFunction(String strName, String strParameters[])
+		throws IOException
+	{
+		String strParameter = null;
+
+		if ((null == strParameters) || (0 == strParameters.length))
+			strParameter = "";
+		else if (1 == strParameters.length)
+			strParameter = strParameters[0] + ")";
+		else
+			strParameter = strParameters[0] + ",";
+
+		writeLine("\tfunction " + strName + "(" + strParameter);
+
+		for (int i = 1; i < strParameters.length; i++)
+		{
+			if (i == (strParameters.length - 1))
+				strParameter = ")";
+			else
+				strParameter = ",";
+
+			writeLine("\t\t" + strParameters[i] + strParameter);
+		}
+
+		writeLine("\t{");
+	}
+
+	/** Writes the closing bracket for the function. */
+	public void closeFunction() throws IOException
+	{
+		writeLine("\t}");
+	}
+
+	/** Writes the detail of a function. */
+	public void addDetail(String strDetail) throws IOException
+	{
+		writeLine("\t\t" + strDetail);
+	}
+}

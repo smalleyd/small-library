@@ -1,0 +1,3 @@
+remote.session.name=Default
+remote.session.url=rmi://dsmall/Default
+remote.session.timeout=25

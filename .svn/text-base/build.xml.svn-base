@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<project name="small-library" default="package" basedir=".">
+
+	<!-- Load environment variables as properties. -->
+	<property environment="env" />
+	<property name="common-jars" value="../common-jars" />
+
+	<path id="local-classpath">
+		<pathelement location="${common-jars}/ant.jar" />
+		<pathelement location="${common-jars}/javaee.jar" />
+		<pathelement location="${common-jars}/jpox.jar" />
+		<pathelement location="${common-jars}/jasperreports-1.0.2.jar" />
+		<pathelement location="${common-jars}/commons-codec.jar" />
+		<pathelement location="${common-jars}/commons-logging-api.jar" />
+		<pathelement location="${common-jars}/xercesImpl.jar" />
+		
+		<fileset dir="${common-jars}/spring-3.0.5" includes="*.jar" />
+
+		<pathelement location="bin" />
+	</path>
+	
+	<target name="prepare">
+		<mkdir dir="bin" />
+	</target>
+
+	<target name="compile" depends="prepare">
+
+		<javac srcdir="java" classpathref="local-classpath" debug="on"
+			destdir="bin">
+			<include name="com/small/library/**/*.java" />
+			<exclude name="com/small/library/atg/**/*.java" />
+			<exclude name="com/small/library/log4j/**/*.java" />
+			<exclude name="com/small/library/**/output/**/*.java" />
+		</javac>
+
+	</target>
+
+	<target name="package" depends="compile">
+
+		<jar jarfile="small-library.jar"
+			basedir="bin" />
+
+		<jar jarfile="tomcat-small-lib.jar">
+			<fileset dir="bin" includes="com/small/library/tomcat/**/*.class" />
+		</jar>
+
+	</target>
+
+	<target name="full" depends="cleanup,package" />
+	
+	<target name="cleanup">
+
+		<delete dir="bin" />
+		<delete file="small-library.jar" />
+
+	</target>
+
+</project>

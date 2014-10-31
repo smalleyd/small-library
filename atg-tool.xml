@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<project name="small-library" default="cleanup" basedir=".">
+
+	<!-- Load environment variables as properties. -->
+	<property environment="env" />
+
+	<target name="prepare">
+		<mkdir dir="build" />
+	</target>
+
+	<target name="compile" depends="prepare">
+
+		<javac srcdir="source"
+			destdir="build">
+			<include name="com/small/library/data/*.java" />
+			<include name="com/small/library/metadata/*.java" />
+			<include name="com/small/library/generator/Base*.java" />
+			<include name="com/small/library/atg/**/*.java" />
+			<include name="com/small/library/util/*.java" />
+			<exclude name="com/small/library/atg/gen/output/**/*.java" />
+		</javac>
+
+	</target>
+
+	<target name="package" depends="compile">
+
+		<jar jarfile="atg-tool.jar"
+			basedir="build" />
+
+	</target>
+
+	<target name="cleanup" depends="package">
+
+		<delete dir="build" />
+
+	</target>
+
+</project>

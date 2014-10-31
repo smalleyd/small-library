@@ -1,0 +1,119 @@
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/runningjournal/!svn/ver/1540/small-library/trunk/java/com/small/library/ejb/gen
+END
+EntityBeanDescriptor.java
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanDescriptor.java
+END
+EntityBeanBMP.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanBMP.java
+END
+EntityBeanJbossDescriptor.java
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanJbossDescriptor.java
+END
+EntityBeanCMP.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanCMP.java
+END
+EntityBeanJbossCmp.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanJbossCmp.java
+END
+EntityBeanHomeFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanHomeFactory.java
+END
+EntityServiceImplementation.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/runningjournal/!svn/ver/1540/small-library/trunk/java/com/small/library/ejb/gen/EntityServiceImplementation.java
+END
+test.bat
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/ejb/gen/test.bat
+END
+EntityBeanHome.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanHome.java
+END
+EntityBeanLocal.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanLocal.java
+END
+EntityRestController.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/runningjournal/!svn/ver/1539/small-library/trunk/java/com/small/library/ejb/gen/EntityRestController.java
+END
+EntityBeanRemote.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanRemote.java
+END
+EntityServiceInterface.java
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/runningjournal/!svn/ver/1535/small-library/trunk/java/com/small/library/ejb/gen/EntityServiceInterface.java
+END
+EntityBeanPrimaryKey.java
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanPrimaryKey.java
+END
+EntityBeanCMP3.java
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/runningjournal/!svn/ver/1528/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanCMP3.java
+END
+EntityBeanValueObject.java
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/runningjournal/!svn/ver/1527/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanValueObject.java
+END
+EntityBeanJaws.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanJaws.java
+END
+EntityBeanBase.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanBase.java
+END
+EntityBeanPorter.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/ejb/gen/EntityBeanPorter.java
+END

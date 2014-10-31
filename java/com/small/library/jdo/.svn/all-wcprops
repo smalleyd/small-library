@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/runningjournal/!svn/ver/61/small-library/trunk/java/com/small/library/jdo
+END
+StatementHandler.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/jdo/StatementHandler.java
+END
+DataManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/jdo/DataManager.java
+END
+DataValue.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/jdo/DataValue.java
+END
+JdoException.java
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/jdo/JdoException.java
+END
+RecordHandler.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/jdo/RecordHandler.java
+END

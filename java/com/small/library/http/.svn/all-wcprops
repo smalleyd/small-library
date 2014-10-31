@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/runningjournal/!svn/ver/61/small-library/trunk/java/com/small/library/http
+END
+HttpResponseStatusException.java
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/http/HttpResponseStatusException.java
+END
+HttpResponseStatus.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/http/HttpResponseStatus.java
+END
+UrlTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/http/UrlTest.java
+END
+HttpHeader.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/http/HttpHeader.java
+END
+HttpRequest.java
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/http/HttpRequest.java
+END
+HttpRequestGet.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/http/HttpRequestGet.java
+END
+HttpRequestPostWithBody.java
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/http/HttpRequestPostWithBody.java
+END
+HttpTooManyRedirectsException.java
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/http/HttpTooManyRedirectsException.java
+END
+HttpClient.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/http/HttpClient.java
+END
+HttpException.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/http/HttpException.java
+END
+HttpRequestPost.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/http/HttpRequestPost.java
+END
+HttpResponse.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/http/HttpResponse.java
+END

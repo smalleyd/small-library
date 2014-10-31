@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/runningjournal/!svn/ver/16/small-library/trunk/java/com/small/library/atg/gen
+END
+SQLRepositoryItemWrapper.java
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/atg/gen/SQLRepositoryItemWrapper.java
+END
+SQLRepositoryItemEntityBean.java
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/atg/gen/SQLRepositoryItemEntityBean.java
+END
+SQLRepositoryItemValueObject.java
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/atg/gen/SQLRepositoryItemValueObject.java
+END
+SQLRepositoryItemConfig.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/atg/gen/SQLRepositoryItemConfig.java
+END
+test.bat
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/atg/gen/test.bat
+END
+ejbTest.bat
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/atg/gen/ejbTest.bat
+END
+defaultCommand.bat
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/atg/gen/defaultCommand.bat
+END
+SQLRepositoryItemBase.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/atg/gen/SQLRepositoryItemBase.java
+END
+SQLRepositoryItemValueHandler.java
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/atg/gen/SQLRepositoryItemValueHandler.java
+END
+SQLRepositoryItemWrapperByFile.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/atg/gen/SQLRepositoryItemWrapperByFile.java
+END
+SQLRepositoryItemDescriptor.java
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/atg/gen/SQLRepositoryItemDescriptor.java
+END
+SQLRepositoryItemDataBean.java
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/atg/gen/SQLRepositoryItemDataBean.java
+END
+dynamo.env
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/runningjournal/!svn/ver/5/small-library/trunk/java/com/small/library/atg/gen/dynamo.env
+END
