@@ -2,19 +2,6 @@
 <classpath>
 	<classpathentry excluding="com/small/library/atg/" kind="src" path="java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/common-jars/javaee.jar"/>
-	<classpathentry kind="lib" path="/common-jars/jbossall-client.jar"/>
-	<classpathentry kind="lib" path="/common-jars/jpox.jar"/>
-	<classpathentry kind="lib" path="/common-jars/xmlParserAPIs.jar"/>
-	<classpathentry kind="lib" path="/common-jars/xercesImpl.jar"/>
-	<classpathentry kind="lib" path="/common-jars/log4j.jar"/>
-	<classpathentry kind="lib" path="/common-jars/commons-codec.jar"/>
-	<classpathentry kind="lib" path="/common-jars/jasperreports-1.0.2.jar"/>
-	<classpathentry kind="lib" path="/common-jars/ant.jar"/>
-	<classpathentry kind="lib" path="/common-jars/commons-logging-api.jar"/>
-	<classpathentry kind="lib" path="/common-jars/spring-3.0.5/spring-beans.jar"/>
-	<classpathentry kind="lib" path="/common-jars/spring-3.0.5/spring-web.jar"/>
-	<classpathentry kind="lib" path="/common-jars/spring-3.0.5/spring-context.jar"/>
-	<classpathentry kind="lib" path="/common-jars/spring-3.0.5/spring-core.jar"/>
+	<classpathentry exported="true" kind="con" path="org.springsource.ide.eclipse.gradle.classpathcontainer"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
