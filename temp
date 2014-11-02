@@ -1,8 +1,0 @@
-git rm --cached -r ./old/atg/.svn
-git rm --cached -r ./old/atg/CVS/.svn
-git rm --cached -r ./old/atg/gen/.svn
-git rm --cached -r ./old/atg/gen/CVS/.svn
-git rm --cached -r ./old/atg/meta/.svn
-git rm --cached -r ./old/atg/meta/CVS/.svn
-git rm --cached -r ./old/atg/repository/.svn
-git rm --cached -r ./old/atg/repository/CVS/.svn
