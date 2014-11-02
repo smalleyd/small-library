@@ -1,8 +1,0 @@
-#jdbc.driver=sun.jdbc.odbc.JdbcOdbcDriver
-#jdbc.url=jdbc:odbc:JavaBridge
-#jdbc.username=JavaBridge
-#jdbc.password=JavaBridge
-
-jdbc.driver=sun.jdbc.odbc.JdbcOdbcDriver
-jdbc.url=jdbc:odbc:Phoenix-Dev
-#jdbc.schema.pattern=dbo
