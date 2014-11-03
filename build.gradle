@@ -20,4 +20,5 @@ dependencies {
 	        'commons-logging:commons-logging:1.2',
 	        'org.springframework:spring-web:4.1.1.RELEASE',
 			'org.apache.ant:ant:1.9.4'
+	runtime 'mysql:mysql-connector-java:5.1.33'
 }
