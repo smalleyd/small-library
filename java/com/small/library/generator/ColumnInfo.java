@@ -83,6 +83,9 @@ public class ColumnInfo
 	/** Member variable - name of the column's mutator method. */
 	public String mutatorMethodName;
 
+	/** Member variable - name of the column's "with" method. */
+	public String withMethodName;
+
 	/** Member variable - indicates whether the field is an imported foreign key. */
 	public boolean isImportedKey;
 

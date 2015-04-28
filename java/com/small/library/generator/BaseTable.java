@@ -33,6 +33,9 @@ public abstract class BaseTable extends BaseJDBC
 	/** Constant - mutator method prefix (set). */
 	public static final String PREFIX_MUTATOR_METHOD = "set";
 
+	/** Constant - "with" method prefix (with). */
+	public static final String PREFIX_WITH_METHOD = "with";
+
 	/******************************************************************************
 	*
 	*	Constructors
@@ -191,6 +194,12 @@ public abstract class BaseTable extends BaseJDBC
 		return PREFIX_MUTATOR_METHOD + value.name;
 	}
 
+	/** Helper method - gets the "with" method name for a column. */
+	public String getWithMethodName(ColumnInfo value)
+	{
+		return PREFIX_WITH_METHOD + value.name;
+	}
+
 	/** Helper method - indicates whether the column is an auto incrementing
 	    column.
 	*/
@@ -301,6 +310,7 @@ public abstract class BaseTable extends BaseJDBC
 		info.localVariableName = getLocalVariableName(pColumn);
 		info.accessorMethodName = getAccessorMethodName(info);
 		info.mutatorMethodName = getMutatorMethodName(info);
+		info.withMethodName = getWithMethodName(info);
 
 		ImportedKeys.Record importedKey = getImportedKey(pColumn);
 
