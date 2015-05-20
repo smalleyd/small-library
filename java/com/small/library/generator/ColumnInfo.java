@@ -28,8 +28,14 @@ public class ColumnInfo
 	/** Member variable - is the column nullable. */
 	public boolean isNullable;
 
-	/** Member variable - is this a character field (i.e. CHAR, VARCHAR, BLOB, CLOB, ...) */
+	/** Member variable - is this a boolean field (i.e. BIT, BOOLEAN, ...)? */
+	public boolean isBoolean;
+
+	/** Member variable - is this a character field (i.e. CHAR, VARCHAR, BLOB, CLOB, ...)? */
 	public boolean isCharacter;
+
+	/** Member variable - is this a String field (i.e. CHAR, VARCHAR, LONGVARCHAR, CLOB, ...)? */
+	public boolean isString;
 
 	/** Member variable - <I>java.sql.Types</I> value as integer. */
 	public int dataType;

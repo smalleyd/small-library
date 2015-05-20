@@ -293,7 +293,9 @@ public abstract class BaseTable extends BaseJDBC
 		info.size = pColumn.getSize();
 		info.decimalDigits = pColumn.getDecimalDigits();
 		info.isNullable = pColumn.isNullable();
+		info.isBoolean = isBoolean(pColumn);
 		info.isCharacter = isCharacter(pColumn);
+		info.isString = isString(pColumn);
 		info.dataType = pColumn.getDataType();
 		info.isPartOfPrimaryKey = isPartOfPrimaryKey(pColumn);
 		info.isAutoIncrementing = isColumnAutoIncrementing(pColumn);

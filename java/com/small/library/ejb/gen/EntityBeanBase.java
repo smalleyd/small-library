@@ -63,6 +63,21 @@ public abstract class EntityBeanBase extends BaseTable
 		m_strPackageName = strPackageName;
 	}
 
+	/** Constructor - constructs a populated object.
+		@param pWriter The output stream.
+		@param strAuthor Name of the author.
+		@param pTable A table record object to base the output on.
+		@param strPackageName Package name of the wrapper class.
+		@param version Represents the version of the resource.
+	*/
+	public EntityBeanBase(PrintWriter pWriter,
+		String strAuthor, Tables.Record pTable, String strPackageName, String version)
+	{
+		this(pWriter, strAuthor, pTable, strPackageName);
+
+		this.version = version;
+	}
+
 	/*****************************************************************************
 	*
 	*	Helper method
@@ -102,6 +117,9 @@ public abstract class EntityBeanBase extends BaseTable
 	/** Accessor method - gets the package name of the wrapper class. */
 	public String getPackageName() { return m_strPackageName; }
 
+	/** Accessor method - gets the version number of the resource. */
+	public String getVersion() { return version; }
+
 	/******************************************************************************
 	*
 	*	Mutator methods
@@ -111,6 +129,9 @@ public abstract class EntityBeanBase extends BaseTable
 	/** Mutator method - sets the package name of the wrapper class. */
 	public void setPackageName(String newValue) { m_strPackageName = newValue; }
 
+	/** Mutator method - sets the version number of the resource. */
+	public void setVersion(String newValue) { version = newValue; }
+
 	/******************************************************************************
 	*
 	*	Member variables
@@ -119,6 +140,9 @@ public abstract class EntityBeanBase extends BaseTable
 
 	/** Member variable - reference to the package name of the wrapper class. */
 	private String m_strPackageName = null;
+
+	/** Member variable - represents the version of the resource. */
+	private String version = null;
 
 	/** Member variable - array of column information objects. */
 	protected ColumnInfo[] m_ColumnInfo = null;

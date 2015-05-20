@@ -1,8 +1,8 @@
 package com.small.library.generator;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.Types;
+import java.util.*;
 
 import com.small.library.metadata.*;
 
@@ -53,8 +53,14 @@ public abstract class BaseJDBC extends Base
 	*/
 	private static Map<Integer, String> VARIABLE_PREFIXES = null;
 
+	/** Static member - set of Boolean objects indicating boolean attribute of data type. */
+	private static Set<Integer> BOOLEAN_TYPES = new HashSet<>(Arrays.asList(Types.BIT, Types.BOOLEAN));
+
 	/** Static member - map of Boolean objects indicating character attribute of data type. */
 	private static Map<Integer, Boolean> CHARACTER_ATTRIBUTE = null;
+
+	/** Static member - set of SQL types that map to a Java String. */
+	private static Set<Integer> STRING_TYPES = new HashSet<>(Arrays.asList(Types.CHAR, Types.CLOB, Types.LONGVARCHAR, Types.VARCHAR));
 
 	/** Static constructor - initializes static member variables. */
 	static
@@ -411,6 +417,12 @@ public abstract class BaseJDBC extends Base
 		return VARIABLE_PREFIXES.get(getSQLType(column));
 	}
 
+	/** Accessor method - gets the boolean attribute of the column. */
+	public boolean isBoolean(Columns.Record column)
+	{
+		return BOOLEAN_TYPES.contains(getSQLType(column));
+	}
+
 	/** Accessor method - gets the character attribute of the column. */
 	public boolean isCharacter(Columns.Record column)
 	{
@@ -425,6 +437,12 @@ public abstract class BaseJDBC extends Base
 			ex.printStackTrace();
 			return false;
 		}
+	}
+
+	/** Accessor method - gets the String attribute of the column. */
+	public boolean isString(Columns.Record column)
+	{
+		return STRING_TYPES.contains(getSQLType(column));
 	}
 
 	/** Accessor method - gets a column's type definition used in DDL.

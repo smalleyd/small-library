@@ -68,11 +68,12 @@ public class EntityBeanFilter extends EntityBeanBase
 		@param strAuthor Name of the author.
 		@param pTable A table record object to base the output on.
 		@param strPackageName Package name of the wrapper class.
+		@param version application version number.
 	*/
 	public EntityBeanFilter(PrintWriter pWriter,
-		String strAuthor, Tables.Record pTable, String strPackageName)
+		String strAuthor, Tables.Record pTable, String strPackageName, String version)
 	{
-		super(pWriter, strAuthor, pTable, strPackageName);
+		super(pWriter, strAuthor, pTable, strPackageName, version);
 	}
 
 	/******************************************************************************
@@ -140,7 +141,7 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine("*\tValue object class that represents the search criteria for " + createObjectName(getTable().getName()) + " query.");
 		writeLine("*");
 		writeLine("*\t@author " + getAuthor());
-		writeLine("*\t@version 1.0.1");
+		writeLine("*\t@version " + getVersion());
 		writeLine("*\t@since " + getDateString());
 		writeLine("*");
 		writeLine("*******************************************************************************************************************/");
@@ -275,37 +276,39 @@ public class EntityBeanFilter extends EntityBeanBase
 	*****************************************************************************/
 
 	/** Command line entry point.
-		@param strArg1 Output directory.
-		@param strArg2 URL to the data source.
-		@param strArg3 data source login name.
-		@param strArg4 data source password.
-		@param strArg5 optional JDBC driver class name. Will use JDBC-ODBC
+		@param args1 Output directory.
+		@param args2 URL to the data source.
+		@param args3 data source login name.
+		@param args4 data source password.
+		@param args5 optional JDBC driver class name. Will use JDBC-ODBC
 			bridge if a drive is not supplied.
-		@param strArg6 author of the generated classes. Will use the
+		@param args6 author of the generated classes. Will use the
 			"user.name" system property value if not supplied.
-		@param strArg7 package name of the entity bean value object.
+		@param args7 package name of the entity bean value object.
+		@param args8 application version number.
 	*/
-	public static void main(String strArgs[])
+	public static void main(String args[])
 	{
 		try
 		{
 			// Have enough arguments been supplied?
-			if (3 > strArgs.length)
+			if (3 > args.length)
 				throw new IllegalArgumentException("Please supply at least 3 arguments.");
 
 			// Local variables
-			File fileOutputDir = extractOutputDirectory(strArgs, 0);
-			String strAuthor = extractAuthor(strArgs, 5);
-			String strPackageName = extractArgument(strArgs, 6, null);
+			File fileOutputDir = extractOutputDirectory(args, 0);
+			String strAuthor = extractAuthor(args, 5);
+			String strPackageName = extractArgument(args, 6, null);
+			String version = extractArgument(args, 7, null);
 
 			// Create and load the tables object.
-			Tables pTables = extractTables(strArgs, 1, 7);
+			Tables pTables = extractTables(args, 1, 8);
 			pTables.load();
 
 			// Create the SQL Repository Item Descriptor generator.
 			EntityBeanFilter pGenerator =
 				new EntityBeanFilter((PrintWriter) null, strAuthor,
-				(Tables.Record) null, strPackageName);
+				(Tables.Record) null, strPackageName, version);
 
 			// Call the BaseTable method to handle the outputing.
 			generateTableResources(pGenerator, pTables, fileOutputDir);
