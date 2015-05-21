@@ -167,27 +167,51 @@ public class EntityBeanFilter extends EntityBeanBase
 		// Write member variables.
 		for (ColumnInfo i : m_ColumnInfo)
 		{
-			writeLine();
-			writeLine("\t/** Filter option that represents the \"" + i.columnName + "\" field. */");
-
-			// Write the getter.
-			write("\tpublic " + i.javaType + " " + i.accessorMethodName + "()");
-
-			// Writer the member variable.
-			writeLine(" { return " + i.memberVariableName + "; }");
-			write("\tprivate " + i.javaType + " " + i.memberVariableName);
-			if (!i.isPrimitive)
-				write(" = null");
-			writeLine(";");
-
-			// Write the setter.
-			write("\tpublic void " + i.mutatorMethodName + "(" + i.javaType + " newValue)");
-			writeLine(" { " + i.memberVariableName + " = newValue; }");
-
-			// Write the "with" method.
-			write("\tpublic " + getClassName() + " " + i.withMethodName + "(" + i.javaType + " newValue)");
-			writeLine(" { " + i.memberVariableName + " = newValue; return this; }");
+			// Integer and date fields filter by range so need a "lower boundary" property and an "upper boundary" property.
+			if (i.isImportedKey || i.isPartOfPrimaryKey || i.isBoolean || i.isString)
+				writeMethod(i);
+			else
+			{
+				writeMethod(i, "From", "lower boundary");
+				writeMethod(i, "To", "upper boundary");
+			}
 		}
+	}
+
+	/** Helper method: write the methods. */
+	private void writeMethod(ColumnInfo i) throws IOException
+	{
+		writeMethod(i, "", null);
+	}
+
+	/** Helper method: write the methods. */
+	private void writeMethod(ColumnInfo i, String suffix, String commentSuffix) throws IOException
+	{
+		writeLine();
+		write("\t/** Filter option that represents the \"" + i.columnName + "\" field");
+		if (null != commentSuffix)
+			write(" - " + commentSuffix);
+		writeLine(". */");
+
+		// Primitives should be nullable for the filter.
+		String type = i.javaType;
+		if (i.isPrimitive)
+			type = fromPrimitiveToObject(i.javaType);
+
+		// Write the getter.
+		write("\tpublic " + type + " " + i.accessorMethodName + suffix + "()");
+
+		// Writer the member variable.
+		writeLine(" { return " + i.memberVariableName + suffix + "; }");
+		writeLine("\tprivate " + type + " " + i.memberVariableName + suffix + " = null;");
+
+		// Write the setter.
+		write("\tpublic void " + i.mutatorMethodName + suffix + "(" + type + " newValue)");
+		writeLine(" { " + i.memberVariableName + suffix + " = newValue; }");
+
+		// Write the "with" method.
+		write("\tpublic " + getClassName() + " " + i.withMethodName + suffix + "(" + type + " newValue)");
+		writeLine(" { " + i.memberVariableName + suffix + " = newValue; return this; }");
 	}
 
 	/** Output method - writes the <CODE>constructors</CODE>. */
@@ -211,11 +235,16 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine("\t/** Populator.");
 
 		// Create the parameter comments.
-		for (int i = 0; i < m_ColumnInfo.length; i++)
+		for (ColumnInfo i : m_ColumnInfo)
 		{
-			ColumnInfo item = m_ColumnInfo[i];
-			writeLine("\t\t@param " + item.memberVariableName + " represents the \"" +
-				item.columnName + "\" field.");
+			// Integer and date fields filter by range so need a "lower boundary" property and an "upper boundary" property.
+			if (i.isImportedKey || i.isPartOfPrimaryKey || i.isBoolean || i.isString)
+				writeLine("\t\t@param " + i.memberVariableName + " represents the \"" + i.columnName + "\" field.");
+			else
+			{
+				writeLine("\t\t@param " + i.memberVariableName + "From represents the \"" + i.columnName + "\" field - lower boundary.");
+				writeLine("\t\t@param " + i.memberVariableName + "To represents the \"" + i.columnName + "\" field - upper boundary.");
+			}
 		}
 
 		writeLine("\t*/");
@@ -229,7 +258,14 @@ public class EntityBeanFilter extends EntityBeanBase
 			if (0 < i)
 				write("\t\t");
 
-			write(item.javaType + " " + item.memberVariableName);
+			// Integer and date fields filter by range so need a "lower boundary" property and an "upper boundary" property.
+			if (item.isImportedKey || item.isPartOfPrimaryKey || item.isBoolean || item.isString)
+				write(item.javaType + " " + item.memberVariableName);
+			else
+			{
+				writeLine(item.javaType + " " + item.memberVariableName + "From,");
+				write(item.javaType + " " + item.memberVariableName + "To", 2);
+			}
 
 			if (last == i)
 				writeLine(")");
@@ -239,13 +275,18 @@ public class EntityBeanFilter extends EntityBeanBase
 
 		// Write body.
 		writeLine("\t{");
-		for (int i = 0; i < m_ColumnInfo.length; i++)
+		for (ColumnInfo i : m_ColumnInfo)
 		{
-			ColumnInfo item = m_ColumnInfo[i];
-			writeLine("\t\tthis." + item.memberVariableName + " = " +
-				item.memberVariableName + ";");
+			// Integer and date fields filter by range so need a "lower boundary" property and an "upper boundary" property.
+			if (i.isImportedKey || i.isPartOfPrimaryKey || i.isBoolean || i.isString)
+				writeLine("this." + i.memberVariableName + " = " + i.memberVariableName + ";", 2);
+			else
+			{
+				writeLine("this." + i.memberVariableName + "From = " + i.memberVariableName + "From;", 2);
+				writeLine("this." + i.memberVariableName + "To = " + i.memberVariableName + "To;", 2);
+			}
 		}
-		writeLine("\t}");			
+		writeLine("}", 1);
 	}
 
 	/** Output method - writes the class footer. */

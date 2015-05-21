@@ -266,9 +266,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 		// Write accessors.
 		for (int i = 0; i < m_ColumnInfo.length; i++)
 		{
-			writeLine("\t/** Accessor method - gets the property that represents the");
-			writeLine("\t    \"" + m_ColumnInfo[i].columnName + "\" field.");
-			writeLine("\t*/");
+			writeLine("\t/** Accessor method - gets the property that represents the \"" + m_ColumnInfo[i].columnName + "\" field. */");
 			write("\tpublic " + m_ColumnInfo[i].javaType + " " + m_ColumnInfo[i].accessorMethodName + "()");
 				writeLine(" { return " + m_ColumnInfo[i].memberVariableName + "; }");
 			writeLine();
@@ -292,13 +290,16 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine();
 
 		// Write mutators.
-		for (int i = 0; i < m_ColumnInfo.length; i++)
+		for (ColumnInfo i : m_ColumnInfo)
 		{
-			writeLine("\t/** Mutator method - sets the property that represents the");
-			writeLine("\t    \"" + m_ColumnInfo[i].columnName + "\" field.");
-			writeLine("\t*/");
-			write("\tpublic void " + m_ColumnInfo[i].mutatorMethodName + "(" + m_ColumnInfo[i].javaType + " newValue)");
-				writeLine(" { " + m_ColumnInfo[i].memberVariableName + " = newValue; }");
+			writeLine("\t/** Mutator method - sets the property that represents the \"" + i.columnName + "\" field. */");
+			write("\tpublic void " + i.mutatorMethodName + "(" + i.javaType + " newValue)");
+				writeLine(" { " + i.memberVariableName + " = newValue; }");
+
+			// Write the "with" method.
+			write("\tpublic " + getClassName() + " " + i.withMethodName + "(" + i.javaType + " newValue)");
+			writeLine(" { " + i.memberVariableName + " = newValue; return this; }");
+
 			writeLine();
 		}
 	}

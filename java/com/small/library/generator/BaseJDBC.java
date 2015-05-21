@@ -30,25 +30,25 @@ public abstract class BaseJDBC extends Base
 	*/
 	private static Map<Integer, String> JDBC_METHOD_SUFFIXES = null;
 
-	/** Static member - map of SQL data types (java.sql.Types) to a Java data type. */
+	/** Static member - map of SQL data types (Types) to a Java data type. */
 	private static Map<Integer, String> JAVA_TYPES = null;
 
-	/** Static member - map of SQL data types (java.sql.Types) as a number to
+	/** Static member - map of SQL data types (Types) as a number to
 	    a <I>String</String> representation.
 	*/
 	private static Map<Integer, String> JDBC_TYPES = null;
 
-	/** Static member - map of SQL data types (java.sql.Types) to a boolean
+	/** Static member - map of SQL data types (Types) to a boolean
 	    indicator of whether the type requires a size attribute.
 	*/
 	private static Map<Integer, Boolean> TYPES_REQUIRE_SIZE = null;
 
-	/** Static member - map of SQL data types (java.sql.Types) to a boolean
+	/** Static member - map of SQL data types (Types) to a boolean
 	    indicator of whether the type requires a scale (decimal digits) attribute.
 	*/
 	private static Map<Integer, Boolean> TYPES_REQUIRE_SCALE = null;
 
-	/** Static member - map of SQL data types (java.sql.Types) to a Hungarian notation
+	/** Static member - map of SQL data types (Types) to a Hungarian notation
 	    variable prefix.
 	*/
 	private static Map<Integer, String> VARIABLE_PREFIXES = null;
@@ -57,7 +57,9 @@ public abstract class BaseJDBC extends Base
 	private static Set<Integer> BOOLEAN_TYPES = new HashSet<>(Arrays.asList(Types.BIT, Types.BOOLEAN));
 
 	/** Static member - map of Boolean objects indicating character attribute of data type. */
-	private static Map<Integer, Boolean> CHARACTER_ATTRIBUTE = null;
+	private static Set<Integer> CHARACTER_ATTRIBUTE = new HashSet<>(Arrays.asList(Types.BINARY, Types.BLOB, Types.LONGVARBINARY,
+		Types.VARBINARY, Types.CHAR, Types.VARCHAR, Types.CLOB, Types.LONGVARCHAR,
+		Types.DATE, Types.TIME, Types.TIMESTAMP));
 
 	/** Static member - set of SQL types that map to a Java String. */
 	private static Set<Integer> STRING_TYPES = new HashSet<>(Arrays.asList(Types.CHAR, Types.CLOB, Types.LONGVARCHAR, Types.VARCHAR));
@@ -67,229 +69,197 @@ public abstract class BaseJDBC extends Base
 	{
 		JDBC_METHOD_SUFFIXES = new HashMap<Integer, String>();
 
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.BIGINT, JDBC_METHOD_SUFFIX_LONG);
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.BINARY, "Bytes");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.BLOB, "Blob");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.LONGVARBINARY, "Bytes");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.VARBINARY, "Bytes");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.BIT, "Boolean");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.BOOLEAN, "Boolean");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.CHAR, "String");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.VARCHAR, "String");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.CLOB, "Clob");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.LONGVARCHAR, "String");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.DATE, "Date");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.TIME, "Timestamp");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.TIMESTAMP, "Timestamp");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.DECIMAL, "Double");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.DOUBLE, "Double");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.NUMERIC, "Double");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.REAL, "Double");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.FLOAT, "Float");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.INTEGER, JDBC_METHOD_SUFFIX_INTEGER);
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.SMALLINT, JDBC_METHOD_SUFFIX_SMALLINT);
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.TINYINT, JDBC_METHOD_SUFFIX_SMALLINT);
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.ARRAY, "Object");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.DISTINCT, "Object");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.JAVA_OBJECT, "Object");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.NULL, "Object");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.OTHER, "Object");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.REF, "Object");
-		JDBC_METHOD_SUFFIXES.put(java.sql.Types.STRUCT, "Object");
+		JDBC_METHOD_SUFFIXES.put(Types.BIGINT, JDBC_METHOD_SUFFIX_LONG);
+		JDBC_METHOD_SUFFIXES.put(Types.BINARY, "Bytes");
+		JDBC_METHOD_SUFFIXES.put(Types.BLOB, "Blob");
+		JDBC_METHOD_SUFFIXES.put(Types.LONGVARBINARY, "Bytes");
+		JDBC_METHOD_SUFFIXES.put(Types.VARBINARY, "Bytes");
+		JDBC_METHOD_SUFFIXES.put(Types.BIT, "Boolean");
+		JDBC_METHOD_SUFFIXES.put(Types.BOOLEAN, "Boolean");
+		JDBC_METHOD_SUFFIXES.put(Types.CHAR, "String");
+		JDBC_METHOD_SUFFIXES.put(Types.VARCHAR, "String");
+		JDBC_METHOD_SUFFIXES.put(Types.CLOB, "Clob");
+		JDBC_METHOD_SUFFIXES.put(Types.LONGVARCHAR, "String");
+		JDBC_METHOD_SUFFIXES.put(Types.DATE, "Date");
+		JDBC_METHOD_SUFFIXES.put(Types.TIME, "Timestamp");
+		JDBC_METHOD_SUFFIXES.put(Types.TIMESTAMP, "Timestamp");
+		JDBC_METHOD_SUFFIXES.put(Types.DECIMAL, "Double");
+		JDBC_METHOD_SUFFIXES.put(Types.DOUBLE, "Double");
+		JDBC_METHOD_SUFFIXES.put(Types.NUMERIC, "Double");
+		JDBC_METHOD_SUFFIXES.put(Types.REAL, "Double");
+		JDBC_METHOD_SUFFIXES.put(Types.FLOAT, "Float");
+		JDBC_METHOD_SUFFIXES.put(Types.INTEGER, JDBC_METHOD_SUFFIX_INTEGER);
+		JDBC_METHOD_SUFFIXES.put(Types.SMALLINT, JDBC_METHOD_SUFFIX_SMALLINT);
+		JDBC_METHOD_SUFFIXES.put(Types.TINYINT, JDBC_METHOD_SUFFIX_SMALLINT);
+		JDBC_METHOD_SUFFIXES.put(Types.ARRAY, "Object");
+		JDBC_METHOD_SUFFIXES.put(Types.DISTINCT, "Object");
+		JDBC_METHOD_SUFFIXES.put(Types.JAVA_OBJECT, "Object");
+		JDBC_METHOD_SUFFIXES.put(Types.NULL, "Object");
+		JDBC_METHOD_SUFFIXES.put(Types.OTHER, "Object");
+		JDBC_METHOD_SUFFIXES.put(Types.REF, "Object");
+		JDBC_METHOD_SUFFIXES.put(Types.STRUCT, "Object");
 
 		JAVA_TYPES = new HashMap<Integer, String>();
 
-		JAVA_TYPES.put(java.sql.Types.BIGINT, JAVA_TYPE_LONG);
-		JAVA_TYPES.put(java.sql.Types.BINARY, "byte[]");
-		JAVA_TYPES.put(java.sql.Types.BLOB, "byte[]");
-		JAVA_TYPES.put(java.sql.Types.LONGVARBINARY, "byte[]");
-		JAVA_TYPES.put(java.sql.Types.VARBINARY, "byte[]");
-		JAVA_TYPES.put(java.sql.Types.BIT, "boolean");
-		JAVA_TYPES.put(java.sql.Types.BOOLEAN, "boolean");
-		JAVA_TYPES.put(java.sql.Types.CHAR, "String");
-		JAVA_TYPES.put(java.sql.Types.VARCHAR, "String");
-		JAVA_TYPES.put(java.sql.Types.CLOB, "String");
-		JAVA_TYPES.put(java.sql.Types.LONGVARCHAR, "String");
-		// JAVA_TYPES.put(java.sql.Types.DATE, "java.sql.Date");
-		JAVA_TYPES.put(java.sql.Types.DATE, "Date");	// JPA implementation.
-		JAVA_TYPES.put(java.sql.Types.TIME, "java.sql.Time");
-		// JAVA_TYPES.put(java.sql.Types.TIMESTAMP, "java.sql.Timestamp");
-		JAVA_TYPES.put(java.sql.Types.TIMESTAMP, "Date");	// JPA implementation.
-		JAVA_TYPES.put(java.sql.Types.DECIMAL, "double");
-		JAVA_TYPES.put(java.sql.Types.DOUBLE, "double");
-		JAVA_TYPES.put(java.sql.Types.NUMERIC, "double");
-		JAVA_TYPES.put(java.sql.Types.REAL, "double");
-		JAVA_TYPES.put(java.sql.Types.FLOAT, "float");
-		JAVA_TYPES.put(java.sql.Types.INTEGER, JAVA_TYPE_INTEGER);
-		JAVA_TYPES.put(java.sql.Types.SMALLINT, JAVA_TYPE_SMALLINT);
-		JAVA_TYPES.put(java.sql.Types.TINYINT, JAVA_TYPE_SMALLINT);
-		JAVA_TYPES.put(java.sql.Types.ARRAY, "Object[]");
-		JAVA_TYPES.put(java.sql.Types.DISTINCT, "java.util.Map");
-		JAVA_TYPES.put(java.sql.Types.JAVA_OBJECT, "Object");
-		JAVA_TYPES.put(java.sql.Types.NULL, "Object");
-		JAVA_TYPES.put(java.sql.Types.OTHER, "Object");
-		JAVA_TYPES.put(java.sql.Types.REF, "Object");
-		JAVA_TYPES.put(java.sql.Types.STRUCT, "Object");
+		JAVA_TYPES.put(Types.BIGINT, JAVA_TYPE_LONG);
+		JAVA_TYPES.put(Types.BINARY, "byte[]");
+		JAVA_TYPES.put(Types.BLOB, "byte[]");
+		JAVA_TYPES.put(Types.LONGVARBINARY, "byte[]");
+		JAVA_TYPES.put(Types.VARBINARY, "byte[]");
+		JAVA_TYPES.put(Types.BIT, "boolean");
+		JAVA_TYPES.put(Types.BOOLEAN, "boolean");
+		JAVA_TYPES.put(Types.CHAR, "String");
+		JAVA_TYPES.put(Types.VARCHAR, "String");
+		JAVA_TYPES.put(Types.CLOB, "String");
+		JAVA_TYPES.put(Types.LONGVARCHAR, "String");
+		// JAVA_TYPES.put(Types.DATE, "java.sql.Date");
+		JAVA_TYPES.put(Types.DATE, "Date");	// JPA implementation.
+		JAVA_TYPES.put(Types.TIME, "java.sql.Time");
+		// JAVA_TYPES.put(Types.TIMESTAMP, "java.sql.Timestamp");
+		JAVA_TYPES.put(Types.TIMESTAMP, "Date");	// JPA implementation.
+		JAVA_TYPES.put(Types.DECIMAL, "double");
+		JAVA_TYPES.put(Types.DOUBLE, "double");
+		JAVA_TYPES.put(Types.NUMERIC, "double");
+		JAVA_TYPES.put(Types.REAL, "double");
+		JAVA_TYPES.put(Types.FLOAT, "float");
+		JAVA_TYPES.put(Types.INTEGER, JAVA_TYPE_INTEGER);
+		JAVA_TYPES.put(Types.SMALLINT, JAVA_TYPE_SMALLINT);
+		JAVA_TYPES.put(Types.TINYINT, JAVA_TYPE_SMALLINT);
+		JAVA_TYPES.put(Types.ARRAY, "Object[]");
+		JAVA_TYPES.put(Types.DISTINCT, "java.util.Map");
+		JAVA_TYPES.put(Types.JAVA_OBJECT, "Object");
+		JAVA_TYPES.put(Types.NULL, "Object");
+		JAVA_TYPES.put(Types.OTHER, "Object");
+		JAVA_TYPES.put(Types.REF, "Object");
+		JAVA_TYPES.put(Types.STRUCT, "Object");
 
 		JDBC_TYPES = new HashMap<Integer, String>();
 
-		JDBC_TYPES.put(java.sql.Types.BIGINT, JDBC_TYPE_LONG);
-		JDBC_TYPES.put(java.sql.Types.BINARY, "BINARY");
-		JDBC_TYPES.put(java.sql.Types.BLOB, "BLOB");
-		JDBC_TYPES.put(java.sql.Types.LONGVARBINARY, "LONGVARBINARY");
-		JDBC_TYPES.put(java.sql.Types.VARBINARY, "VARBINARY");
-		JDBC_TYPES.put(java.sql.Types.BIT, "BIT");
-		JDBC_TYPES.put(java.sql.Types.BOOLEAN, "BOOLEAN");
-		JDBC_TYPES.put(java.sql.Types.CHAR, "CHAR");
-		JDBC_TYPES.put(java.sql.Types.VARCHAR, "VARCHAR");
-		JDBC_TYPES.put(java.sql.Types.CLOB, "CLOB");
-		JDBC_TYPES.put(java.sql.Types.LONGVARCHAR, "LONGVARCHAR");
-		JDBC_TYPES.put(java.sql.Types.DATE, "DATE");
-		JDBC_TYPES.put(java.sql.Types.TIME, "TIME");
-		JDBC_TYPES.put(java.sql.Types.TIMESTAMP, "TIMESTAMP");
-		JDBC_TYPES.put(java.sql.Types.DECIMAL, "DECIMAL");
-		JDBC_TYPES.put(java.sql.Types.DOUBLE, "DOUBLE");
-		JDBC_TYPES.put(java.sql.Types.NUMERIC, "NUMERIC");
-		JDBC_TYPES.put(java.sql.Types.REAL, "REAL");
-		JDBC_TYPES.put(java.sql.Types.FLOAT, "FLOAT");
-		JDBC_TYPES.put(java.sql.Types.INTEGER, JDBC_TYPE_INTEGER);
-		JDBC_TYPES.put(java.sql.Types.SMALLINT, JDBC_TYPE_SMALLINT);
-		JDBC_TYPES.put(java.sql.Types.TINYINT, "TINYINT");
-		JDBC_TYPES.put(java.sql.Types.ARRAY, "ARRAY");
-		JDBC_TYPES.put(java.sql.Types.DISTINCT, "DISTINCT");
-		JDBC_TYPES.put(java.sql.Types.JAVA_OBJECT, "JAVA_OBJECT");
-		JDBC_TYPES.put(java.sql.Types.NULL, "NULL");
-		JDBC_TYPES.put(java.sql.Types.OTHER, "OTHER");
-		JDBC_TYPES.put(java.sql.Types.REF, "REF");
-		JDBC_TYPES.put(java.sql.Types.STRUCT, "STRUCT");
+		JDBC_TYPES.put(Types.BIGINT, JDBC_TYPE_LONG);
+		JDBC_TYPES.put(Types.BINARY, "BINARY");
+		JDBC_TYPES.put(Types.BLOB, "BLOB");
+		JDBC_TYPES.put(Types.LONGVARBINARY, "LONGVARBINARY");
+		JDBC_TYPES.put(Types.VARBINARY, "VARBINARY");
+		JDBC_TYPES.put(Types.BIT, "BIT");
+		JDBC_TYPES.put(Types.BOOLEAN, "BOOLEAN");
+		JDBC_TYPES.put(Types.CHAR, "CHAR");
+		JDBC_TYPES.put(Types.VARCHAR, "VARCHAR");
+		JDBC_TYPES.put(Types.CLOB, "CLOB");
+		JDBC_TYPES.put(Types.LONGVARCHAR, "LONGVARCHAR");
+		JDBC_TYPES.put(Types.DATE, "DATE");
+		JDBC_TYPES.put(Types.TIME, "TIME");
+		JDBC_TYPES.put(Types.TIMESTAMP, "TIMESTAMP");
+		JDBC_TYPES.put(Types.DECIMAL, "DECIMAL");
+		JDBC_TYPES.put(Types.DOUBLE, "DOUBLE");
+		JDBC_TYPES.put(Types.NUMERIC, "NUMERIC");
+		JDBC_TYPES.put(Types.REAL, "REAL");
+		JDBC_TYPES.put(Types.FLOAT, "FLOAT");
+		JDBC_TYPES.put(Types.INTEGER, JDBC_TYPE_INTEGER);
+		JDBC_TYPES.put(Types.SMALLINT, JDBC_TYPE_SMALLINT);
+		JDBC_TYPES.put(Types.TINYINT, "TINYINT");
+		JDBC_TYPES.put(Types.ARRAY, "ARRAY");
+		JDBC_TYPES.put(Types.DISTINCT, "DISTINCT");
+		JDBC_TYPES.put(Types.JAVA_OBJECT, "JAVA_OBJECT");
+		JDBC_TYPES.put(Types.NULL, "NULL");
+		JDBC_TYPES.put(Types.OTHER, "OTHER");
+		JDBC_TYPES.put(Types.REF, "REF");
+		JDBC_TYPES.put(Types.STRUCT, "STRUCT");
 
 		TYPES_REQUIRE_SIZE = new HashMap<Integer, Boolean>();
 
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.BIGINT, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.BINARY, Boolean.TRUE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.BLOB, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.LONGVARBINARY, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.VARBINARY, Boolean.TRUE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.BIT, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.BOOLEAN, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.CHAR, Boolean.TRUE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.VARCHAR, Boolean.TRUE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.CLOB, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.LONGVARCHAR, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.DATE, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.TIME, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.TIMESTAMP, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.DECIMAL, Boolean.TRUE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.DOUBLE, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.NUMERIC, Boolean.TRUE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.REAL, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.FLOAT, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.INTEGER, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.SMALLINT, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.TINYINT, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.ARRAY, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.DISTINCT, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.JAVA_OBJECT, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.NULL, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.OTHER, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.REF, Boolean.FALSE);
-		TYPES_REQUIRE_SIZE.put(java.sql.Types.STRUCT, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.BIGINT, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.BINARY, Boolean.TRUE);
+		TYPES_REQUIRE_SIZE.put(Types.BLOB, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.LONGVARBINARY, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.VARBINARY, Boolean.TRUE);
+		TYPES_REQUIRE_SIZE.put(Types.BIT, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.BOOLEAN, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.CHAR, Boolean.TRUE);
+		TYPES_REQUIRE_SIZE.put(Types.VARCHAR, Boolean.TRUE);
+		TYPES_REQUIRE_SIZE.put(Types.CLOB, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.LONGVARCHAR, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.DATE, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.TIME, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.TIMESTAMP, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.DECIMAL, Boolean.TRUE);
+		TYPES_REQUIRE_SIZE.put(Types.DOUBLE, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.NUMERIC, Boolean.TRUE);
+		TYPES_REQUIRE_SIZE.put(Types.REAL, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.FLOAT, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.INTEGER, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.SMALLINT, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.TINYINT, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.ARRAY, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.DISTINCT, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.JAVA_OBJECT, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.NULL, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.OTHER, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.REF, Boolean.FALSE);
+		TYPES_REQUIRE_SIZE.put(Types.STRUCT, Boolean.FALSE);
 
 		TYPES_REQUIRE_SCALE = new HashMap<Integer, Boolean>();
 
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.BIGINT, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.BINARY, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.BLOB, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.LONGVARBINARY, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.VARBINARY, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.BIT, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.BOOLEAN, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.CHAR, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.VARCHAR, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.CLOB, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.LONGVARCHAR, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.DATE, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.TIME, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.TIMESTAMP, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.DECIMAL, Boolean.TRUE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.DOUBLE, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.NUMERIC, Boolean.TRUE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.REAL, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.FLOAT, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.INTEGER, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.SMALLINT, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.TINYINT, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.ARRAY, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.DISTINCT, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.JAVA_OBJECT, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.NULL, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.OTHER, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.REF, Boolean.FALSE);
-		TYPES_REQUIRE_SCALE.put(java.sql.Types.STRUCT, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.BIGINT, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.BINARY, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.BLOB, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.LONGVARBINARY, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.VARBINARY, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.BIT, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.BOOLEAN, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.CHAR, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.VARCHAR, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.CLOB, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.LONGVARCHAR, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.DATE, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.TIME, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.TIMESTAMP, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.DECIMAL, Boolean.TRUE);
+		TYPES_REQUIRE_SCALE.put(Types.DOUBLE, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.NUMERIC, Boolean.TRUE);
+		TYPES_REQUIRE_SCALE.put(Types.REAL, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.FLOAT, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.INTEGER, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.SMALLINT, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.TINYINT, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.ARRAY, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.DISTINCT, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.JAVA_OBJECT, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.NULL, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.OTHER, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.REF, Boolean.FALSE);
+		TYPES_REQUIRE_SCALE.put(Types.STRUCT, Boolean.FALSE);
 
 		VARIABLE_PREFIXES = new HashMap<Integer, String>();
 
-		VARIABLE_PREFIXES.put(java.sql.Types.BIGINT, PREFIX_LONG);
-		VARIABLE_PREFIXES.put(java.sql.Types.BINARY, PREFIX_OBJECT_REFERENCE);
-		VARIABLE_PREFIXES.put(java.sql.Types.BLOB, PREFIX_OBJECT_REFERENCE);
-		VARIABLE_PREFIXES.put(java.sql.Types.LONGVARBINARY, PREFIX_OBJECT_REFERENCE);
-		VARIABLE_PREFIXES.put(java.sql.Types.VARBINARY, PREFIX_OBJECT_REFERENCE);
-		VARIABLE_PREFIXES.put(java.sql.Types.BIT, PREFIX_BOOLEAN);
-		VARIABLE_PREFIXES.put(java.sql.Types.BOOLEAN, PREFIX_BOOLEAN);
-		VARIABLE_PREFIXES.put(java.sql.Types.CHAR, PREFIX_STRING);
-		VARIABLE_PREFIXES.put(java.sql.Types.VARCHAR, PREFIX_STRING);
-		VARIABLE_PREFIXES.put(java.sql.Types.CLOB, PREFIX_STRING);
-		VARIABLE_PREFIXES.put(java.sql.Types.LONGVARCHAR, PREFIX_STRING);
-		VARIABLE_PREFIXES.put(java.sql.Types.DATE, PREFIX_DATE);
-		VARIABLE_PREFIXES.put(java.sql.Types.TIME, PREFIX_DATE);
-		VARIABLE_PREFIXES.put(java.sql.Types.TIMESTAMP, PREFIX_DATE);
-		VARIABLE_PREFIXES.put(java.sql.Types.DECIMAL, PREFIX_DOUBLE);
-		VARIABLE_PREFIXES.put(java.sql.Types.DOUBLE, PREFIX_DOUBLE);
-		VARIABLE_PREFIXES.put(java.sql.Types.NUMERIC, PREFIX_DOUBLE);
-		VARIABLE_PREFIXES.put(java.sql.Types.REAL, PREFIX_DOUBLE);
-		VARIABLE_PREFIXES.put(java.sql.Types.FLOAT, PREFIX_FLOAT);
-		VARIABLE_PREFIXES.put(java.sql.Types.INTEGER, PREFIX_INTEGER);
-		VARIABLE_PREFIXES.put(java.sql.Types.SMALLINT, PREFIX_SMALLINT);
-		VARIABLE_PREFIXES.put(java.sql.Types.TINYINT, PREFIX_SMALLINT);
-		VARIABLE_PREFIXES.put(java.sql.Types.ARRAY, PREFIX_OBJECT_REFERENCE);
-		VARIABLE_PREFIXES.put(java.sql.Types.DISTINCT, PREFIX_OBJECT_REFERENCE);
-		VARIABLE_PREFIXES.put(java.sql.Types.JAVA_OBJECT, PREFIX_OBJECT_REFERENCE);
-		VARIABLE_PREFIXES.put(java.sql.Types.NULL, PREFIX_OBJECT_REFERENCE);
-		VARIABLE_PREFIXES.put(java.sql.Types.OTHER, PREFIX_OBJECT_REFERENCE);
-		VARIABLE_PREFIXES.put(java.sql.Types.REF, PREFIX_OBJECT_REFERENCE);
-		VARIABLE_PREFIXES.put(java.sql.Types.STRUCT, PREFIX_OBJECT_REFERENCE);
-
-		CHARACTER_ATTRIBUTE = new HashMap<Integer, Boolean>();
-
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.BIGINT, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.BINARY, Boolean.TRUE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.BLOB, Boolean.TRUE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.LONGVARBINARY, Boolean.TRUE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.VARBINARY, Boolean.TRUE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.BIT, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.BOOLEAN, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.CHAR, Boolean.TRUE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.VARCHAR, Boolean.TRUE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.CLOB, Boolean.TRUE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.LONGVARCHAR, Boolean.TRUE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.DATE, Boolean.TRUE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.TIME, Boolean.TRUE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.TIMESTAMP, Boolean.TRUE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.DECIMAL, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.DOUBLE, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.NUMERIC, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.REAL, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.FLOAT, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.INTEGER, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.SMALLINT, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.TINYINT, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.ARRAY, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.DISTINCT, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.JAVA_OBJECT, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.NULL, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.OTHER, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.REF, Boolean.FALSE);
-		CHARACTER_ATTRIBUTE.put(java.sql.Types.STRUCT, Boolean.FALSE);
+		VARIABLE_PREFIXES.put(Types.BIGINT, PREFIX_LONG);
+		VARIABLE_PREFIXES.put(Types.BINARY, PREFIX_OBJECT_REFERENCE);
+		VARIABLE_PREFIXES.put(Types.BLOB, PREFIX_OBJECT_REFERENCE);
+		VARIABLE_PREFIXES.put(Types.LONGVARBINARY, PREFIX_OBJECT_REFERENCE);
+		VARIABLE_PREFIXES.put(Types.VARBINARY, PREFIX_OBJECT_REFERENCE);
+		VARIABLE_PREFIXES.put(Types.BIT, PREFIX_BOOLEAN);
+		VARIABLE_PREFIXES.put(Types.BOOLEAN, PREFIX_BOOLEAN);
+		VARIABLE_PREFIXES.put(Types.CHAR, PREFIX_STRING);
+		VARIABLE_PREFIXES.put(Types.VARCHAR, PREFIX_STRING);
+		VARIABLE_PREFIXES.put(Types.CLOB, PREFIX_STRING);
+		VARIABLE_PREFIXES.put(Types.LONGVARCHAR, PREFIX_STRING);
+		VARIABLE_PREFIXES.put(Types.DATE, PREFIX_DATE);
+		VARIABLE_PREFIXES.put(Types.TIME, PREFIX_DATE);
+		VARIABLE_PREFIXES.put(Types.TIMESTAMP, PREFIX_DATE);
+		VARIABLE_PREFIXES.put(Types.DECIMAL, PREFIX_DOUBLE);
+		VARIABLE_PREFIXES.put(Types.DOUBLE, PREFIX_DOUBLE);
+		VARIABLE_PREFIXES.put(Types.NUMERIC, PREFIX_DOUBLE);
+		VARIABLE_PREFIXES.put(Types.REAL, PREFIX_DOUBLE);
+		VARIABLE_PREFIXES.put(Types.FLOAT, PREFIX_FLOAT);
+		VARIABLE_PREFIXES.put(Types.INTEGER, PREFIX_INTEGER);
+		VARIABLE_PREFIXES.put(Types.SMALLINT, PREFIX_SMALLINT);
+		VARIABLE_PREFIXES.put(Types.TINYINT, PREFIX_SMALLINT);
+		VARIABLE_PREFIXES.put(Types.ARRAY, PREFIX_OBJECT_REFERENCE);
+		VARIABLE_PREFIXES.put(Types.DISTINCT, PREFIX_OBJECT_REFERENCE);
+		VARIABLE_PREFIXES.put(Types.JAVA_OBJECT, PREFIX_OBJECT_REFERENCE);
+		VARIABLE_PREFIXES.put(Types.NULL, PREFIX_OBJECT_REFERENCE);
+		VARIABLE_PREFIXES.put(Types.OTHER, PREFIX_OBJECT_REFERENCE);
+		VARIABLE_PREFIXES.put(Types.REF, PREFIX_OBJECT_REFERENCE);
+		VARIABLE_PREFIXES.put(Types.STRUCT, PREFIX_OBJECT_REFERENCE);
 	}
 
 	/******************************************************************************
@@ -341,7 +311,7 @@ public abstract class BaseJDBC extends Base
 	/** Helper method - gets the SQL type as an <I>Integer</I> for use as a key in a
 	    <I>Map</I>. Also converts DECIMAL and NUMERIC types without decimal digits to
 	    the appropriate integer type. The return value is derived from the constants
-	    in <I>java.sql.Types</I>.
+	    in <I>Types</I>.
 	    	@param column A table column object.
 	*/
 	public Integer getSQLType(Columns.Record column)
@@ -350,17 +320,17 @@ public abstract class BaseJDBC extends Base
 		int decimalDigits = column.getDecimalDigits();
 		int size = column.getSize();
 
-		if (!(((java.sql.Types.DECIMAL == dataType) ||
-		       (java.sql.Types.NUMERIC == dataType)) &&
+		if (!(((Types.DECIMAL == dataType) ||
+		       (Types.NUMERIC == dataType)) &&
 		      (0 == decimalDigits)))
 			return dataType;
 
 		if (6 > size)
-			return java.sql.Types.SMALLINT;
+			return Types.SMALLINT;
 		else if (11 > size)
-			return java.sql.Types.INTEGER;
+			return Types.INTEGER;
 
-		return java.sql.Types.BIGINT;
+		return Types.BIGINT;
 	}
 
 	/** Helper method - gets JDBC method suffix used by JDBC <I>ResultSet</I> "getters" and
@@ -426,17 +396,7 @@ public abstract class BaseJDBC extends Base
 	/** Accessor method - gets the character attribute of the column. */
 	public boolean isCharacter(Columns.Record column)
 	{
-		int sqlType = getSQLType(column);
-		try
-		{
-			return CHARACTER_ATTRIBUTE.get(sqlType);
-		}
-		catch (NullPointerException ex)
-		{
-			System.out.println("Invalid SQL Type (" + sqlType + ")");
-			ex.printStackTrace();
-			return false;
-		}
+		return CHARACTER_ATTRIBUTE.contains(getSQLType(column));
 	}
 
 	/** Accessor method - gets the String attribute of the column. */
