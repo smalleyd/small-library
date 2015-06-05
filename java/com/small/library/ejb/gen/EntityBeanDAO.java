@@ -142,8 +142,6 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("import java.util.*;");
 		writeLine("import java.util.stream.Collectors;");
 		writeLine();
-		writeLine("import javax.persistence.*;");
-		writeLine();
 		writeLine("import org.apache.commons.lang3.StringUtils;");
 		writeLine("import org.hibernate.*;");
 		writeLine("import org.hibernate.criterion.*;");
