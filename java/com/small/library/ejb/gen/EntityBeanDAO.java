@@ -179,7 +179,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("{");
 		writeLine("public " + name + "(SessionFactory factory)", 1);
 		writeLine("{", 1);
-		writeLine("super(factory)", 2);
+		writeLine("super(factory);", 2);
 		writeLine("}", 1);
 		writeLine();
 	}
@@ -301,7 +301,7 @@ public class EntityBeanDAO extends EntityBeanBase
 			writeLine(".setFirstResult(value.retrieveFirstResult())", 3);
 			writeLine(".setMaxResults(value.getPages());", 3);
 			writeLine();
-			writeLine("return value.withRecords(list(criteria.addOrder(Order.desc(\"id\"))).stream(o -> toValue(o)).collect(Collectors.toList()));", 2);
+			writeLine("return value.withRecords(list(criteria.addOrder(Order.desc(\"id\"))).stream().map(o -> toValue(o)).collect(Collectors.toList()));", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("/** Counts the number of " + name + " entities based on the supplied filter.", 1);
