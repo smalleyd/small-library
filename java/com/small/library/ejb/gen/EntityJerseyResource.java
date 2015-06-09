@@ -222,8 +222,8 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine();
 		writeLine("@GET", 1);
 		writeLine("@Timed @UnitOfWork(readOnly=true, transactional=false)", 1);
-		writeLine("@ApiOperation(value=\"find\", notes=\"Finds " + name + " by wildcard name search.\", response=NameValue.class, responseContainer=\"List\" position=5)", 1);
-		writeLine("public List<NameValue> find(@QueryParam(\"name\") @ApiParam(name=\"name\" value=\"Value for the wildcard search\") String name)", 1);
+		writeLine("@ApiOperation(value=\"find\", notes=\"Finds " + name + " by wildcard name search.\", response=NameValue.class, responseContainer=\"List\", position=5)", 1);
+		writeLine("public List<NameValue> find(@QueryParam(\"name\") @ApiParam(name=\"name\", value=\"Value for the wildcard search\") String name)", 1);
 		writeLine("{", 1);
 			writeLine("return dao.getByIdOrName(name);", 2);
 		writeLine("}", 1);
@@ -239,7 +239,7 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine("@PUT", 1);
 		writeLine("@Timed @UnitOfWork", 1);
 		writeLine("@ApiOperation(value=\"set\", notes=\"Updates an existing single " + name + ". Returns the supplied client value with the auto generated identifier populated.\", response=" + getValueObjectName() + ".class, position=20)", 1);
-		writeLine("public " + getValueObjectName() + " set(@RequestBody " + getValueObjectName() + " value) throws ValidationException", 1);
+		writeLine("public " + getValueObjectName() + " set(" + getValueObjectName() + " value) throws ValidationException", 1);
 		writeLine("{", 1);
 			writeLine("return dao.update(value);", 2);
 		writeLine("}", 1);
@@ -249,7 +249,7 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine("@ApiOperation(value=\"remove\", notes=\"Removes/deactivates a single " + name + " by its primary key.\", response=" + getValueObjectName() + ".class, position=30)", 1);
 		writeLine("public OperationResponse remove(@PathParam(\"id\") " + primaryKeyType + " id) throws ValidationException", 1);
 		writeLine("{", 1);
-			writeLine("new OperationResponse(dao.remove(id));", 2);
+			writeLine("return new OperationResponse(dao.remove(id));", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("@POST", 1);
