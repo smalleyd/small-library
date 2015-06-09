@@ -157,7 +157,7 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");
-		writeLine("*\tJersey RESTful resource that provides access to the " + getObjectName() + " Service.");
+		writeLine("*\tJersey RESTful resource that provides access to the " + getObjectName() + "DAO.");
 		writeLine("*");
 		writeLine("*\t@author " + getAuthor());
 		writeLine("*\t@version " + getVersion());
@@ -175,7 +175,7 @@ public class EntityJerseyResource extends EntityBeanBase
 		String mapping = fromObjectNameToMemberName(name) + "s";
 		
 		writeLine();
-		writeLine("@Path(\"" + mapping + "\")");
+		writeLine("@Path(\"/" + mapping + "\")");
 		writeLine("@Consumes(UTF8MediaType.APPLICATION_JSON)");
 		writeLine("@Produces(UTF8MediaType.APPLICATION_JSON)");
 		writeLine("@Api(value=\"" + name.toLowerCase() + "\", description=\"Provides access to the " + name + " entity.\", position=1)");
