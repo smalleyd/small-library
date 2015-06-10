@@ -297,7 +297,7 @@ public class EntityBeanDAO extends EntityBeanBase
 			writeLine("criteria.setProjection(null)", 2);
 			writeLine(".setResultTransformer(Criteria.ROOT_ENTITY)", 3);
 			writeLine(".setFirstResult(value.retrieveFirstResult())", 3);
-			writeLine(".setMaxResults(value.getPages());", 3);
+			writeLine(".setMaxResults(value.getPageSize());", 3);
 			writeLine();
 			writeLine("return value.withRecords(list(criteria.addOrder(Order.desc(\"id\"))).stream().map(o -> toValue(o)).collect(Collectors.toList()));", 2);
 		writeLine("}", 1);
