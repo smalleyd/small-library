@@ -167,10 +167,10 @@ public class EntityBeanFilter extends EntityBeanBase
 		// Write member variables.
 		for (ColumnInfo i : m_ColumnInfo)
 		{
-			// Integer and date fields filter by range so need a "lower boundary" property and an "upper boundary" property.
-			if (i.isImportedKey || i.isPartOfPrimaryKey || i.isBoolean || i.isString)
-				writeMethod(i);
-			else
+			writeMethod(i);
+
+			// Integer and date fields filter by range so need an additional "lower boundary" property and an "upper boundary" property.
+			if (!(i.isImportedKey || i.isPartOfPrimaryKey || i.isBoolean || i.isString))
 			{
 				writeMethod(i, "From", "lower boundary");
 				writeMethod(i, "To", "upper boundary");
@@ -237,10 +237,10 @@ public class EntityBeanFilter extends EntityBeanBase
 		// Create the parameter comments.
 		for (ColumnInfo i : m_ColumnInfo)
 		{
-			// Integer and date fields filter by range so need a "lower boundary" property and an "upper boundary" property.
-			if (i.isImportedKey || i.isPartOfPrimaryKey || i.isBoolean || i.isString)
-				writeLine("\t\t@param " + i.memberVariableName + " represents the \"" + i.columnName + "\" field.");
-			else
+			writeLine("\t\t@param " + i.memberVariableName + " represents the \"" + i.columnName + "\" field.");
+
+			// Integer and date fields filter by range so need an additional "lower boundary" property and an "upper boundary" property.
+			if (!(i.isImportedKey || i.isPartOfPrimaryKey || i.isBoolean || i.isString))
 			{
 				writeLine("\t\t@param " + i.memberVariableName + "From represents the \"" + i.columnName + "\" field - lower boundary.");
 				writeLine("\t\t@param " + i.memberVariableName + "To represents the \"" + i.columnName + "\" field - upper boundary.");
@@ -262,11 +262,12 @@ public class EntityBeanFilter extends EntityBeanBase
 			if (item.isPrimitive)
 				type = fromPrimitiveToObject(item.javaType);
 
-			// Integer and date fields filter by range so need a "lower boundary" property and an "upper boundary" property.
-			if (item.isImportedKey || item.isPartOfPrimaryKey || item.isBoolean || item.isString)
-				write(type + " " + item.memberVariableName);
-			else
+			write(type + " " + item.memberVariableName);
+
+			// Integer and date fields filter by range so need an additional "lower boundary" property and an "upper boundary" property.
+			if (!(item.isImportedKey || item.isPartOfPrimaryKey || item.isBoolean || item.isString))
 			{
+				writeLine(",");
 				writeLine(type + " " + item.memberVariableName + "From,");
 				write(type + " " + item.memberVariableName + "To", 2);
 			}
@@ -278,13 +279,13 @@ public class EntityBeanFilter extends EntityBeanBase
 		}
 
 		// Write body.
-		writeLine("\t{");
+		writeLine("{", 1);
 		for (ColumnInfo i : m_ColumnInfo)
 		{
-			// Integer and date fields filter by range so need a "lower boundary" property and an "upper boundary" property.
-			if (i.isImportedKey || i.isPartOfPrimaryKey || i.isBoolean || i.isString)
-				writeLine("this." + i.memberVariableName + " = " + i.memberVariableName + ";", 2);
-			else
+			writeLine("this." + i.memberVariableName + " = " + i.memberVariableName + ";", 2);
+
+			// Integer and date fields filter by range so need an additional "lower boundary" property and an "upper boundary" property.
+			if (!(i.isImportedKey || i.isPartOfPrimaryKey || i.isBoolean || i.isString))
 			{
 				writeLine("this." + i.memberVariableName + "From = " + i.memberVariableName + "From;", 2);
 				writeLine("this." + i.memberVariableName + "To = " + i.memberVariableName + "To;", 2);
