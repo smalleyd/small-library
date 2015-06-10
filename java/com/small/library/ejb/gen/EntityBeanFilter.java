@@ -258,13 +258,17 @@ public class EntityBeanFilter extends EntityBeanBase
 			if (0 < i)
 				write("\t\t");
 
+			String type = item.javaType;
+			if (item.isPrimitive)
+				type = fromPrimitiveToObject(item.javaType);
+
 			// Integer and date fields filter by range so need a "lower boundary" property and an "upper boundary" property.
 			if (item.isImportedKey || item.isPartOfPrimaryKey || item.isBoolean || item.isString)
-				write(item.javaType + " " + item.memberVariableName);
+				write(type + " " + item.memberVariableName);
 			else
 			{
-				writeLine(item.javaType + " " + item.memberVariableName + "From,");
-				write(item.javaType + " " + item.memberVariableName + "To", 2);
+				writeLine(type + " " + item.memberVariableName + "From,");
+				write(type + " " + item.memberVariableName + "To", 2);
 			}
 
 			if (last == i)
