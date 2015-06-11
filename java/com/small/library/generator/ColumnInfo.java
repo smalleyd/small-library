@@ -114,4 +114,10 @@ public class ColumnInfo
 	    foreign key.
 	*/
 	public String importedObjectName;
+
+	/** Indicates that the field is numeric or date that can be searched by range. */
+	public boolean isRange()
+	{
+		return !(isImportedKey || isPartOfPrimaryKey || isBoolean || isString);		
+	}
 }

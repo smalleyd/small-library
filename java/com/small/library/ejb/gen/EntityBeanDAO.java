@@ -328,17 +328,19 @@ public class EntityBeanDAO extends EntityBeanBase
 			writeLine();
 			for (ColumnInfo info : m_ColumnInfo)
 			{
-				if (info.isImportedKey || info.isPartOfPrimaryKey || info.isBoolean)
-				{
-					writeLine("if (null != filter." + info.accessorMethodName + "())", 2);
-					writeLine("criteria.add(Restrictions.eq(\"" + info.memberVariableName + "\", filter." + info.accessorMethodName + "()));", 3);
-				}
-				else if (info.isString)
+				if (info.isString)
 				{
 					writeLine("if (null != filter." + info.accessorMethodName + "())", 2);
 					writeLine("criteria.add(Restrictions.like(\"" + info.memberVariableName + "\", filter." + info.accessorMethodName + "(), MatchMode.START));", 3);
 				}
 				else
+				{
+					writeLine("if (null != filter." + info.accessorMethodName + "())", 2);
+					writeLine("criteria.add(Restrictions.eq(\"" + info.memberVariableName + "\", filter." + info.accessorMethodName + "()));", 3);
+				}
+
+				// For values that have ranges, also add greater-than (>=) and less-than (<=) searches. DLS on 6/11/2015.
+				if (info.isRange())
 				{
 					writeLine("if (null != filter." + info.accessorMethodName + "From())", 2);
 					writeLine("criteria.add(Restrictions.ge(\"" + info.memberVariableName + "\", filter." + info.accessorMethodName + "From()));", 3);
