@@ -92,6 +92,7 @@ public class EntityBeanFilter extends EntityBeanBase
 
 		writeMemberVariables();
 		writeConstructors();
+		writeToString();
 
 		writeFooter();
 	}
@@ -291,6 +292,30 @@ public class EntityBeanFilter extends EntityBeanBase
 				writeLine("this." + i.memberVariableName + "To = " + i.memberVariableName + "To;", 2);
 			}
 		}
+		writeLine("}", 1);
+	}
+
+	/** Output method - writes the <CODE>constructors</CODE>. */
+	private void writeToString() throws IOException
+	{
+		// Start section.
+		writeLine();
+		writeLine("/**************************************************************************", 1);
+		writeLine("*", 1);
+		writeLine("*\tObject methods", 1);
+		writeLine("*", 1);
+		writeLine("**************************************************************************/", 1);
+
+		// Write the toString method. */
+		ColumnInfo item = m_ColumnInfo[0];
+		writeLine();
+		writeLine("@Override", 1);
+		writeLine("public String toString()", 1);
+		writeLine("{", 1);
+		writeLine("return new StringBuilder(\"{ " + item.memberVariableName + ": \").append(" + item.memberVariableName + ")", 2);
+		for (int i = 1; i < m_ColumnInfo.length; i++)
+			writeLine(".append(\", " + (item = m_ColumnInfo[i]).memberVariableName + ": \").append(" + item.memberVariableName + ")", 3);
+		writeLine(".append(\" }\").toString();", 3);
 		writeLine("}", 1);
 	}
 
