@@ -117,9 +117,9 @@ public abstract class BaseJDBC extends Base
 		JAVA_TYPES.put(Types.TIME, "java.sql.Time");
 		// JAVA_TYPES.put(Types.TIMESTAMP, "java.sql.Timestamp");
 		JAVA_TYPES.put(Types.TIMESTAMP, "Date");	// JPA implementation.
-		JAVA_TYPES.put(Types.DECIMAL, "double");
+		JAVA_TYPES.put(Types.DECIMAL, "BigDecimal");
 		JAVA_TYPES.put(Types.DOUBLE, "double");
-		JAVA_TYPES.put(Types.NUMERIC, "double");
+		JAVA_TYPES.put(Types.NUMERIC, "BigDecimal");
 		JAVA_TYPES.put(Types.REAL, "double");
 		JAVA_TYPES.put(Types.FLOAT, "float");
 		JAVA_TYPES.put(Types.INTEGER, JAVA_TYPE_INTEGER);

@@ -135,6 +135,7 @@ public class EntityBeanFilter extends EntityBeanBase
 			writeLine();
 		}
 
+		writeLine("import java.math.BigDecimal;");
 		writeLine("import java.util.Date;");
 		writeLine();
 		writeLine("/********************************************************************************************************************");

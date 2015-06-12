@@ -166,6 +166,7 @@ public class EntityBeanCMP3 extends EntityBeanBase
 		}
 
 		writeLine("import java.io.Serializable;");
+		writeLine("import java.math.BigDecimal;");
 		writeLine("import java.util.Date;");
 		// writeLine("import java.util.List;"); // NOT needed for now.
 		writeLine();
