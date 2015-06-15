@@ -168,9 +168,12 @@ public class EntityBeanCMP3 extends EntityBeanBase
 		writeLine("import java.io.Serializable;");
 		writeLine("import java.math.BigDecimal;");
 		writeLine("import java.util.Date;");
-		// writeLine("import java.util.List;"); // NOT needed for now.
 		writeLine();
 		writeLine("import javax.persistence.*;");
+		writeLine();
+		writeLine("import org.hibernate.annotations.Cache;");
+		writeLine("import org.hibernate.annotations.CacheConcurrencyStrategy;");
+		writeLine("import org.hibernate.annotations.DynamicUpdate;");
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");
@@ -188,7 +191,10 @@ public class EntityBeanCMP3 extends EntityBeanBase
 	{
 		writeLine();
 		writeLine("@Entity");
+		writeLine("@Cacheable");
+		writeLine("@DynamicUpdate");
 		writeLine("@Table(name=\"" + getTable().getName() + "\")");
+		writeLine("@Cache(usage=CacheConcurrencyStrategy.READ_WRITE, region=\"" + getTable().getName() + "\")");
 		writeLine("public class " + getClassName() + " implements Serializable");
 		writeLine("{");
 		writeLine("\t/** Constant - serial version UID. */");
@@ -351,11 +357,11 @@ public class EntityBeanCMP3 extends EntityBeanBase
 	{
 		// Start the section.
 		writeLine();
-		writeLine("\t/**************************************************************************");
-		writeLine("\t*");
-		writeLine("\t*\tAccessor methods - Imported foreign keys");
-		writeLine("\t*");
-		writeLine("\t**************************************************************************/");
+		writeLine("/**************************************************************************", 1);
+		writeLine("*", 1);
+		writeLine("*\tAccessor methods - Imported foreign keys", 1);
+		writeLine("*", 1);
+		writeLine("**************************************************************************/", 1);
 
 		// Write accessors.
 		for (int i = 0; i < m_ColumnInfo.length; i++)
@@ -370,24 +376,19 @@ public class EntityBeanCMP3 extends EntityBeanBase
 			String objectName = columnInfo.importedObjectName;
 
 			writeLine();
-			writeLine("\t/** CMR member - the " + name + " property as a \"" +
-				objectName + "\" entity. */");
-			writeLine("\tpublic " + objectName + " " + memberName + ";");
+			writeLine("/** CMR member - the " + name + " property as a \"" + objectName + "\" entity. */", 1);
+			writeLine("public " + objectName + " " + memberName + ";", 1);
 			writeLine();
-			writeLine("\t/** CMR accessor - gets the " + name + " property as a");
-			writeLine("\t    \"" + objectName + "\" entity.");
-			writeLine("\t*/");
-			writeLine("\t@ManyToOne(cascade={}, fetch=FetchType.LAZY)");
-			writeLine("\t@JoinColumn(name=\"" + columnInfo.columnName + "\", " +
+			writeLine("/** CMR accessor - gets the " + name + " property as a " + objectName + "\" entity. */", 1);
+			writeLine("@ManyToOne(cascade={}, fetch=FetchType.LAZY)", 1);
+			writeLine("@JoinColumn(name=\"" + columnInfo.columnName + "\", " +
 				"nullable=" + Boolean.toString(columnInfo.isNullable) +
-				", updatable=false, insertable=false)");
-			write("\tpublic " + objectName + " get" + name + "()");
+				", updatable=false, insertable=false)", 1);
+			write("public " + objectName + " get" + name + "()", 1);
 			writeLine(" { return " + memberName + "; }");
 			writeLine();
-			writeLine("\t/** CMR mutator - sets the " + name + " property as a");
-			writeLine("\t    \"" + objectName + "\" entity.");
-			writeLine("\t*/");
-			write("\tpublic void set" + name + "(" + objectName + " newValue)");
+			writeLine("/** CMR mutator - sets the " + name + " property as a " + objectName + "\" entity. */", 1);
+			write("public void set" + name + "(" + objectName + " newValue)", 1);
 			writeLine(" { " + memberName + " = newValue; }");
 		}
 	}
