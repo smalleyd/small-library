@@ -310,7 +310,7 @@ public class EntityBeanCMP3 extends EntityBeanBase
 				write("\t@Id");
 
 				if (item.isAutoIncrementing)
-					writeLine(" @GeneratedValue(strategy=GenerationType.AUTO)");
+					writeLine(" @GeneratedValue(strategy=GenerationType.IDENTITY)");
 				else
 					writeLine();
 			}
