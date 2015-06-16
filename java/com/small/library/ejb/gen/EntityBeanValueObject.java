@@ -138,6 +138,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 		}
 
 		writeLine("import java.io.Serializable;");
+		writeLine("import java.math.BigDecimal;");
 		writeLine("import java.util.Date;");
 		writeLine();
 		writeLine("/**********************************************************************************");
