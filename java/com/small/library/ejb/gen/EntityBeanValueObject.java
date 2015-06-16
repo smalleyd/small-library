@@ -68,11 +68,12 @@ public class EntityBeanValueObject extends EntityBeanBase
 		@param strAuthor Name of the author.
 		@param pTable A table record object to base the output on.
 		@param strPackageName Package name of the wrapper class.
+		@param version Represents the application version number.
 	*/
 	public EntityBeanValueObject(PrintWriter pWriter,
-		String strAuthor, Tables.Record pTable, String strPackageName)
+		String strAuthor, Tables.Record pTable, String strPackageName, String version)
 	{
-		super(pWriter, strAuthor, pTable, strPackageName);
+		super(pWriter, strAuthor, pTable, strPackageName, version);
 	}
 
 	/******************************************************************************
@@ -144,7 +145,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("*\tValue object class that represents the " + getTable().getName() + " table.");
 		writeLine("*");
 		writeLine("*\t@author " + getAuthor());
-		writeLine("*\t@version 1.0.1");
+		writeLine("*\t@version " + getVersion());
 		writeLine("*\t@since " + getDateString());
 		writeLine("*");
 		writeLine("**********************************************************************************/");
@@ -326,16 +327,17 @@ public class EntityBeanValueObject extends EntityBeanBase
 			String memberName = columnInfo.importedKeyMemberName;
 
 			writeLine();
-			writeLine("\t/** CMR member - " + name + " name. */");
-			writeLine("\tpublic String " + memberName + "Name = null;");
+			writeLine("/** CMR member - " + name + " name. */", 1);
+			writeLine("public String " + memberName + "Name = null;", 1);
 			writeLine();
-			writeLine("\t/** CMR accessor - " + name + " name. */");
-			write("\tpublic String get" + name + "Name()");
+			writeLine("/** CMR accessor - " + name + " name. */", 1);
+			write("public String get" + name + "Name()", 1);
 			writeLine(" { return " + memberName + "Name; }");
 			writeLine();
-			writeLine("\t/** CMR mutator - " + name + " name. */");
-			write("\tpublic void set" + name + "Name(String newValue)");
-			writeLine(" { " + memberName + "Name = newValue; } ");
+			writeLine("/** CMR mutator - " + name + " name. */", 1);
+			write("public void set" + name + "Name(String newValue)", 1);
+			writeLine(" { " + memberName + "Name = newValue; }");
+			writeLine("public " + getClassName() + " with" + name + "Name(String newValue) { " + memberName + "Name = newValue; return this; }", 1);
 		}
 	}
 
@@ -389,15 +391,16 @@ public class EntityBeanValueObject extends EntityBeanBase
 			File fileOutputDir = extractOutputDirectory(strArgs, 0);
 			String strAuthor = extractAuthor(strArgs, 5);
 			String strPackageName = extractArgument(strArgs, 6, null);
+			String version = extractArgument(strArgs, 7, null);
 
 			// Create and load the tables object.
-			Tables pTables = extractTables(strArgs, 1, 7);
+			Tables pTables = extractTables(strArgs, 1, 8);
 			pTables.load();
 
 			// Create the SQL Repository Item Descriptor generator.
 			EntityBeanValueObject pGenerator =
 				new EntityBeanValueObject((PrintWriter) null, strAuthor,
-				(Tables.Record) null, strPackageName);
+				(Tables.Record) null, strPackageName, version);
 
 			// Call the BaseTable method to handle the outputing.
 			generateTableResources(pGenerator, pTables, fileOutputDir);
