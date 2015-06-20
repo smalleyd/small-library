@@ -251,7 +251,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("{", 1);
 		writeLine(name + " record = get(id);", 2);
 		writeLine("if (null == record)", 2);
-			writeLine("throw new ValidationException(\"id\", \"Could not find " + name + " because id '\" + id + \"' is invalid.\");", 3);
+			writeLine("throw new ValidationException(\"id\", \"Could not find the " + name + " because id '\" + id + \"' is invalid.\");", 3);
 		writeLine();
 		writeLine("return record;", 2);
 		writeLine("}", 1);
