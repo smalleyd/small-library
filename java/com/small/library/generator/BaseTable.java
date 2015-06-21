@@ -179,8 +179,8 @@ public abstract class BaseTable extends BaseJDBC
 	/** Helper method - gets the accessor method name for a column. */
 	public String getAccessorMethodName(ColumnInfo value)
 	{
-		if (value.columnName.startsWith("is_") && (3 < value.columnName.length()))
-			return PREFIX_ACCESSOR_METHOD_BOOL + value.name.substring(2);
+		if (value.isBoolean)
+			return PREFIX_ACCESSOR_METHOD_BOOL + value.name;
 
 		return PREFIX_ACCESSOR_METHOD + value.name;
 	}
