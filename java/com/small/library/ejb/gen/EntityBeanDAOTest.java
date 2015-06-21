@@ -249,7 +249,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 
 		writeLine();
 		writeLine("/** Helper method - checks an expected value against a supplied value object. */", 1);
-		writeLine("private void check(" + valueName + " expected, " + name + " value)", 1);
+		writeLine("private void check(" + valueName + " expected, " + valueName + " value)", 1);
 		writeLine("{", 1);
 		for (ColumnInfo i : m_ColumnInfo)
 			writeLine("Assert.assertEquals(\"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), value." + i.accessorMethodName + "());", 2);
