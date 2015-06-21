@@ -139,9 +139,6 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		}
 
 		String name = getObjectName();
-		writeLine("import java.util.*;");
-		writeLine("import java.util.stream.Collectors;");
-		writeLine();
 		writeLine("import org.hibernate.SessionFactory;");
 		writeLine("import org.junit.*;");
 		writeLine("import org.junit.runners.MethodSorters;");
@@ -169,6 +166,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 	{
 		String name = getClassName();
 		String daoName = EntityBeanDAO.getClassName(getObjectName());
+		String valueName = EntityBeanValueObject.getClassName(getObjectName());
 
 		writeLine();
 		writeLine("@FixMethodOrder(MethodSorters.NAME_ASCENDING)	// Ensure that the methods are executed in order listed.");
@@ -181,6 +179,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("public final HibernateTransactionRule transRule = new HibernateTransactionRule(DAO_RULE);", 1);
 		writeLine();
 		writeLine("private static " + daoName + " dao = null;", 1);
+		writeLine("private static " + valueName + " VALUE = null;", 1);
 		writeLine();
 		writeLine("@BeforeClass", 1);
 		writeLine("public static void up()", 1);
@@ -194,6 +193,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 	private void writeMethods() throws IOException
 	{
 		String name = getObjectName();
+		String filterName = EntityBeanFilter.getClassName(name);
 		String valueName = EntityBeanValueObject.getClassName(name);
 
 		writeLine();
@@ -211,8 +211,36 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
+		writeLine("@Test(expected=ValidationException.class)", 1);
+		writeLine("public void findWithException()", 1);
+		writeLine("{", 1);
+		writeLine("// TODO: provide implementation.", 2);
+		writeLine("}", 1);
+
+		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void get()", 1);
+		writeLine("{", 1);
+		writeLine("// TODO: provide implementation.", 2);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("@Test(expected=ValidationException.class)", 1);
+		writeLine("public void getWithException()", 1);
+		writeLine("{", 1);
+		writeLine("// TODO: provide implementation.", 2);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("@Test", 1);
+		writeLine("public void modify()", 1);
+		writeLine("{", 1);
+		writeLine("// TODO: provide implementation.", 2);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("@Test", 1);
+		writeLine("public void modify_find()", 1);
 		writeLine("{", 1);
 		writeLine("// TODO: provide implementation.", 2);
 		writeLine("}", 1);
@@ -221,7 +249,29 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void search()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		for (ColumnInfo i : m_ColumnInfo)
+		{
+			writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.accessorMethodName + "()), 1L);", 2);
+			if (i.isRange())
+			{
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.accessorMethodName + "()), 1L);", 2);
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.accessorMethodName + "()), 1L);", 2);
+			}
+		}
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("/** Helper method: performs the search and checks the counts. */", 1);
+		writeLine("private void search(" + filterName + " filter, long expectedTotal)", 1);
+		writeLine("{", 1);
+		writeLine("QueryResults<" + valueName + ", " + filterName + "> results = dao.search(filter);", 2);
+		writeLine("String assertId = \"SEARCH \" + filter + \": \";", 2);
+		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
+		writeLine("Assert.assertEquals(assertId + \"Check total\", expectedTotal, results.getTotal());", 2);
+		writeLine("if (0L == expectedTotal)", 2);
+		writeLine("Assert.assertNull(assertId + \"Records exist\", results.getRecords());", 3);
+		writeLine("else", 2);
+		writeLine("Assert.assertNotNull(assertId + \"Records exists\", results.getRecords());", 3);
 		writeLine("}", 1);
 
 		writeLine();
@@ -233,8 +283,17 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
+		writeLine("/** Test removal after the search. */", 1);
+		writeLine("@Test(expected=ValidationException.class)", 1);
+		writeLine("public void testRemove_find()", 1);
+		writeLine("{", 1);
+		writeLine("// TODO: provide implementation.", 2);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("/** Test removal after the search. */", 1);
 		writeLine("@Test", 1);
-		writeLine("public void update()", 1);
+		writeLine("public void testRemove_search()", 1);
 		writeLine("{", 1);
 		writeLine("// TODO: provide implementation.", 2);
 		writeLine("}", 1);
@@ -243,16 +302,18 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("/** Helper method - checks an expected value against a supplied entity record. */", 1);
 		writeLine("private void check(" + valueName + " expected, " + name + " record)", 1);
 		writeLine("{", 1);
+		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
-			writeLine("Assert.assertEquals(\"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), record." + i.accessorMethodName + "());", 2);
+			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), record." + i.accessorMethodName + "());", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("/** Helper method - checks an expected value against a supplied value object. */", 1);
 		writeLine("private void check(" + valueName + " expected, " + valueName + " value)", 1);
 		writeLine("{", 1);
+		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
-			writeLine("Assert.assertEquals(\"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), value." + i.accessorMethodName + "());", 2);
+			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), value." + i.accessorMethodName + "());", 2);
 		writeLine("}", 1);
 	}
 
