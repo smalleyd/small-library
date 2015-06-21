@@ -232,6 +232,14 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine("\t/** Default/empty. */");
 		writeLine("\tpublic " + getClassName() + "() {}");
 
+		// Write constructor with paging values.
+		writeLine();
+		writeLine("/** Populator.", 1);
+		writeLine("@param page", 2);
+		writeLine("@param pageSize", 2);
+		writeLine("*/", 1);
+		writeLine("public " + getClassName() + "(int page, int pageSize) { super(page, pageSize); }", 1);
+
 		// Write constructor with all possible values.
 		writeLine();
 		writeLine("\t/** Populator.");
