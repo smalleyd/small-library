@@ -249,16 +249,18 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("/** Helper method - checks an expected value against a supplied entity record. */", 1);
 		writeLine("private void check(" + valueName + " expected, " + name + " record)", 1);
 		writeLine("{", 1);
+		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
-			writeLine("Assert.assertEquals(\"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), record." + i.accessorMethodName + "());", 2);
+			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), record." + i.accessorMethodName + "());", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("/** Helper method - checks an expected value against a supplied value object. */", 1);
 		writeLine("private void check(" + valueName + " expected, " + valueName + " value)", 1);
 		writeLine("{", 1);
+		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
-			writeLine("Assert.assertEquals(\"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), value." + i.accessorMethodName + "());", 2);
+			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), value." + i.accessorMethodName + "());", 2);
 		writeLine("}", 1);
 	}
 
