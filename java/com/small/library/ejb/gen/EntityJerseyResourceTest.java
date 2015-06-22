@@ -200,6 +200,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 	private void writeMethods() throws IOException
 	{
 		String name = getObjectName();
+		String filterName = EntityBeanFilter.getClassName(name);
 		String valueName = EntityBeanValueObject.getClassName(name);
 
 		writeLine();
@@ -224,6 +225,20 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
+		writeLine("@Test(expected=ValidationException.class)", 1);
+		writeLine("public void getWithException()", 1);
+		writeLine("{", 1);
+		writeLine("// TODO: provide implementation.", 2);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("@Test", 1);
+		writeLine("public void modify()", 1);
+		writeLine("{", 1);
+		writeLine("// TODO: provide implementation.", 2);
+		writeLine("}", 1);
+
+		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void search()", 1);
 		writeLine("{", 1);
@@ -239,8 +254,15 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
+		writeLine("@Test(expected=ValidationException.class)", 1);
+		writeLine("public void testRemove_get()", 1);
+		writeLine("{", 1);
+		writeLine("// TODO: provide implementation.", 2);
+		writeLine("}", 1);
+
+		writeLine();
 		writeLine("@Test", 1);
-		writeLine("public void update()", 1);
+		writeLine("public void testRemove_search()", 1);
 		writeLine("{", 1);
 		writeLine("// TODO: provide implementation.", 2);
 		writeLine("}", 1);
@@ -261,6 +283,13 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
 			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), value." + i.accessorMethodName + "());", 2);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("/** Marshalls the search output to the specific object. */", 1);
+		writeLine("private static class " + name + "QueryResults extends QueryResults<" + valueName + ", " + filterName + ">", 1);
+		writeLine("{", 1);
+		writeLine("public static final long serialVersionUID = 1L;", 2);
 		writeLine("}", 1);
 	}
 
