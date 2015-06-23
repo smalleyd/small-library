@@ -186,7 +186,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("private static " + daoName + " dao = null;", 1);
 		writeLine();
 		writeLine("@Rule", 1);
-		writeLine("private final ResourceTestRule RULE = ResourceTestRule.builder().addResource(new " + resourceName + "(dao)).build();", 1);
+		writeLine("public final ResourceTestRule RULE = ResourceTestRule.builder().addResource(new " + resourceName + "(dao)).build();", 1);
 		writeLine();
 		writeLine("@BeforeClass", 1);
 		writeLine("public static void up()", 1);
