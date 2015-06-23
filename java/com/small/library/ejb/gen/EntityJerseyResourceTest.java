@@ -140,7 +140,10 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 
 		String name = getObjectName();
 		writeLine("import java.util.*;");
-		writeLine("import java.util.stream.Collectors;");
+		writeLine();
+		writeLine("import javax.ws.rs.client.*;");
+		writeLine("import javax.ws.rs.core.GenericType;");
+		writeLine("import javax.ws.rs.core.Response;");
 		writeLine();
 		writeLine("import org.hibernate.SessionFactory;");
 		writeLine("import org.junit.*;");
@@ -149,7 +152,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("import io.dropwizard.testing.junit.ResourceTestRule;");
 		writeLine();
 		writeLine("import com.jibe.junit.hibernate.*;");
-		writeLine("import com.jibe.dwservice.errors.ValidationException;");
+		writeLine("import com.jibe.dwservice.errors.ValidationExceptionMapper;");
 		writeLine("import com.jibe.question.entity." + name + ";");
 		writeLine("import com.jibe.question.model." + EntityBeanFilter.getClassName(name) + ";");
 		writeLine("import com.jibe.question.model.QueryResults;");
@@ -170,8 +173,12 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 	private void writeClassDeclaration() throws IOException
 	{
 		String name = getClassName();
-		String daoName = EntityBeanDAO.getClassName(getObjectName());
-		String resourceName = EntityJerseyResource.getClassName(getObjectName());
+		String objectName = getObjectName();
+		String mapping = fromObjectNameToMemberName(name) + "s";
+		String daoName = EntityBeanDAO.getClassName(objectName);
+		String filterName = EntityBeanFilter.getClassName(objectName);
+		String valueName = EntityBeanValueObject.getClassName(objectName);
+		String resourceName = EntityJerseyResource.getClassName(objectName);
 
 		writeLine();
 		writeLine("@FixMethodOrder(MethodSorters.NAME_ASCENDING)	// Ensure that the methods are executed in order listed.");
@@ -186,7 +193,18 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("private static " + daoName + " dao = null;", 1);
 		writeLine();
 		writeLine("@Rule", 1);
-		writeLine("public final ResourceTestRule RULE = ResourceTestRule.builder().addResource(new " + resourceName + "(dao)).build();", 1);
+		writeLine("public final ResourceTestRule RULE = ResourceTestRule.builder()", 1);
+		writeLine(".addResource(new ValidationExceptionMapper())", 2);
+		writeLine(".addResource(new " + resourceName + "(dao)).build();", 2);
+		writeLine();
+		writeLine("/** Primary URI to test. */", 1);
+		writeLine("private static final String TARGET = \"/" + mapping + "\";", 1);
+		writeLine();
+		writeLine("/** Generic types for reading values from responses. */", 1);
+		writeLine("private static final GenericType<Model<Boolean>> BOOLEAN_TYPE = new GenericType<Model<Boolean>>() {};", 1);
+		writeLine("private static final GenericType<List<NameValue>> LIST_NAME_VALUE_TYPE = new GenericType<List<NameValue>>() {};", 1);
+		writeLine("private static final GenericType<QueryResults<" + valueName + ", " + filterName + ">> QUERY_RESULTS_TYPE =", 1);
+		writeLine("new GenericType<QueryResults<" + valueName + ", " + filterName + ">>() {};", 2);
 		writeLine();
 		writeLine("@BeforeClass", 1);
 		writeLine("public static void up()", 1);
@@ -200,6 +218,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 	private void writeMethods() throws IOException
 	{
 		String name = getObjectName();
+		String pkTypeName = getPkJavaType();
 		String filterName = EntityBeanFilter.getClassName(name);
 		String valueName = EntityBeanValueObject.getClassName(name);
 
@@ -225,7 +244,14 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@Test(expected=ValidationException.class)", 1);
+		writeLine("/** Helper method - calls the GET endpoint. */", 1);
+		writeLine("private void get(" + pkTypeName + " id)", 1);
+		writeLine("{", 1);
+		writeLine("return request(id).get();", 2);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("@Test", 1);
 		writeLine("public void getWithException()", 1);
 		writeLine("{", 1);
 		writeLine("// TODO: provide implementation.", 2);
@@ -240,9 +266,45 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 
 		writeLine();
 		writeLine("@Test", 1);
+		writeLine("public void modify_get()", 1);
+		writeLine("{", 1);
+		writeLine("// TODO: provide implementation.", 2);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("@Test", 1);
 		writeLine("public void search()", 1);
 		writeLine("{", 1);
 		writeLine("// TODO: provide implementation.", 2);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("/** Helper method - calls the search endpoint and verifies the counts and records. */", 1);
+		writeLine("private void search(" + filterName + " filter, long expectedTotal)", 1);
+		writeLine("{", 1);
+		writeLine("Response response = request(\"search\")", 2);
+		writeLine(".post(Entity.entity(filter, JerseyUtils.APPLICATION_JSON_TYPE));", 3);
+		writeLine();
+		writeLine("String assertId = \"SEARCH \" + filter + \": \";", 2);
+		writeLine("Assert.assertEquals(assertId + \"Status\", Utils.HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine("QueryResults<" + valueName + ", " + filterName + "> results = response.readEntity(QUERY_RESULTS_TYPE);", 2);
+		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
+		writeLine("Assert.assertEquals(assertId + \"Check total\", expectedTotal, results.getTotal());", 2);
+		writeLine("if (0L == expectedTotal)", 2);
+		writeLine("Assert.assertNull(assertId + \"Records exist\", results.getRecords());", 3);
+		writeLine("else", 2);
+		writeLine("{", 2);
+		writeLine("Assert.assertNotNull(assertId + \"Records exist\", results.getRecords());", 3);
+		writeLine("int total = (int) expectedTotal;", 3);
+		writeLine("if (total > results.getPageSize())", 3);
+		writeLine("{", 3);
+		writeLine("if (results.getPage() == results.getPages())", 4);
+		writeLine("total%= results.getPageSize();", 5);
+		writeLine("else", 4);
+		writeLine("total = results.getPageSize();", 5);
+		writeLine("}", 3);
+		writeLine("Assert.assertEquals(assertId + \"Check records.size\", total, results.getRecords().size());", 3);
+		writeLine("}", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -254,7 +316,20 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@Test(expected=ValidationException.class)", 1);
+		writeLine("/** Helper method - call the DELETE endpoint. */", 1);
+		writeLine("private void remove(" + pkTypeName + " id, boolean success)", 1);
+		writeLine("{", 1);
+		writeLine("Response response = request(id).delete();", 2);
+		writeLine();
+		writeLine("String assertId = \"DELETE (\" + id + \", \" + success + \"): \";", 2);
+		writeLine("Assert.assertEquals(assertId + \"Status\", Utils.HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine("Model<Boolean> results = response.readEntity(BOOLEAN_TYPE);", 2);
+		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
+		writeLine("Assert.assertEquals(assertId + \"Check value\", success, results.getValue());", 2);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("@Test", 1);
 		writeLine("public void testRemove_get()", 1);
 		writeLine("{", 1);
 		writeLine("// TODO: provide implementation.", 2);
@@ -268,13 +343,14 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("/** Helper method - checks an expected value against a supplied entity record. */", 1);
-		writeLine("private void check(" + valueName + " expected, " + name + " record)", 1);
-		writeLine("{", 1);
-		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
-		for (ColumnInfo i : m_ColumnInfo)
-			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), record." + i.accessorMethodName + "());", 2);
-		writeLine("}", 1);
+		writeLine("/** Helper method - creates the base WebTarget. */", 1);
+		writeLine("private WebTarget target() { return RULE.client().target(TARGET); }", 1);
+		writeLine();
+		writeLine("/** Helper method - creates the request from the WebTarget. */", 1);
+		writeLine("private Invocation.Builder request() { return target().request(JerseyUtils.APPLICATION_JSON_TYPE); }", 1);
+		writeLine();
+		writeLine("/** Helper method - creates the request from the WebTarget. */", 1);
+		writeLine("private Invocation.Builder request(String path) { return target().path(path).request(JerseyUtils.APPLICATION_JSON_TYPE); }", 1);
 
 		writeLine();
 		writeLine("/** Helper method - checks an expected value against a supplied value object. */", 1);
@@ -283,13 +359,6 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
 			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), value." + i.accessorMethodName + "());", 2);
-		writeLine("}", 1);
-
-		writeLine();
-		writeLine("/** Marshalls the search output to the specific object. */", 1);
-		writeLine("private static class " + name + "QueryResults extends QueryResults<" + valueName + ", " + filterName + ">", 1);
-		writeLine("{", 1);
-		writeLine("public static final long serialVersionUID = 1L;", 2);
 		writeLine("}", 1);
 	}
 

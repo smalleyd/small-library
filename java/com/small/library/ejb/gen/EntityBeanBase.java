@@ -120,6 +120,16 @@ public abstract class EntityBeanBase extends BaseTable
 	/** Accessor method - gets the version number of the resource. */
 	public String getVersion() { return version; }
 
+	/** Helper method - gets the Java type of the primary key column. */
+	public String getPkJavaType()
+	{
+		for (ColumnInfo i : m_ColumnInfo)
+			if (i.isPartOfPrimaryKey)
+				return i.javaType;
+
+		return JAVA_OBJECT_TYPE_LONG;
+	}
+
 	/******************************************************************************
 	*
 	*	Mutator methods
