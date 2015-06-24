@@ -95,6 +95,8 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeAccessorMethods();
 		writeMutatorMethods();
 		writeImportedKeysAccessorMethods();
+		writeHelperMethods();
+		writeObjectMethods();
 
 		writeFooter();
 	}
@@ -140,6 +142,8 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("import java.io.Serializable;");
 		writeLine("import java.math.BigDecimal;");
 		writeLine("import java.util.Date;");
+		writeLine();
+		writeLine("import org.apache.commons.lang3.StringUtils;");
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");
@@ -340,6 +344,57 @@ public class EntityBeanValueObject extends EntityBeanBase
 			writeLine(" { " + memberName + "Name = newValue; }");
 			writeLine("public " + getClassName() + " with" + name + "Name(String newValue) { " + memberName + "Name = newValue; return this; }", 1);
 		}
+	}
+
+	/** Output method - writes the internal helper methods. */
+	private void writeHelperMethods() throws IOException
+	{
+		// Start the section.
+		writeLine();
+		writeLine("/**************************************************************************", 1);
+		writeLine("*", 1);
+		writeLine("*\tHelper methods", 1);
+		writeLine("*", 1);
+		writeLine("**************************************************************************/", 1);
+
+		// Output the clean method for String cleansing.
+		writeLine();
+		writeLine("/** Helper method - trims all string fields and converts empty strings to NULL. */", 1);
+		writeLine("public void clean()", 1);
+		writeLine("{", 1);
+		for (ColumnInfo i : m_ColumnInfo)
+		{
+			if (!i.isString)
+				continue;
+
+			writeLine(i.memberVariableName + " = StringUtils.trimToNull(" + i.memberVariableName + ");", 2);
+		}
+		writeLine("}", 1);
+	}
+
+	/** Output method - writes Object class override methods. */
+	private void writeObjectMethods() throws IOException
+	{
+		// Start section.
+		writeLine();
+		writeLine("/**************************************************************************", 1);
+		writeLine("*", 1);
+		writeLine("*\tObject methods", 1);
+		writeLine("*", 1);
+		writeLine("**************************************************************************/", 1);
+
+		// Write the toString method. */
+		ColumnInfo item = m_ColumnInfo[0];
+		writeLine();
+		writeLine("@Override", 1);
+		writeLine("public String toString()", 1);
+		writeLine("{", 1);
+		writeLine("return new StringBuilder(\"{ " + item.memberVariableName + ": \").append(" + item.memberVariableName + ")", 2);
+
+		for (int i = 1; i < m_ColumnInfo.length; i++)
+			writeLine(".append(\", " + (item = m_ColumnInfo[i]).memberVariableName + ": \").append(" + item.memberVariableName + ")", 3);
+		writeLine(".append(\" }\").toString();", 3);
+		writeLine("}", 1);
 	}
 
 	/** Output method - writes the class footer. */
