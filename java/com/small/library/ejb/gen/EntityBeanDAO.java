@@ -1,6 +1,8 @@
 package com.small.library.ejb.gen;
 
 import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import com.small.library.generator.*;
 import com.small.library.metadata.*;
@@ -152,6 +154,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("import com.jibe.question.model." + EntityBeanFilter.getClassName(name) + ";");
 		writeLine("import com.jibe.question.model.QueryResults;");
 		writeLine("import com.jibe.question.validation.ValidationException;");
+		writeLine("import com.jibe.question.validation.Validator;");
 		writeLine("import com.jibe.question.value.*;");
 		writeLine();
 		writeLine("/**********************************************************************************");
@@ -185,12 +188,11 @@ public class EntityBeanDAO extends EntityBeanBase
 	/** Output method - writes the accessor methods. */
 	private void writeMethods() throws IOException
 	{
-		// Get the primary key Java type. Assume that it is NOT a composite key.
-		String primaryKeyType = this.getPkJavaType();
-
 		String name = getObjectName();
-		String filterName = EntityBeanFilter.getClassName(name);
 		String valueName = getValueObjectName();
+		String primaryKeyType = this.getPkJavaType();
+		String filterName = EntityBeanFilter.getClassName(name);
+
 		writeLine("/** Adds a single " + name + " value.", 1);
 		writeLine(" *", 1); 
 		writeLine(" * @param value", 1);
@@ -199,7 +201,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" */", 1);
 		writeLine("public " + valueName + " add(" + valueName + " value) throws ValidationException", 1);
 		writeLine("{", 1);
-			writeLine("return value.withId(persist(toEntity(value)).getId());", 2);
+			writeLine("return value.withId(persist(toEntity(value, _validate(value.withId(null)))).getId());", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("/** Updates a single " + name + " value.", 1);
@@ -209,11 +211,68 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" */", 1);
 		writeLine("public " + valueName + " update(" + valueName + " value) throws ValidationException", 1);
 		writeLine("{", 1);
-			writeLine("" + name + " record = findWithException(value.getId());", 2);
+			writeLine("Object[] cmrs = _validate(value);", 2);
+			writeLine(name + " record = (" + name + ") cmrs[0];", 2);
+			writeLine("if (null == record)", 2);
+			writeLine("record = findWithException(value.getId());", 3);
 			writeLine();
-			writeLine("toEntity(value, record);", 2);
-			writeLine();
-			writeLine("return value.withId(record.getId());", 2);
+			writeLine("return value.withId(toEntity(value, record, cmrs).getId());", 2);
+		writeLine("}", 1);
+		writeLine();
+		writeLine("/** Validates a single " + name + " value.", 1);
+		writeLine(" *", 1); 
+		writeLine(" * @param value", 1);
+		writeLine(" * @throws ValidationException", 1);
+		writeLine(" */", 1);
+		writeLine("public void validate(" + valueName + " value) throws ValidationException", 1);
+		writeLine("{", 1);
+		writeLine("_validate(value);", 2);
+		writeLine("}", 1);
+		writeLine();
+		writeLine("/** Validates a single " + name + " value and returns any CMR fields.", 1);
+		writeLine(" *", 1); 
+		writeLine(" * @param value", 1);
+		writeLine(" * @return array of CMRs entities.", 1);
+		writeLine(" * @throws ValidationException", 1);
+		writeLine(" */", 1);
+		writeLine("private Object[] _validate(" + valueName + " value) throws ValidationException", 1);
+		writeLine("{", 1);
+		writeLine("value.clean();", 2);
+		writeLine("Validator validator = new Validator();", 2);
+		writeLine();
+		for (ColumnInfo i : m_ColumnInfo)
+		{
+			if (i.isAutoIncrementing)
+				continue;
+
+			if (i.isString)
+			{
+				if (i.isNullable)
+					writeLine("validator.ensureLength(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ", " + i.size + ");", 2);
+				else
+					writeLine("validator.ensureExistsAndLength(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ", " + i.size + ");", 2);
+			}
+			else if (!i.isNullable && !i.isPrimitive)
+				writeLine("validator.ensureExists(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ");", 2);
+		}
+		writeLine();
+		writeLine("Session session = currentSession();", 2);
+		List<String> cmrVars = new LinkedList<>();
+		for (ColumnInfo i : m_ColumnInfo)
+		{
+			if (!i.isImportedKey)
+				continue;
+
+			writeLine(i.importedObjectName + " " + i.importedKeyMemberName + " = (" + i.importedObjectName +
+				") session.get(" + i.importedObjectName + ".class, value." + i.memberVariableName + ");", 2);
+			writeLine("if (null == " + i.importedKeyMemberName + ")", 2);
+			writeLine("validator.add(\"" + i.memberVariableName + "\", \"The " + i.name + ", %s, is invalid.\", value." + i.memberVariableName + ");", 3);
+		}
+		writeLine();
+		writeLine("// Throw exception if errors exist.", 2);
+		writeLine("validator.check();", 2);
+		writeLine();
+		writeLine("return new Object[] { " + cmrVars.stream().collect(Collectors.joining(", ")) + " };", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("/** Removes a single " + name + " value.", 1);
@@ -368,27 +427,39 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("}", 1);
 		writeLine();
 		writeLine("/** Helper method - creates a transactional entity from a non-transactional value. */", 1);
-		writeLine("public " + name + " toEntity(" + valueName + " value)", 1);
+		writeLine("public " + name + " toEntity(" + valueName + " value, Object[] cmrs)", 1);
 		writeLine("{", 1);
 			writeLine("return new " + name + "(", 2);
 		i = 0;
+		int cmrs = 1;
 		for (ColumnInfo info : m_ColumnInfo)
 		{
 			if (!info.isPartOfPrimaryKey)
-				writeLine("value." + info.accessorMethodName + "()" + ((i++ < last) ? "," : ");"), 3);
-			else
-				i++;	// Still needs to increment to find the last one.
+			{
+				if (info.isImportedKey)
+					writeLine("(" + info.importedObjectName + ") cmrs[" + cmrs++ + "]" + ((i < last) ? "," : ");"), 3);
+				else
+					writeLine("value." + info.accessorMethodName + "()" + ((i < last) ? "," : ");"), 3);
+			}
+			i++;
 		}
 		writeLine("}", 1);
 		writeLine();
 		writeLine("/** Helper method - populates the transactional entity from the non-transactional value. */", 1);
-		writeLine("public " + name + " toEntity(" + valueName + " value, " + name + " record)", 1);
+		writeLine("public " + name + " toEntity(" + valueName + " value, " + name + " record, Object[] cmrs)", 1);
 		writeLine("{", 1);
+		cmrs = 1;
 		for (ColumnInfo info : m_ColumnInfo)
-			if (!info.isPartOfPrimaryKey)
-				writeLine("record." + info.mutatorMethodName + "(value." + info.accessorMethodName + "());", 2);
-			writeLine();
-			writeLine("return record;", 2);
+		{
+			if (info.isPartOfPrimaryKey)
+				continue;
+
+			writeLine("record." + info.mutatorMethodName + "(value." + info.accessorMethodName + "());", 2);
+			if (info.isImportedKey)
+				writeLine("record.set" + info.importedKeyName + "((" + info.importedObjectName + ") cmrs[" + cmrs++ + "]);", 2);
+		}
+		writeLine();
+		writeLine("return record;", 2);
 		writeLine("}", 1);
 	}
 
