@@ -186,15 +186,7 @@ public class EntityBeanDAO extends EntityBeanBase
 	private void writeMethods() throws IOException
 	{
 		// Get the primary key Java type. Assume that it is NOT a composite key.
-		String primaryKeyType = "Integer";
-		for (ColumnInfo column : m_ColumnInfo)
-		{
-			if (column.isPartOfPrimaryKey)
-			{
-				primaryKeyType = column.javaType;
-				break;
-			}
-		}
+		String primaryKeyType = this.getPkJavaType();
 
 		String name = getObjectName();
 		String filterName = EntityBeanFilter.getClassName(name);
