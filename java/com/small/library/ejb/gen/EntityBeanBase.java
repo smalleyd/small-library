@@ -50,17 +50,32 @@ public abstract class EntityBeanBase extends BaseTable
 	}
 
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
-		@param pTable A table record object to base the output on.
-		@param strPackageName Package name of the wrapper class.
+		@param writer The output stream.
+		@param author Name of the author.
+		@param table A table record object to base the output on.
+		@param packageName Package name of the wrapper class.
 	*/
-	public EntityBeanBase(PrintWriter pWriter,
-		String strAuthor, Tables.Record pTable, String strPackageName)
+	public EntityBeanBase(PrintWriter writer,
+		String author, Tables.Record table, String packageName)
 	{
-		super(pWriter, strAuthor, pTable);
+		super(writer, author, table);
 
-		m_strPackageName = strPackageName;
+		if (null != (m_strPackageName = packageName))
+		{
+			// Get the domain portion of the package name.
+			final int len = packageName.length() - 1;
+			int i = packageName.indexOf('.');
+			if ((0 > i) || (len <= i))
+				return;
+			i = packageName.indexOf('.', i + 1);
+			domainPackageName = (0 > i) ? packageName.substring(0) : packageName.substring(0, i);
+
+			// Get the base/application portion of the package name.
+			if ((0 > i) || (len <= i))
+				return;
+			i = packageName.indexOf('.', i + 1);
+			basePackageName = (0 > i) ? packageName.substring(0) : packageName.substring(0, i);
+		}
 	}
 
 	/** Constructor - constructs a populated object.
@@ -117,6 +132,12 @@ public abstract class EntityBeanBase extends BaseTable
 	/** Accessor method - gets the package name of the wrapper class. */
 	public String getPackageName() { return m_strPackageName; }
 
+	/** Accessor method - gets domain name portion of the package name. */
+	public String getDomainPackageName() { return domainPackageName; }
+
+	/** Accessor method - gets the base/application portion of the package name. */
+	public String getBasePackageName() { return basePackageName; }
+
 	/** Accessor method - gets the version number of the resource. */
 	public String getVersion() { return version; }
 
@@ -139,6 +160,12 @@ public abstract class EntityBeanBase extends BaseTable
 	/** Mutator method - sets the package name of the wrapper class. */
 	public void setPackageName(String newValue) { m_strPackageName = newValue; }
 
+	/** Mutator method - sets domain name portion of the package name. */
+	public void setDomainPackageName(String newValue) { domainPackageName = newValue; }
+
+	/** Mutator method - sets the base/application portion of the package name. */
+	public void setBasePackageName(String newValue) { basePackageName = newValue; }
+
 	/** Mutator method - sets the version number of the resource. */
 	public void setVersion(String newValue) { version = newValue; }
 
@@ -150,6 +177,12 @@ public abstract class EntityBeanBase extends BaseTable
 
 	/** Member variable - reference to the package name of the wrapper class. */
 	private String m_strPackageName = null;
+
+	/** Member variable - represents the domain name portion of the package name. */
+	private String domainPackageName = null;
+
+	/** Member variable - represents the base/application portion of the package name. */
+	private String basePackageName = null;
 
 	/** Member variable - represents the version of the resource. */
 	private String version = null;

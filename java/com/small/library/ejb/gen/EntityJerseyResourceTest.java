@@ -131,6 +131,8 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 	private void writeHeader() throws IOException
 	{
 		String packageName = getPackageName();
+		String domainPackageName = getDomainPackageName();
+		String basePackageName = getBasePackageName();
 
 		if (null != packageName)
 		{
@@ -151,12 +153,12 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine();
 		writeLine("import io.dropwizard.testing.junit.ResourceTestRule;");
 		writeLine();
-		writeLine("import com.jibe.junit.hibernate.*;");
-		writeLine("import com.jibe.dwservice.errors.ValidationExceptionMapper;");
-		writeLine("import com.jibe.question.entity." + name + ";");
-		writeLine("import com.jibe.question.model." + EntityBeanFilter.getClassName(name) + ";");
-		writeLine("import com.jibe.question.model.QueryResults;");
-		writeLine("import com.jibe.question.value." + EntityBeanValueObject.getClassName(name) + ";");
+		writeLine("import " + domainPackageName + ".junit.hibernate.*;");
+		writeLine("import " + domainPackageName + ".dwservice.errors.ValidationExceptionMapper;");
+		writeLine("import " + basePackageName + ".entity." + name + ";");
+		writeLine("import " + basePackageName + ".model." + EntityBeanFilter.getClassName(name) + ";");
+		writeLine("import " + basePackageName + ".model.QueryResults;");
+		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(name) + ";");
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");

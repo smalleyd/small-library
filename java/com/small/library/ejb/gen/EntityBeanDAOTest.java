@@ -131,6 +131,8 @@ public class EntityBeanDAOTest extends EntityBeanBase
 	private void writeHeader() throws IOException
 	{
 		String packageName = getPackageName();
+		String domainPackageName = getDomainPackageName();
+		String basePackageName = getBasePackageName();
 
 		if (null != packageName)
 		{
@@ -143,12 +145,12 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("import org.junit.*;");
 		writeLine("import org.junit.runners.MethodSorters;");
 		writeLine();
-		writeLine("import com.jibe.junit.hibernate.*;");
-		writeLine("import com.jibe.dwservice.errors.ValidationException;");
-		writeLine("import com.jibe.question.entity." + name + ";");
-		writeLine("import com.jibe.question.model." + EntityBeanFilter.getClassName(name) + ";");
-		writeLine("import com.jibe.question.model.QueryResults;");
-		writeLine("import com.jibe.question.value." + EntityBeanValueObject.getClassName(name) + ";");
+		writeLine("import " + domainPackageName + ".junit.hibernate.*;");
+		writeLine("import " + domainPackageName + ".dwservice.errors.ValidationException;");
+		writeLine("import " + basePackageName + ".entity." + name + ";");
+		writeLine("import " + basePackageName + ".model." + EntityBeanFilter.getClassName(name) + ";");
+		writeLine("import " + basePackageName + ".model.QueryResults;");
+		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(name) + ";");
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");
@@ -313,7 +315,11 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("{", 1);
 		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
+		{
 			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), value." + i.accessorMethodName + "());", 2);
+			if (i.isImportedKey)
+				writeLine("Assert.assertEquals(assertId + \"Check " + i.importedKeyMemberName + " name\", expected.get" + i.importedKeyName + "Name(), value.get" + i.importedKeyName + "Name());", 2);
+		}
 		writeLine("}", 1);
 	}
 

@@ -133,6 +133,7 @@ public class EntityBeanDAO extends EntityBeanBase
 	private void writeHeader() throws IOException
 	{
 		String packageName = getPackageName();
+		String basePackageName = getBasePackageName();
 
 		if (null != packageName)
 		{
@@ -150,12 +151,12 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine();
 		writeLine("import io.dropwizard.hibernate.AbstractDAO;");
 		writeLine();
-		writeLine("import com.jibe.question.entity.*;");
-		writeLine("import com.jibe.question.model." + EntityBeanFilter.getClassName(name) + ";");
-		writeLine("import com.jibe.question.model.QueryResults;");
-		writeLine("import com.jibe.question.validation.ValidationException;");
-		writeLine("import com.jibe.question.validation.Validator;");
-		writeLine("import com.jibe.question.value.*;");
+		writeLine("import " + basePackageName + ".entity.*;");
+		writeLine("import " + basePackageName + ".model." + EntityBeanFilter.getClassName(name) + ";");
+		writeLine("import " + basePackageName + ".model.QueryResults;");
+		writeLine("import " + basePackageName + ".validation.ValidationException;");
+		writeLine("import " + basePackageName + ".validation.Validator;");
+		writeLine("import " + basePackageName + ".value.*;");
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");

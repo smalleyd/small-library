@@ -131,6 +131,8 @@ public class EntityJerseyResource extends EntityBeanBase
 	private void writeHeader() throws IOException
 	{
 		String strPackageName = getPackageName();
+		String domainPackageName = getDomainPackageName();
+		String basePackageName = getBasePackageName();
 
 		if (null != strPackageName)
 		{
@@ -148,11 +150,11 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine("import io.swagger.annotations.*;");
 		writeLine();
 		writeLine("import com.codahale.metrics.annotation.Timed;");
-		writeLine("import com.jibe.dwservice.mediatype.UTF8MediaType;");
-		writeLine("import com.jibe.question.dao.*;");
-		writeLine("import com.jibe.question.model.*;");
-		writeLine("import com.jibe.question.validation.*;");
-		writeLine("import com.jibe.question.value.*;");
+		writeLine("import " + domainPackageName + ".dwservice.mediatype.UTF8MediaType;");
+		writeLine("import " + basePackageName + ".dao.*;");
+		writeLine("import " + basePackageName + ".model.*;");
+		writeLine("import " + basePackageName + ".validation.*;");
+		writeLine("import " + basePackageName + ".value.*;");
 
 		writeLine();
 		writeLine("/**********************************************************************************");
@@ -178,7 +180,7 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine("@Path(\"/" + mapping + "\")");
 		writeLine("@Consumes(UTF8MediaType.APPLICATION_JSON)");
 		writeLine("@Produces(UTF8MediaType.APPLICATION_JSON)");
-		writeLine("@Api(value=\"" + name.toLowerCase() + "\")");
+		writeLine("@Api(value=\"" + name + "\")");
 		writeLine("public class " + getClassName());
 		writeLine("{");
 		writeLine("private final " + daoName + " dao;", 1);
