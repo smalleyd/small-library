@@ -227,7 +227,7 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine();
 		writeLine("@GET", 1);
 		writeLine("@Timed @UnitOfWork(readOnly=true, transactional=false)", 1);
-		writeLine("@ApiOperation(value=\"find\", notes=\"Finds " + name + " by wildcard name search.\", response=NameValue.class, responseContainer=\"List\")", 1);
+		writeLine("@ApiOperation(value=\"find\", notes=\"Finds " + name + "s by wildcard name search.\", response=NameValue.class, responseContainer=\"List\")", 1);
 		writeLine("public List<NameValue> find(@QueryParam(\"name\") @ApiParam(name=\"name\", value=\"Value for the wildcard search\") String name)", 1);
 		writeLine("{", 1);
 			writeLine("return dao.getActiveByIdOrName(name);", 2);
@@ -259,7 +259,7 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine();
 		writeLine("@POST", 1);
 		writeLine("@Path(\"/search\") @Timed @UnitOfWork(readOnly=true, transactional=false)", 1);
-		writeLine("@ApiOperation(value=\"search\", notes=\"Searches the " + name + " based on the supplied filter.\", response=QueryResults.class)", 1);
+		writeLine("@ApiOperation(value=\"search\", notes=\"Searches the " + name + "s based on the supplied filter.\", response=QueryResults.class)", 1);
 		writeLine("public QueryResults<" + getValueObjectName() + ", " + filterName + "> search(" + filterName + " filter) throws ValidationException", 1);
 		writeLine("{", 1);
 			writeLine("return dao.search(filter);", 2);
