@@ -140,6 +140,8 @@ public class EntityJerseyResource extends EntityBeanBase
 			writeLine();
 		}
 
+		String name = getObjectName();
+
 		writeLine("import java.util.*;");
 		writeLine();
 		writeLine("import javax.ws.rs.*;");
@@ -150,11 +152,14 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine("import io.swagger.annotations.*;");
 		writeLine();
 		writeLine("import com.codahale.metrics.annotation.Timed;");
-		writeLine("import " + domainPackageName + ".dwservice.mediatype.UTF8MediaType;");
-		writeLine("import " + basePackageName + ".dao.*;");
-		writeLine("import " + basePackageName + ".model.*;");
-		writeLine("import " + basePackageName + ".validation.*;");
-		writeLine("import " + basePackageName + ".value.*;");
+		writeLine("import " + domainPackageName + ".common.dao.QueryResults;");
+		writeLine("import " + domainPackageName + ".common.error.ValidationException;");
+		writeLine("import " + domainPackageName + ".common.jersey.JerseyUtils;");
+		writeLine("import " + domainPackageName + ".common.model.Model;");
+		writeLine("import " + domainPackageName + ".common.value.NameValue;");
+		writeLine("import " + basePackageName + ".dao." + EntityBeanDAO.getClassName(name) + ";");
+		writeLine("import " + basePackageName + ".filter." + EntityBeanFilter.getClassName(name) + ";");
+		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(name) + ";");
 
 		writeLine();
 		writeLine("/**********************************************************************************");
@@ -178,8 +183,8 @@ public class EntityJerseyResource extends EntityBeanBase
 		
 		writeLine();
 		writeLine("@Path(\"/" + mapping + "\")");
-		writeLine("@Consumes(UTF8MediaType.APPLICATION_JSON)");
-		writeLine("@Produces(UTF8MediaType.APPLICATION_JSON)");
+		writeLine("@Consumes(JerseyUtils.APPLICATION_JSON)");
+		writeLine("@Produces(JerseyUtils.APPLICATION_JSON)");
 		writeLine("@Api(value=\"" + name + "\")");
 		writeLine("public class " + getClassName());
 		writeLine("{");
@@ -249,9 +254,9 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine("@DELETE", 1);
 		writeLine("@Path(\"/{id}\") @Timed @UnitOfWork", 1);
 		writeLine("@ApiOperation(value=\"remove\", notes=\"Removes/deactivates a single " + name + " by its primary key.\")", 1);
-		writeLine("public OperationResponse remove(@PathParam(\"id\") " + primaryKeyType + " id) throws ValidationException", 1);
+		writeLine("public Model<Boolean> remove(@PathParam(\"id\") " + primaryKeyType + " id) throws ValidationException", 1);
 		writeLine("{", 1);
-			writeLine("return new OperationResponse(dao.remove(id));", 2);
+			writeLine("return new Model<Boolean>(dao.remove(id));", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("@POST", 1);

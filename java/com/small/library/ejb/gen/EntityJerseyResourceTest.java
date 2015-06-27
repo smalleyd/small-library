@@ -153,12 +153,16 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine();
 		writeLine("import io.dropwizard.testing.junit.ResourceTestRule;");
 		writeLine();
-		writeLine("import " + domainPackageName + ".junit.hibernate.*;");
-		writeLine("import " + domainPackageName + ".dwservice.errors.ValidationExceptionMapper;");
-		writeLine("import " + basePackageName + ".entity." + name + ";");
-		writeLine("import " + basePackageName + ".model." + EntityBeanFilter.getClassName(name) + ";");
-		writeLine("import " + basePackageName + ".model.QueryResults;");
-		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(name) + ";");
+		writeLine("import " + domainPackageName + ".common.dao.QueryResults;");
+		writeLine("import " + domainPackageName + ".common.error.ValidationExceptionMapper;");
+		writeLine("import " + domainPackageName + ".common.model.Model;");
+		writeLine("import " + domainPackageName + ".common.jersey.JerseyUtils;");
+		writeLine("import " + domainPackageName + ".common.value.NameValue;");
+		writeLine("import " + domainPackageName + ".testing.Utils;");
+		writeLine("import " + basePackageName + ".Application;");
+		writeLine("import " + basePackageName + ".dao.StateDAO;");
+		writeLine("import " + basePackageName + ".filter.StateFilter;");
+		writeLine("import " + basePackageName + ".value.StateValue;");
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");
@@ -176,8 +180,8 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 	{
 		String name = getClassName();
 		String objectName = getObjectName();
-		String mapping = fromObjectNameToMemberName(name) + "s";
 		String daoName = EntityBeanDAO.getClassName(objectName);
+		String mapping = fromObjectNameToMemberName(objectName) + "s";
 		String filterName = EntityBeanFilter.getClassName(objectName);
 		String valueName = EntityBeanValueObject.getClassName(objectName);
 		String resourceName = EntityJerseyResource.getClassName(objectName);
@@ -187,7 +191,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("public class " + name);
 		writeLine("{");
 		writeLine("@ClassRule", 1);
-		writeLine("public static final HibernateRule DAO_RULE = new HibernateRule(QuestionServiceApplication.ENTITIES);", 1);
+		writeLine("public static final HibernateRule DAO_RULE = new HibernateRule(Application.ENTITIES);", 1);
 		writeLine();
 		writeLine("@Rule", 1);
 		writeLine("public final HibernateTransactionRule transRule = new HibernateTransactionRule(DAO_RULE);", 1);
@@ -247,7 +251,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 
 		writeLine();
 		writeLine("/** Helper method - calls the GET endpoint. */", 1);
-		writeLine("private void get(" + pkTypeName + " id)", 1);
+		writeLine("private Response get(" + pkTypeName + " id)", 1);
 		writeLine("{", 1);
 		writeLine("return request(id).get();", 2);
 		writeLine("}", 1);
