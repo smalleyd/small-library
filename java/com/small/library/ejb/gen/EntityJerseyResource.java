@@ -146,8 +146,6 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine();
 		writeLine("import javax.ws.rs.*;");
 		writeLine();
-		writeLine("import org.apache.commons.lang3.StringUtils;");
-		writeLine();
 		writeLine("import io.dropwizard.hibernate.UnitOfWork;");
 		writeLine("import io.swagger.annotations.*;");
 		writeLine();
@@ -232,7 +230,7 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine("@ApiOperation(value=\"find\", notes=\"Finds " + name + " by wildcard name search.\", response=NameValue.class, responseContainer=\"List\")", 1);
 		writeLine("public List<NameValue> find(@QueryParam(\"name\") @ApiParam(name=\"name\", value=\"Value for the wildcard search\") String name)", 1);
 		writeLine("{", 1);
-			writeLine("return dao.getByIdOrName(name);", 2);
+			writeLine("return dao.getActiveByIdOrName(name);", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("@POST", 1);
