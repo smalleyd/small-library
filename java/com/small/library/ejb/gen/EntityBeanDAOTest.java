@@ -273,7 +273,18 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("if (0L == expectedTotal)", 2);
 		writeLine("Assert.assertNull(assertId + \"Records exist\", results.getRecords());", 3);
 		writeLine("else", 2);
+		writeLine("{", 2);
 		writeLine("Assert.assertNotNull(assertId + \"Records exists\", results.getRecords());", 3);
+		writeLine("int total = (int) expectedTotal;", 3);
+		writeLine("if (total > results.getPageSize())", 3);
+		writeLine("{", 3);
+		writeLine("if (results.getPage() == results.getPages())", 4);
+		writeLine("total%= results.getPageSize();", 5);
+		writeLine("else", 4);
+		writeLine("total = results.getPageSize();", 5);
+		writeLine("}", 3);
+		writeLine("Assert.assertEquals(assertId + \"Check records.size\", total, results.getRecords().size());", 3);
+		writeLine("}", 2);
 		writeLine("}", 1);
 
 		writeLine();
