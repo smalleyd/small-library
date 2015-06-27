@@ -128,6 +128,7 @@ public class EntityBeanFilter extends EntityBeanBase
 	private void writeHeader() throws IOException
 	{
 		String strPackageName = getPackageName();
+		String domainPackageName = getDomainPackageName();
 
 		if (null != strPackageName)
 		{
@@ -137,6 +138,8 @@ public class EntityBeanFilter extends EntityBeanBase
 
 		writeLine("import java.math.BigDecimal;");
 		writeLine("import java.util.Date;");
+		writeLine();
+		writeLine("import " + domainPackageName + ".common.dao.QueryFilter;");
 		writeLine();
 		writeLine("/********************************************************************************************************************");
 		writeLine("*");

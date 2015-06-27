@@ -134,6 +134,7 @@ public class EntityBeanDAO extends EntityBeanBase
 	{
 		String packageName = getPackageName();
 		String basePackageName = getBasePackageName();
+		String domainPackageName = getDomainPackageName();
 
 		if (null != packageName)
 		{
@@ -142,21 +143,19 @@ public class EntityBeanDAO extends EntityBeanBase
 		}
 
 		String name = getObjectName();
-		writeLine("import java.util.*;");
 		writeLine("import java.util.stream.Collectors;");
 		writeLine();
-		writeLine("import org.apache.commons.lang3.StringUtils;");
 		writeLine("import org.hibernate.*;");
 		writeLine("import org.hibernate.criterion.*;");
 		writeLine();
 		writeLine("import io.dropwizard.hibernate.AbstractDAO;");
 		writeLine();
 		writeLine("import " + basePackageName + ".entity.*;");
-		writeLine("import " + basePackageName + ".model." + EntityBeanFilter.getClassName(name) + ";");
-		writeLine("import " + basePackageName + ".model.QueryResults;");
-		writeLine("import " + basePackageName + ".validation.ValidationException;");
-		writeLine("import " + basePackageName + ".validation.Validator;");
-		writeLine("import " + basePackageName + ".value.*;");
+		writeLine("import " + domainPackageName + ".common.dao.QueryResults;");
+		writeLine("import " + domainPackageName + ".common.error.ValidationException;");
+		writeLine("import " + domainPackageName + ".common.error.Validator;");
+		writeLine("import " + basePackageName + ".filter." + EntityBeanFilter.getClassName(name) + ";");
+		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(name) + ";");
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");
@@ -256,6 +255,9 @@ public class EntityBeanDAO extends EntityBeanBase
 			else if (!i.isNullable && !i.isPrimitive)
 				writeLine("validator.ensureExists(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ");", 2);
 		}
+		writeLine();
+		writeLine("// Throw exception after field existence checks and before FK checks.", 2);
+		writeLine("validator.check();", 2);
 		writeLine();
 		writeLine("Session session = currentSession();", 2);
 		List<String> cmrVars = new LinkedList<>();

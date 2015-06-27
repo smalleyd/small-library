@@ -197,6 +197,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("public final HibernateTransactionRule transRule = new HibernateTransactionRule(DAO_RULE);", 1);
 		writeLine();
 		writeLine("private static " + daoName + " dao = null;", 1);
+		writeLine("private static " + valueName + " VALUE = null;", 1);
 		writeLine();
 		writeLine("@Rule", 1);
 		writeLine("public final ResourceTestRule RULE = ResourceTestRule.builder()", 1);
@@ -364,7 +365,11 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("{", 1);
 		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
+		{
 			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), value." + i.accessorMethodName + "());", 2);
+			if (i.isImportedKey)
+				writeLine("Assert.assertEquals(assertId + \"Check " + i.importedKeyMemberName + " name\", expected.get" + i.importedKeyName + "Name(), value.get" + i.importedKeyName + "Name());", 2);
+		}
 		writeLine("}", 1);
 	}
 

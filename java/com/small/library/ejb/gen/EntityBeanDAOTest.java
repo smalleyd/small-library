@@ -146,10 +146,11 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("import org.junit.runners.MethodSorters;");
 		writeLine();
 		writeLine("import " + domainPackageName + ".junit.hibernate.*;");
-		writeLine("import " + domainPackageName + ".dwservice.errors.ValidationException;");
+		writeLine("import " + domainPackageName + ".common.dao.QueryResults;");
+		writeLine("import " + domainPackageName + ".common.error.ValidationException;");
+		writeLine("import " + basePackageName + ".Application;");
 		writeLine("import " + basePackageName + ".entity." + name + ";");
-		writeLine("import " + basePackageName + ".model." + EntityBeanFilter.getClassName(name) + ";");
-		writeLine("import " + basePackageName + ".model.QueryResults;");
+		writeLine("import " + basePackageName + ".filter." + EntityBeanFilter.getClassName(name) + ";");
 		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(name) + ";");
 		writeLine();
 		writeLine("/**********************************************************************************");
@@ -175,7 +176,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("public class " + name);
 		writeLine("{");
 		writeLine("@ClassRule", 1);
-		writeLine("public static final HibernateRule DAO_RULE = new HibernateRule(QuestionServiceApplication.ENTITIES);", 1);
+		writeLine("public static final HibernateRule DAO_RULE = new HibernateRule(Application.ENTITIES);", 1);
 		writeLine();
 		writeLine("@Rule", 1);
 		writeLine("public final HibernateTransactionRule transRule = new HibernateTransactionRule(DAO_RULE);", 1);
