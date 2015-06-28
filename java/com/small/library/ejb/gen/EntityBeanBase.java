@@ -73,8 +73,13 @@ public abstract class EntityBeanBase extends BaseTable
 			// Get the base/application portion of the package name.
 			if ((0 > i) || (len <= i))
 				return;
+			int domainIndex = i;
 			i = packageName.indexOf('.', i + 1);
 			basePackageName = (0 > i) ? packageName.substring(0) : packageName.substring(0, i);
+
+			appName = basePackageName.substring(domainIndex + 1, domainIndex + 2).toUpperCase();
+			if (basePackageName.length() >= domainIndex + 3)
+				appName+= basePackageName.substring(domainIndex + 2);
 		}
 	}
 
@@ -138,6 +143,9 @@ public abstract class EntityBeanBase extends BaseTable
 	/** Accessor method - gets the base/application portion of the package name. */
 	public String getBasePackageName() { return basePackageName; }
 
+	/** Accessor method - gets the application name derived from the full package name. */
+	public String getAppName() { return appName; }
+
 	/** Accessor method - gets the version number of the resource. */
 	public String getVersion() { return version; }
 
@@ -166,6 +174,9 @@ public abstract class EntityBeanBase extends BaseTable
 	/** Mutator method - sets the base/application portion of the package name. */
 	public void setBasePackageName(String newValue) { basePackageName = newValue; }
 
+	/** Mutator method - sets the application name derived from the full package name. */
+	public void setAppName(String newValue) { appName = newValue; }
+
 	/** Mutator method - sets the version number of the resource. */
 	public void setVersion(String newValue) { version = newValue; }
 
@@ -183,6 +194,9 @@ public abstract class EntityBeanBase extends BaseTable
 
 	/** Member variable - represents the base/application portion of the package name. */
 	private String basePackageName = null;
+
+	/** Member variables - represents the application name derived from the full package name. */
+	public String appName = null;
 
 	/** Member variable - represents the version of the resource. */
 	private String version = null;
