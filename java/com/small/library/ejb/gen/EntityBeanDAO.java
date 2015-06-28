@@ -240,24 +240,27 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("value.clean();", 2);
 		writeLine("Validator validator = new Validator();", 2);
 		writeLine();
+		boolean first = true;
+		writeLine("// Throw exception after field existence checks and before FK checks.", 2);
 		for (ColumnInfo i : m_ColumnInfo)
 		{
 			if (i.isAutoIncrementing)
 				continue;
 
+			String validator = first ? "validator" : "\t";
 			if (i.isString)
 			{
 				if (i.isNullable)
-					writeLine("validator.ensureLength(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ", " + i.size + ");", 2);
+					writeLine(validator + ".ensureLength(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ", " + i.size + ")", 2);
 				else
-					writeLine("validator.ensureExistsAndLength(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ", " + i.size + ");", 2);
+					writeLine(validator + ".ensureExistsAndLength(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ", " + i.size + ")", 2);
 			}
 			else if (!i.isNullable && !i.isPrimitive)
-				writeLine("validator.ensureExists(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ");", 2);
+				writeLine(validator + ".ensureExists(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ")", 2);
+
+			first = false;
 		}
-		writeLine();
-		writeLine("// Throw exception after field existence checks and before FK checks.", 2);
-		writeLine("validator.check();", 2);
+		writeLine(".check();", 3);
 		writeLine();
 		writeLine("Session session = currentSession();", 2);
 		List<String> cmrVars = new LinkedList<>();
