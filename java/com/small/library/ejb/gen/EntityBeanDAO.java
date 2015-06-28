@@ -262,6 +262,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		}
 		writeLine(".check();", 3);
 		writeLine();
+		writeLine("// Validation foreign keys.", 2);
 		writeLine("Session session = currentSession();", 2);
 		List<String> cmrVars = new LinkedList<>();
 		for (ColumnInfo i : m_ColumnInfo)
@@ -269,10 +270,20 @@ public class EntityBeanDAO extends EntityBeanBase
 			if (!i.isImportedKey)
 				continue;
 
+			int tabs = 2;
+			if (i.isNullable)
+			{
+				writeLine("if (null != value." + i.memberVariableName + ")", tabs);
+				writeLine("{", tabs++);
+			}
+
 			writeLine(i.importedObjectName + " " + i.importedKeyMemberName + " = (" + i.importedObjectName +
-				") session.get(" + i.importedObjectName + ".class, value." + i.memberVariableName + ");", 2);
-			writeLine("if (null == " + i.importedKeyMemberName + ")", 2);
-			writeLine("validator.add(\"" + i.memberVariableName + "\", \"The " + i.name + ", %s, is invalid.\", value." + i.memberVariableName + ");", 3);
+				") session.get(" + i.importedObjectName + ".class, value." + i.memberVariableName + ");", tabs);
+			writeLine("if (null == " + i.importedKeyMemberName + ")", tabs);
+			writeLine("validator.add(\"" + i.memberVariableName + "\", \"The " + i.name + ", %s, is invalid.\", value." + i.memberVariableName + ");", tabs + 1);
+
+			if (i.isNullable)
+				writeLine("}", tabs - 1);
 		}
 		writeLine();
 		writeLine("// Throw exception if errors exist.", 2);
