@@ -229,6 +229,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		String pkTypeName = getPkJavaType();
 		String filterName = EntityBeanFilter.getClassName(name);
 		String valueName = EntityBeanValueObject.getClassName(name);
+		String to_s = "String".equals(pkTypeName) ? "" : ".toString()";
 
 		writeLine();
 		writeLine("@Test", 1);
@@ -255,7 +256,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("/** Helper method - calls the GET endpoint. */", 1);
 		writeLine("private Response get(" + pkTypeName + " id)", 1);
 		writeLine("{", 1);
-		writeLine("return request(id).get();", 2);
+		writeLine("return request(id" + to_s + ").get();", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -327,7 +328,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("/** Helper method - call the DELETE endpoint. */", 1);
 		writeLine("private void remove(" + pkTypeName + " id, boolean success)", 1);
 		writeLine("{", 1);
-		writeLine("Response response = request(id).delete();", 2);
+		writeLine("Response response = request(id" + to_s + ").delete();", 2);
 		writeLine();
 		writeLine("String assertId = \"DELETE (\" + id + \", \" + success + \"): \";", 2);
 		writeLine("Assert.assertEquals(assertId + \"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
