@@ -361,6 +361,17 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("private Invocation.Builder request(String path) { return target().path(path).request(JerseyUtils.APPLICATION_JSON_TYPE); }", 1);
 
 		writeLine();
+		writeLine("/** Helper method - calls the DAO count call and compares the expected total value.", 1);
+		writeLine(" *", 1);
+		writeLine(" * @param filter", 1);
+		writeLine(" * @param expectedTotal", 1);
+		writeLine(" */", 1);
+		writeLine("private void count(" + filterName + " filter, long expectedTotal)", 1);
+		writeLine("{", 1);
+		writeLine("Assert.assertEquals(\"COUNT \" + filter + \": Check total\", expectedTotal, dao.count(filter));", 2);
+		writeLine("}", 1);
+
+		writeLine();
 		writeLine("/** Helper method - checks an expected value against a supplied value object. */", 1);
 		writeLine("private void check(" + valueName + " expected, " + valueName + " value)", 1);
 		writeLine("{", 1);
