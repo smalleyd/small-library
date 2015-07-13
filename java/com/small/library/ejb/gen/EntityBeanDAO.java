@@ -332,7 +332,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" *", 1); 
 		writeLine(" * @param id", 1);
 		writeLine(" * @return never NULL.", 1);
-		writeLine(" * @throws ValidationException if the identifier is valid.", 1);
+		writeLine(" * @throws ValidationException if the identifier is invalid.", 1);
 		writeLine(" */", 1);
 		writeLine("public " + name + " findWithException(" + primaryKeyType + " id) throws ValidationException", 1);
 		writeLine("{", 1);
