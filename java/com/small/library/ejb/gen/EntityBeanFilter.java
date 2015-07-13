@@ -92,6 +92,7 @@ public class EntityBeanFilter extends EntityBeanBase
 
 		writeMemberVariables();
 		writeConstructors();
+		writeHelpers();
 		writeToString();
 
 		writeFooter();
@@ -138,6 +139,8 @@ public class EntityBeanFilter extends EntityBeanBase
 
 		writeLine("import java.math.BigDecimal;");
 		writeLine("import java.util.Date;");
+		writeLine();
+		writeLine("import org.apache.commons.lang3.StringUtils;");
 		writeLine();
 		writeLine("import " + domainPackageName + ".common.dao.QueryFilter;");
 		writeLine();
@@ -243,6 +246,24 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine("*/", 1);
 		writeLine("public " + getClassName() + "(int page, int pageSize) { super(page, pageSize); }", 1);
 
+		// Write constructor with sorting values.
+		writeLine();
+		writeLine("/** Populator.", 1);
+		writeLine("@param sortOn", 2);
+		writeLine("@param sortDir", 2);
+		writeLine("*/", 1);
+		writeLine("public " + getClassName() + "(String sortOn, String sortDir) { super(sortOn, sortDir); }", 1);
+
+		// Write constructor with paging & sorting values.
+		writeLine();
+		writeLine("/** Populator.", 1);
+		writeLine("@param page", 2);
+		writeLine("@param pageSize", 2);
+		writeLine("@param sortOn", 2);
+		writeLine("@param sortDir", 2);
+		writeLine("*/", 1);
+		writeLine("public " + getClassName() + "(int page, int pageSize, String sortOn, String sortDir) { super(page, pageSize, sortOn, sortDir); }", 1);
+
 		// Write constructor with all possible values.
 		writeLine();
 		writeLine("\t/** Populator.");
@@ -304,6 +325,34 @@ public class EntityBeanFilter extends EntityBeanBase
 				writeLine("this." + i.memberVariableName + "To = " + i.memberVariableName + "To;", 2);
 			}
 		}
+		writeLine("}", 1);
+	}
+
+	/** Helper methods. */
+	private void writeHelpers() throws IOException
+	{
+		// Start section.
+		writeLine();
+		writeLine("/**************************************************************************", 1);
+		writeLine("*", 1);
+		writeLine("*\tHelper methods", 1);
+		writeLine("*", 1);
+		writeLine("**************************************************************************/", 1);
+
+		// Output the clean method for String cleansing.
+		writeLine();
+		writeLine("/** Helper method - trims all string fields and converts empty strings to NULL. */", 1);
+		writeLine("public " + getClassName() + " clean()", 1);
+		writeLine("{", 1);
+		for (ColumnInfo i : m_ColumnInfo)
+		{
+			if (!i.isString)
+				continue;
+
+			writeLine(i.memberVariableName + " = StringUtils.trimToNull(" + i.memberVariableName + ");", 2);
+		}
+		writeLine();
+		writeLine("return this;", 2);
 		writeLine("}", 1);
 	}
 

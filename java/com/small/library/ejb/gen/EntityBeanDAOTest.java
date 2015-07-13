@@ -289,6 +289,13 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
+		writeLine("@Test", 1);
+		writeLine("public void search_sort()", 1);
+		writeLine("{", 1);
+		writeLine("// TODO: provide implementation.", 2);
+		writeLine("}", 1);
+
+		writeLine();
 		writeLine("/** Test removal after the search. */", 1);
 		writeLine("@Test", 1);
 		writeLine("public void testRemove()", 1);

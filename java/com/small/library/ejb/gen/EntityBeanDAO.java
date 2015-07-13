@@ -143,6 +143,8 @@ public class EntityBeanDAO extends EntityBeanBase
 		}
 
 		String name = getObjectName();
+		writeLine("import static com.swellby.common.hibernate.OrderByBuilder.*;");
+		writeLine();
 		writeLine("import java.util.stream.Collectors;");
 		writeLine();
 		writeLine("import org.hibernate.*;");
@@ -154,6 +156,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("import " + domainPackageName + ".common.dao.QueryResults;");
 		writeLine("import " + domainPackageName + ".common.error.ValidationException;");
 		writeLine("import " + domainPackageName + ".common.error.Validator;");
+		writeLine("import " + domainPackageName + ".common.hibernate.OrderByBuilder;");
 		writeLine("import " + basePackageName + ".filter." + EntityBeanFilter.getClassName(name) + ";");
 		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(name) + ";");
 		writeLine();
@@ -178,6 +181,22 @@ public class EntityBeanDAO extends EntityBeanBase
 			write(getObjectName());
 			writeLine(">");
 		writeLine("{");
+		writeLine("private static final OrderByBuilder ORDER = new OrderByBuilder(", 1);
+		int size = m_ColumnInfo.length;
+		for (ColumnInfo i : m_ColumnInfo)
+		{
+			write("\"" + i.memberVariableName + "\", ", 2);
+			if (i.isAutoIncrementing || i.isBoolean || i.isRange())
+				write("DESC");
+			else
+				write("ASC");
+
+			if (0 < --size)
+				writeLine(",");
+			else
+				writeLine(");");
+		}
+		writeLine();
 		writeLine("public " + name + "(SessionFactory factory)", 1);
 		writeLine("{", 1);
 		writeLine("super(factory);", 2);
@@ -357,7 +376,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" */", 1);
 		writeLine("public QueryResults<" + valueName + ", " + filterName + "> search(" + name + "Filter filter) throws ValidationException", 1);
 		writeLine("{", 1);
-			writeLine("Criteria criteria = createCriteria(filter);", 2);
+			writeLine("Criteria criteria = createCriteria(filter.clean());", 2);
 			writeLine("QueryResults<" + valueName + ", " + filterName + "> value = new QueryResults<>(count(criteria), filter);", 2);
 			writeLine("if (value.isEmpty())", 2);
 				writeLine("return value;", 3);
@@ -367,7 +386,7 @@ public class EntityBeanDAO extends EntityBeanBase
 			writeLine(".setFirstResult(value.retrieveFirstResult())", 3);
 			writeLine(".setMaxResults(value.getPageSize());", 3);
 			writeLine();
-			writeLine("return value.withRecords(list(criteria.addOrder(Order.desc(\"id\"))).stream().map(o -> toValue(o)).collect(Collectors.toList()));", 2);
+			writeLine("return value.withRecords(list(ORDER.build(criteria, value)).stream().map(o -> toValue(o)).collect(Collectors.toList()));", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("/** Counts the number of " + name + " entities based on the supplied filter.", 1);
