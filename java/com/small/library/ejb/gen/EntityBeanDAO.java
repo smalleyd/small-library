@@ -299,7 +299,7 @@ public class EntityBeanDAO extends EntityBeanBase
 			writeLine(i.importedObjectName + " " + i.importedKeyMemberName + " = (" + i.importedObjectName +
 				") session.get(" + i.importedObjectName + ".class, value." + i.memberVariableName + ");", tabs);
 			writeLine("if (null == " + i.importedKeyMemberName + ")", tabs);
-			writeLine("validator.add(\"" + i.memberVariableName + "\", \"The " + i.name + ", %s, is invalid.\", value." + i.memberVariableName + ");", tabs + 1);
+			writeLine("validator.add(\"" + i.memberVariableName + "\", \"The " + i.name + ", %" + (i.isString ? "s" : "d") + ", is invalid.\", value." + i.memberVariableName + ");", tabs + 1);
 
 			if (i.isNullable)
 				writeLine("}", tabs - 1);
