@@ -292,7 +292,30 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void search_sort()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		int size = m_ColumnInfo.length;
+		for (ColumnInfo i : m_ColumnInfo)
+		{
+			String defaultDir = (i.isAutoIncrementing || i.isBoolean || i.isRange()) ? "DESC" : "ASC";
+			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", null), \"" + i.memberVariableName + "\", \"" + defaultDir + "\"); // Missing sort direction is converted to the default.", 2);
+			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", \"ASC\"), \"" + i.memberVariableName + "\", \"ASC\");", 2);
+			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", \"asc\"), \"" + i.memberVariableName + "\", \"ASC\");", 2);
+			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", \"invalid\"), \"" + i.memberVariableName + "\", \"" + defaultDir + "\");	// Invalid sort direction is converted to the default.", 2);
+			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", \"DESC\"), \"" + i.memberVariableName + "\", \"DESC\");", 2);
+			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", \"desc\"), \"" + i.memberVariableName + "\", \"DESC\");", 2);
+			if (0 < --size)
+				writeLine();
+		}
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("/** Helper method: performs the search and checks sort option fields. */", 1);
+		writeLine("private void search_sort(" + filterName + " filter, String expectedSortOn, String expectedSortDir)", 1);
+		writeLine("{", 1);
+		writeLine("QueryResults<" + valueName + ", " + filterName + "> results = dao.search(filter);", 2);
+		writeLine("String assertId = \"SEARCH_SORT (\" + filter.getSortOn() + \", \" + filter.getSortDir() + \"): \";", 2);
+		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
+		writeLine("Assert.assertEquals(assertId + \"Check sortOn\", expectedSortOn, results.getSortOn());", 2);
+		writeLine("Assert.assertEquals(assertId + \"Check sortDir\", expectedSortDir, results.getSortDir());", 2);
 		writeLine("}", 1);
 
 		writeLine();
