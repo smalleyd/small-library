@@ -209,9 +209,9 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("private static final String TARGET = \"/" + mapping + "\";", 1);
 		writeLine();
 		writeLine("/** Generic types for reading values from responses. */", 1);
-		writeLine("private static final GenericType<Model<Boolean>> BOOLEAN_TYPE = new GenericType<Model<Boolean>>() {};", 1);
-		writeLine("private static final GenericType<List<NameValue>> LIST_NAME_VALUE_TYPE = new GenericType<List<NameValue>>() {};", 1);
-		writeLine("private static final GenericType<QueryResults<" + valueName + ", " + filterName + ">> QUERY_RESULTS_TYPE =", 1);
+		writeLine("private static final GenericType<Model<Boolean>> TYPE_BOOLEAN = new GenericType<Model<Boolean>>() {};", 1);
+		writeLine("private static final GenericType<List<NameValue>> TYPE_LIST_NAME_VALUE = new GenericType<List<NameValue>>() {};", 1);
+		writeLine("private static final GenericType<QueryResults<" + valueName + ", " + filterName + ">> TYPE_QUERY_RESULTS =", 1);
 		writeLine("new GenericType<QueryResults<" + valueName + ", " + filterName + ">>() {};", 2);
 		writeLine();
 		writeLine("@BeforeClass", 1);
@@ -296,7 +296,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine();
 		writeLine("String assertId = \"SEARCH \" + filter + \": \";", 2);
 		writeLine("Assert.assertEquals(assertId + \"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
-		writeLine("QueryResults<" + valueName + ", " + filterName + "> results = response.readEntity(QUERY_RESULTS_TYPE);", 2);
+		writeLine("QueryResults<" + valueName + ", " + filterName + "> results = response.readEntity(TYPE_QUERY_RESULTS);", 2);
 		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
 		writeLine("Assert.assertEquals(assertId + \"Check total\", expectedTotal, results.getTotal());", 2);
 		writeLine("if (0L == expectedTotal)", 2);
@@ -332,7 +332,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine();
 		writeLine("String assertId = \"DELETE (\" + id + \", \" + success + \"): \";", 2);
 		writeLine("Assert.assertEquals(assertId + \"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
-		writeLine("Model<Boolean> results = response.readEntity(BOOLEAN_TYPE);", 2);
+		writeLine("Model<Boolean> results = response.readEntity(TYPE_BOOLEAN);", 2);
 		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
 		writeLine("Assert.assertEquals(assertId + \"Check value\", success, results.getValue());", 2);
 		writeLine("}", 1);
