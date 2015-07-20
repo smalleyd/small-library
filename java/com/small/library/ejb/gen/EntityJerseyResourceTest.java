@@ -231,25 +231,57 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		String valueName = EntityBeanValueObject.getClassName(name);
 		String to_s = "String".equals(pkTypeName) ? "" : ".toString()";
 
+		// For testing non-existence, use a value to add to the primary key.
+		String invalidId = "\"INVALID\"";
+		for (ColumnInfo i : m_ColumnInfo)
+		{
+			if (i.isPartOfPrimaryKey)
+			{
+				if (!i.isCharacter)
+					invalidId = (10 < i.size) ? "1000L" : "1000";
+
+				break;
+			}
+		}
+
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void add()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("Response response = request()", 2);
+		writeLine(".post(Entity.entity(VALUE = new " + valueName + "(), JerseyUtils.APPLICATION_JSON_TYPE));", 3);
+		writeLine();
+		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine(valueName + " value = response.readEntity(" + valueName + ".class);", 2);
+		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
+		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void find()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("Response response = target().queryParam(\"name\", \"\")", 2);
+		writeLine(".request(JerseyUtils.APPLICATION_JSON_TYPE)", 3);
+		writeLine(".get();", 3);
+		writeLine();
+		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine("List<NameValue> values = response.readEntity(TYPE_LIST_NAME_VALUE);", 2);
+		writeLine("Assert.assertNotNull(\"Exists\", values);", 2);
+		writeLine();
+		writeLine("// TODO: do other checks.", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void get()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("Response response = request(VALUE.getId()).get();", 2);
+		writeLine();
+		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine(valueName + " value = response.readEntity(" + valueName + ".class);", 2);
+		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
+		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -263,7 +295,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void getWithException()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.getId() " + invalidId + ").getStatus());", 2);
 		writeLine("}", 1);
 
 		writeLine();
