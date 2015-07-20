@@ -141,6 +141,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		}
 
 		String name = getObjectName();
+		writeLine("import org.apache.commons.lang3.StringUtils;");
 		writeLine("import org.hibernate.SessionFactory;");
 		writeLine("import org.junit.*;");
 		writeLine("import org.junit.runners.MethodSorters;");
@@ -196,56 +197,122 @@ public class EntityBeanDAOTest extends EntityBeanBase
 	private void writeMethods() throws IOException
 	{
 		String name = getObjectName();
+		String entityName = EntityBeanCMP3.getClassName(name);
 		String filterName = EntityBeanFilter.getClassName(name);
 		String valueName = EntityBeanValueObject.getClassName(name);
+
+		// For testing non-existence, use a value to add to the primary key.
+		String invalidId = "\"INVALID\"";
+		for (ColumnInfo i : m_ColumnInfo)
+		{
+			if (i.isPartOfPrimaryKey)
+			{
+				if (!i.isCharacter)
+					invalidId = (10 < i.size) ? "1000L" : "1000";
+
+				break;
+			}
+		}
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void add()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine(valueName + " value = dao.add(VALUE = new " + valueName + "());", 2);
+		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
+		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
+
+		// Add validation checks.
+		for (ColumnInfo i : m_ColumnInfo)
+		{
+			if (i.isAutoIncrementing)
+				continue;
+
+			if (!i.isNullable && !i.isPrimitive)
+			{
+				writeLine();
+				writeLine("@Test(expected=ValidationException.class)", 1);
+				writeLine("public void add_missing" + i.name + "()", 1);
+				writeLine("{", 1);
+				writeLine("dao.add(new " + valueName + "()." + i.withMethodName + "(null));", 2);
+				writeLine("}", 1);
+			}
+			if (i.isString)
+			{
+				writeLine();
+				writeLine("@Test(expected=ValidationException.class)", 1);
+				writeLine("public void add_long" + i.name + "()", 1);
+				writeLine("{", 1);
+				writeLine("dao.add(new " + valueName + "()." + i.withMethodName + "(StringUtils.repeat(\"A\", " + (i.size + 1) + ")));", 2);
+				writeLine("}", 1);
+			}
+			if (i.isImportedKey)
+			{
+				String invalidId_ = i.isCharacter ? "\"INVALID\"" : (10 < i.size) ? "1000L" : "1000";
+				writeLine();
+				writeLine("@Test(expected=ValidationException.class)", 1);
+				writeLine("public void add_invalid" + i.name + "()", 1);
+				writeLine("{", 1);
+				writeLine("dao.add(new " + valueName + "()." + i.withMethodName + "(VALUE.getId() + " + invalidId_ + ")));", 2);
+				writeLine("}", 1);
+			}
+		}
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void find()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine(entityName + " record = dao.findWithException(VALUE.getId());", 2);
+		writeLine("Assert.assertNotNull(\"Exists\", record);", 2);
+		writeLine("check(VALUE, record);", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test(expected=ValidationException.class)", 1);
 		writeLine("public void findWithException()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("dao.findWithException(VALUE.getId() + " + invalidId + ");", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void get()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine(valueName + " value = dao.getByIdWithException(VALUE.getId());", 2);
+		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
+		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test(expected=ValidationException.class)", 1);
 		writeLine("public void getWithException()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("dao.getByIdWithException(VALUE.getId() + " + invalidId + ");", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void modify()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 1L);", 2);
+		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 0L);", 2);
+		writeLine();
+		writeLine(valueName + " value = dao.update(VALUE);", 2);
+		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
+		writeLine("check(VALUE, value);", 2);
+		writeLine();
+		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 0L);", 2);
+		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 1L);", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void modify_find()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine(entityName + " record = dao.findWithException(VALUE.getId());", 2);
+		writeLine("Assert.assertNotNull(\"Exists\", record);", 2);
+		writeLine("check(VALUE, record);", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -302,6 +369,18 @@ public class EntityBeanDAOTest extends EntityBeanBase
 			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", \"invalid\"), \"" + i.memberVariableName + "\", \"" + defaultDir + "\");	// Invalid sort direction is converted to the default.", 2);
 			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", \"DESC\"), \"" + i.memberVariableName + "\", \"DESC\");", 2);
 			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", \"desc\"), \"" + i.memberVariableName + "\", \"DESC\");", 2);
+
+			if (i.isImportedKey)
+			{
+				writeLine();
+				writeLine("search_sort(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", null), \"" + i.importedKeyMemberName + "Name\", \"" + defaultDir + "\"); // Missing sort direction is converted to the default.", 2);
+				writeLine("search_sort(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"ASC\"), \"" + i.importedKeyMemberName + "Name\", \"ASC\");", 2);
+				writeLine("search_sort(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"asc\"), \"" + i.importedKeyMemberName + "Name\", \"ASC\");", 2);
+				writeLine("search_sort(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"invalid\"), \"" + i.importedKeyMemberName + "Name\", \"" + defaultDir + "\");	// Invalid sort direction is converted to the default.", 2);
+				writeLine("search_sort(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"DESC\"), \"" + i.importedKeyMemberName + "Name\", \"DESC\");", 2);
+				writeLine("search_sort(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"desc\"), \"" + i.importedKeyMemberName + "Name\", \"DESC\");", 2);
+			}
+
 			if (0 < --size)
 				writeLine();
 		}
@@ -323,7 +402,9 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void testRemove()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("Assert.assertFalse(\"Invalid\", dao.remove(VALUE.getId() + 1000));", 2);
+		writeLine("Assert.assertTrue(\"Removed\", dao.remove(VALUE.getId()));", 2);
+		writeLine("Assert.assertFalse(\"Already removed\", dao.remove(VALUE.getId()));", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -331,7 +412,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test(expected=ValidationException.class)", 1);
 		writeLine("public void testRemove_find()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("dao.findWithException(VALUE.getId());", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -339,7 +420,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void testRemove_search()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("count(new " + filterName + "().withId(VALUE.getId()), 0L);", 2);
 		writeLine("}", 1);
 
 		writeLine();
