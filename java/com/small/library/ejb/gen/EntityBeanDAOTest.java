@@ -314,6 +314,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("{", 1);
 		writeLine(entityName + " record = dao.findWithException(VALUE.getId());", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", record);", 2);
+		writeLine("// TODO: check the changed property.", 2);
 		writeLine("check(VALUE, record);", 2);
 		writeLine("}", 1);
 

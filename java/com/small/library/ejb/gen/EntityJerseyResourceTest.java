@@ -322,7 +322,10 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void modify_get()", 1);
 		writeLine("{", 1);
-		writeLine("check(VALUE, get(VALUE.getId()).readEntity(" + valueName + ".class));", 2);
+		writeLine(valueName + " value = get(VALUE.getId()).readEntity(" + valueName + ".class);", 2);
+		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
+		writeLine("// TODO: check the changed property.", 2);
+		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
 
 		writeLine();
