@@ -255,7 +255,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 				writeLine("@Test(expected=ValidationException.class)", 1);
 				writeLine("public void add_invalid" + i.name + "()", 1);
 				writeLine("{", 1);
-				writeLine("dao.add(new " + valueName + "()." + i.withMethodName + "(VALUE.getId() + " + invalidId_ + ")));", 2);
+				writeLine("dao.add(new " + valueName + "()." + i.withMethodName + "(VALUE.getId() + " + invalidId_ + "));", 2);
 				writeLine("}", 1);
 			}
 		}
@@ -404,7 +404,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void testRemove()", 1);
 		writeLine("{", 1);
-		writeLine("Assert.assertFalse(\"Invalid\", dao.remove(VALUE.getId() + 1000));", 2);
+		writeLine("Assert.assertFalse(\"Invalid\", dao.remove(VALUE.getId() + " + invalidId + "));", 2);
 		writeLine("Assert.assertTrue(\"Removed\", dao.remove(VALUE.getId()));", 2);
 		writeLine("Assert.assertFalse(\"Already removed\", dao.remove(VALUE.getId()));", 2);
 		writeLine("}", 1);
