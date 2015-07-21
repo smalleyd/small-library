@@ -218,6 +218,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void add()", 1);
 		writeLine("{", 1);
+		writeLine("// TODO: populate the VALUE with data.", 2);
 		writeLine(valueName + " value = dao.add(VALUE = new " + valueName + "());", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);
@@ -298,6 +299,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 1L);", 2);
 		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 0L);", 2);
 		writeLine();
+		writeLine("// TODO: provide a change to the VALUE.", 2);
 		writeLine(valueName + " value = dao.update(VALUE);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);

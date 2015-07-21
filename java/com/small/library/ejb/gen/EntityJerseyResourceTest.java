@@ -248,6 +248,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void add()", 1);
 		writeLine("{", 1);
+		writeLine("// TODO: populate the VALUE with data.", 2);
 		writeLine("Response response = request()", 2);
 		writeLine(".post(Entity.entity(VALUE = new " + valueName + "(), JerseyUtils.APPLICATION_JSON_TYPE));", 3);
 		writeLine();
@@ -276,7 +277,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void get()", 1);
 		writeLine("{", 1);
-		writeLine("Response response = request(VALUE.getId()).get();", 2);
+		writeLine("Response response = get(VALUE.getId());", 2);
 		writeLine();
 		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
 		writeLine(valueName + " value = response.readEntity(" + valueName + ".class);", 2);
@@ -295,28 +296,48 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void getWithException()", 1);
 		writeLine("{", 1);
-		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.getId() " + invalidId + ").getStatus());", 2);
+		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.getId() + " + invalidId + ").getStatus());", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void modify()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 1L);", 2);
+		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 0L);", 2);
+		writeLine();
+		writeLine("// TODO: provide a change to the VALUE.", 2);
+		writeLine("Response response = request().put(Entity.entity(VALUE, JerseyUtils.APPLICATION_JSON_TYPE));", 2);
+		writeLine();
+		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine(valueName + " value = response.readEntity(" + valueName + ".class);", 2);
+		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
+		writeLine("check(VALUE, value);", 2);
+		writeLine();
+		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 0L);", 2);
+		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 1L);", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void modify_get()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("check(VALUE, get(VALUE.getId()).readEntity(" + valueName + ".class));", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void search()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		for (ColumnInfo i : m_ColumnInfo)
+		{
+			writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.accessorMethodName + "()), 1L);", 2);
+			if (i.isRange())
+			{
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.accessorMethodName + "()), 1L);", 2);
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.accessorMethodName + "()), 1L);", 2);
+			}
+		}
 		writeLine("}", 1);
 
 		writeLine();
@@ -353,7 +374,9 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void testRemove()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("remove(VALUE.getId() + " + invalidId + ", false);", 2);
+		writeLine("remove(VALUE.getId(), true);", 2);
+		writeLine("remove(VALUE.getId(), false);", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -373,14 +396,15 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void testRemove_get()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.getId()).getStatus());", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void testRemove_search()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: provide implementation.", 2);
+		writeLine("count(new " + filterName + "().withId(VALUE.getId()), 0L);", 2);
+		writeLine("// TODO: provide secondary test count.", 2);
 		writeLine("}", 1);
 
 		writeLine();
