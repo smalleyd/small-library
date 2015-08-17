@@ -424,6 +424,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("public void testRemove_search()", 1);
 		writeLine("{", 1);
 		writeLine("count(new " + filterName + "().withId(VALUE.getId()), 0L);", 2);
+		writeLine("// TODO: provide secondary test count.", 2);
 		writeLine("}", 1);
 
 		writeLine();
