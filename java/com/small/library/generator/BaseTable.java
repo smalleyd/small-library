@@ -405,20 +405,20 @@ public abstract class BaseTable extends BaseJDBC
 		@param nFirstArgument Index in the array that indicates the first
 			data source argument. The argument order should be
 			URL, User ID, Password, & Driver.
-		@param strSchemaNamePatternArg Schema Name Pattern.
+		@param tableNamePatternArg Table Name Pattern.
 	*/
 	protected static Tables extractTables(String[] strArgs,
-		int nFirstArgument, String strSchemaNamePattern)
+		int nFirstArgument, String tableNamePattern)
 			throws DataSourceException, IllegalArgumentException,
 				SQLException
 	{
 		DataSource dataSource = extractDataSource(strArgs, nFirstArgument);
 
-		if ((null == strSchemaNamePattern) || (0 == strSchemaNamePattern.length()))
+		if ((null == tableNamePattern) || (0 == tableNamePattern.length()))
 			return new Tables(dataSource.getConnectionPool());
 		else
 			return new Tables(dataSource.getConnectionPool(),
-				(String[]) null, strSchemaNamePattern);
+				(String[]) null, tableNamePattern);
 	}
 
 	/** Helper method - gets a <I>Tables</I> object based on the command line
@@ -427,16 +427,16 @@ public abstract class BaseTable extends BaseJDBC
 		@param nFirstArgument Index in the array that indicates the first
 			data source argument. The argument order should be
 			URL, User ID, Password, & Driver.
-		@param nSchemaNamePatternArg Index in the array that indicates the
-			Schema Name Pattern argument.
+		@param tableNamePatternArg Index in the array that indicates the
+			Table Name Pattern argument.
 	*/
 	protected static Tables extractTables(String[] strArgs,
-		int nFirstArgument, int nSchemaNamePatternArg)
+		int nFirstArgument, int tableNamePatternArg)
 			throws DataSourceException, IllegalArgumentException,
 				SQLException
 	{
 		return extractTables(strArgs, nFirstArgument,
-			extractArgument(strArgs, nSchemaNamePatternArg, null));
+			extractArgument(strArgs, tableNamePatternArg, null));
 	}
 
 	/** Helper method - gets a <I>Tables</I> object based on the command line

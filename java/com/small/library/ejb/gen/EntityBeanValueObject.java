@@ -434,6 +434,8 @@ public class EntityBeanValueObject extends EntityBeanBase
 		@param strArg6 author of the generated classes. Will use the
 			"user.name" system property value if not supplied.
 		@param strArg7 package name of the entity bean value object.
+		@param args8 application version number
+		@param args9 table name filter
 	*/
 	public static void main(String strArgs[])
 	{

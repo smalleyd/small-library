@@ -430,7 +430,8 @@ public class EntityBeanCMP3 extends EntityBeanBase
 		@param args6 author of the generated classes. Will use the
 			"user.name" system property value if not supplied.
 		@param args7 package name of the entity bean CMP classes.
-		@param args8 version JavaDoc value.
+		@param args8 application version number
+		@param args9 table name filter
 	*/
 	public static void main(String args[])
 	{
@@ -447,7 +448,7 @@ public class EntityBeanCMP3 extends EntityBeanBase
 			String version = extractArgument(args, 7, VERSION_DEFAULT);
 
 			// Create and load the tables object.
-			Tables pTables = extractTables(args, 1, 7);
+			Tables pTables = extractTables(args, 1, 8);
 			pTables.load();
 
 			// Create the SQL Repository Item Descriptor generator.

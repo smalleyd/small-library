@@ -434,7 +434,8 @@ public class EntityBeanFilter extends EntityBeanBase
 		@param args6 author of the generated classes. Will use the
 			"user.name" system property value if not supplied.
 		@param args7 package name of the entity bean value object.
-		@param args8 application version number.
+		@param args8 application version number
+		@param args9 table name filter
 	*/
 	public static void main(String args[])
 	{

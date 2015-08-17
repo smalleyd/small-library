@@ -55,29 +55,29 @@ public class Tables extends MetaDataCollection
 	/** Constructor - accepts a table type.
 		@param pConnectionFactory A reference to a connection factory.
 		@param strType Table type value.
-		@param strSchemaPattern Schema or user name pattern to filter the table
+		@param tablePattern Table name pattern to filter the table
 			collection by.
 	*/
 	public Tables(ConnectionFactory pConnectionFactory,
-		String strType, String strSchemaPattern)
+		String strType, String tablePattern)
 	{
 		super(pConnectionFactory);
 		setType(strType);
-		setSchemaPattern(strSchemaPattern);
+		setTablePattern(tablePattern);
 	}
 
 	/** Constructor - accepts a table type.
 		@param connectionFactory A reference to a connection factory.
 		@param types Array of table type values.
-		@param schemaPattern Schema or user name pattern to filter the table
+		@param tablePattern Table name pattern to filter the table
 			collection by.
 	*/
 	public Tables(ConnectionFactory connectionFactory,
-		String[] types, String schemaPattern)
+		String[] types, String tablePattern)
 	{
 		super(connectionFactory);
 		setTypes(types);
-		setSchemaPattern(schemaPattern);
+		setTablePattern(tablePattern);
 	}
 
 	/********************************************************************************************
@@ -89,7 +89,7 @@ public class Tables extends MetaDataCollection
 	/** Abstract implementation - gets a ResultSet that <CODE>load</CODE> can use. */
 	protected ResultSet getResultSet() throws SQLException
 	{
-		return getDatabaseMetaData().getTables(null, schemaPattern, null, types);
+		return getDatabaseMetaData().getTables(null, null, tablePattern, types);
 	}
 
 	/** Abstract implementation - gets a new data record object. */
@@ -113,8 +113,8 @@ public class Tables extends MetaDataCollection
 	/** Accessor method - gets the table types property. */
 	public String[] getTypes() { return types; }
 
-	/** Accessor method - gets the schema or user name pattern filter. */
-	public String getSchemaPattern() { return schemaPattern; }
+	/** Accessor method - gets the table name pattern filter. */
+	public String getTablePattern() { return tablePattern; }
 
 	/********************************************************************************************
 	*
@@ -134,8 +134,8 @@ public class Tables extends MetaDataCollection
 	/** Mutator method - sets the table types property. */
 	public void setTypes(String[] newValues) { types = newValues; }
 
-	/** Mutator method - sets the schema or user name pattern filter. */
-	public void setSchemaPattern(String newValue) { schemaPattern = newValue; }
+	/** Mutator method - sets the table name pattern filter. */
+	public void setTablePattern(String newValue) { tablePattern = newValue; }
 
 	/********************************************************************************************
 	*
@@ -146,8 +146,8 @@ public class Tables extends MetaDataCollection
 	/** Member variable - contains the table type property. */
 	private String[] types = null;
 
-	/** Member variable - contains the schema or user name pattern filter. */
-	private String schemaPattern = null;
+	/** Member variable - contains the table name pattern filter. */
+	private String tablePattern = null;
 
 /***************************************************************************************
 *

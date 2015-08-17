@@ -294,33 +294,34 @@ public class EntityJerseyResource extends EntityBeanBase
 	*****************************************************************************/
 
 	/** Command line entry point.
-		@param strArg1 Output directory.
-		@param strArg2 URL to the data source.
-		@param strArg3 data source login name.
-		@param strArg4 data source password.
-		@param strArg5 optional JDBC driver class name. Will use JDBC-ODBC
+		@param args1 Output directory.
+		@param args2 URL to the data source.
+		@param args3 data source login name.
+		@param args4 data source password.
+		@param args5 optional JDBC driver class name. Will use JDBC-ODBC
 			bridge if a drive is not supplied.
-		@param strArg6 author of the generated classes. Will use the
+		@param args6 author of the generated classes. Will use the
 			"user.name" system property value if not supplied.
-		@param strArg7 package name of the entity bean value object.
-		@param strArg8 represents the version of the resource.
+		@param args7 package name of the entity bean value object.
+		@param args8 application version number
+		@param args9 table name filter
 	*/
-	public static void main(String strArgs[])
+	public static void main(String args[])
 	{
 		try
 		{
 			// Have enough arguments been supplied?
-			if (3 > strArgs.length)
+			if (3 > args.length)
 				throw new IllegalArgumentException("Please supply at least 3 arguments.");
 
 			// Local variables
-			File fileOutputDir = extractOutputDirectory(strArgs, 0);
-			String strAuthor = extractAuthor(strArgs, 5);
-			String strPackageName = extractArgument(strArgs, 6, null);
-			String version = extractArgument(strArgs, 7, null);
+			File fileOutputDir = extractOutputDirectory(args, 0);
+			String strAuthor = extractAuthor(args, 5);
+			String strPackageName = extractArgument(args, 6, null);
+			String version = extractArgument(args, 7, null);
 
 			// Create and load the tables object.
-			Tables pTables = extractTables(strArgs, 1, 8);
+			Tables pTables = extractTables(args, 1, 8);
 			pTables.load();
 
 			// Create the SQL Repository Item Descriptor generator.
