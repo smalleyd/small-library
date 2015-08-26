@@ -224,6 +224,16 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
 
+		writeLine();
+		writeLine("/** Creates a valid " + name + " value for the validation tests.", 1);
+		writeLine(" *\t@return never NULL.", 1);
+		writeLine("*/", 1);
+		writeLine("private " + valueName + " createValid()", 1);
+		writeLine("{", 1);
+		writeLine("// TODO: populate the valid value with data.", 2);
+		writeLine("return new " + valueName + "();", 2);
+		writeLine("}", 1);
+
 		// Add validation checks.
 		for (ColumnInfo i : m_ColumnInfo)
 		{
@@ -236,7 +246,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 				writeLine("@Test(expected=ValidationException.class)", 1);
 				writeLine("public void add_missing" + i.name + "()", 1);
 				writeLine("{", 1);
-				writeLine("dao.add(new " + valueName + "()." + i.withMethodName + "(null));", 2);
+				writeLine("dao.add(createValid()." + i.withMethodName + "(null));", 2);
 				writeLine("}", 1);
 			}
 			if (i.isString)
@@ -245,7 +255,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 				writeLine("@Test(expected=ValidationException.class)", 1);
 				writeLine("public void add_long" + i.name + "()", 1);
 				writeLine("{", 1);
-				writeLine("dao.add(new " + valueName + "()." + i.withMethodName + "(StringUtils.repeat(\"A\", " + (i.size + 1) + ")));", 2);
+				writeLine("dao.add(createValid()." + i.withMethodName + "(StringUtils.repeat(\"A\", " + (i.size + 1) + ")));", 2);
 				writeLine("}", 1);
 			}
 			if (i.isImportedKey)
@@ -255,7 +265,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 				writeLine("@Test(expected=ValidationException.class)", 1);
 				writeLine("public void add_invalid" + i.name + "()", 1);
 				writeLine("{", 1);
-				writeLine("dao.add(new " + valueName + "()." + i.withMethodName + "(VALUE.getId() + " + invalidId_ + "));", 2);
+				writeLine("dao.add(createValid()." + i.withMethodName + "(VALUE.getId() + " + invalidId_ + "));", 2);
 				writeLine("}", 1);
 			}
 		}
