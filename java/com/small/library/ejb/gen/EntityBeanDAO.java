@@ -143,7 +143,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		}
 
 		String name = getObjectName();
-		writeLine("import static com.swellby.common.hibernate.OrderByBuilder.*;");
+		writeLine("import static " + domainPackageName + ".common.hibernate.OrderByBuilder.*;");
 		writeLine();
 		writeLine("import java.util.stream.Collectors;");
 		writeLine();
