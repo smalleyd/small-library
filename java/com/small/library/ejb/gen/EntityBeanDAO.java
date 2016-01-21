@@ -152,11 +152,11 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine();
 		writeLine("import io.dropwizard.hibernate.AbstractDAO;");
 		writeLine();
-		writeLine("import " + basePackageName + ".entity.*;");
 		writeLine("import " + domainPackageName + ".common.dao.QueryResults;");
 		writeLine("import " + domainPackageName + ".common.error.ValidationException;");
 		writeLine("import " + domainPackageName + ".common.error.Validator;");
 		writeLine("import " + domainPackageName + ".common.hibernate.OrderByBuilder;");
+		writeLine("import " + basePackageName + ".entity.*;");
 		writeLine("import " + basePackageName + ".filter." + EntityBeanFilter.getClassName(name) + ";");
 		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(name) + ";");
 		writeLine();
