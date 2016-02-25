@@ -397,7 +397,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" */", 1);
 		writeLine("public long count(" + filterName + " filter) throws ValidationException", 1);
 		writeLine("{", 1);
-			writeLine("return count(createCriteria(filter));", 2);
+			writeLine("return count(createCriteria(filter.clean()));", 2);
 		writeLine("}", 1);
 
 		writeLine();
