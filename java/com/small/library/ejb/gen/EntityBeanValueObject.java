@@ -90,11 +90,9 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeHeader();
 		writeClassDeclaration();
 
-		writeMemberVariables();
-		writeConstructors();
 		writeAccessorMethods();
-		writeMutatorMethods();
 		writeImportedKeysAccessorMethods();
+		writeConstructors();
 		writeHelperMethods();
 		writeObjectMethods();
 
@@ -162,69 +160,64 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine();
 		writeLine("public class " + getClassName() + " implements Serializable");
 		writeLine("{");
-		writeLine("\t/** Constant - serial version UID. */");
 		writeLine("\tpublic static final long serialVersionUID = 1L;");
-		writeLine();
 	}
 
-	/** Output method - writes the member variables. */
-	private void writeMemberVariables() throws IOException
+	/** Output method - writes the accessor methods. */
+	private void writeAccessorMethods() throws IOException
 	{
-		// Start member variable section.
-		writeLine("\t/**************************************************************************");
-		writeLine("\t*");
-		writeLine("\t*\tMember variables");
-		writeLine("\t*");
-		writeLine("\t**************************************************************************/");
-
-		// Any columns available?
-		if (0 >= m_ColumnInfo.length)
-			return;
-
-		// Write member variables.
+		// Write accessors.
 		for (ColumnInfo i : m_ColumnInfo)
 		{
 			writeLine();
-			writeLine("\t/** Member variable - represents the \"" + i.columnName + "\" field. */");
+			write("\tpublic " + i.javaType + " " + i.accessorMethodName + "()");
+				writeLine(" { return " + i.memberVariableName + "; }");
 			write("\tpublic " + i.javaType + " " + i.memberVariableName);
 			if (!i.isPrimitive)
 				write(" = null");
-
 			writeLine(";");
+			write("\tpublic void " + i.mutatorMethodName + "(" + i.javaType + " newValue)");
+			writeLine(" { " + i.memberVariableName + " = newValue; }");
+
+			// Write the "with" method.
+			write("\tpublic " + getClassName() + " " + i.withMethodName + "(" + i.javaType + " newValue)");
+			writeLine(" { " + i.memberVariableName + " = newValue; return this; }");
+		}
+	}
+
+	/** Output method - writes the imported foreign key accessor methods. */
+	private void writeImportedKeysAccessorMethods() throws IOException
+	{
+		// Write accessors.
+		for (int i = 0; i < m_ColumnInfo.length; i++)
+		{
+			ColumnInfo columnInfo = m_ColumnInfo[i];
+
+			if (!columnInfo.isImportedKey)
+				continue;
+
+			String name = columnInfo.importedKeyName;
+			String memberName = columnInfo.importedKeyMemberName;
+
+			writeLine();
+			write("public String get" + name + "Name()", 1);
+			writeLine(" { return " + memberName + "Name; }");
+			writeLine("public String " + memberName + "Name = null;", 1);
+			write("public void set" + name + "Name(String newValue)", 1);
+			writeLine(" { " + memberName + "Name = newValue; }");
+			writeLine("public " + getClassName() + " with" + name + "Name(String newValue) { " + memberName + "Name = newValue; return this; }", 1);
 		}
 	}
 
 	/** Output method - writes the <CODE>constructors</CODE>. */
 	private void writeConstructors() throws IOException
 	{
-		// Start section.
-		writeLine();
-		writeLine("\t/**************************************************************************");
-		writeLine("\t*");
-		writeLine("\t*\tConstructors");
-		writeLine("\t*");
-		writeLine("\t**************************************************************************/");
-
 		// Write the default/empty constructor. */
 		writeLine();
-		writeLine("\t/** Default/empty. */");
 		writeLine("\tpublic " + getClassName() + "() {}");
 
 		// Write constructor with all possible values.
 		writeLine();
-		writeLine("\t/** Populator.");
-
-		// Create the parameter comments.
-		for (int i = 0; i < m_ColumnInfo.length; i++)
-		{
-			ColumnInfo item = m_ColumnInfo[i];
-			writeLine("\t\t@param " + item.memberVariableName + " represents the \"" +
-				item.columnName + "\" field.");
-		}
-
-		writeLine("\t*/");
-
-		// Constructor signature.
 		write("\tpublic " + getClassName() + "(");
 		for (int i = 0, last = m_ColumnInfo.length - 1; i < m_ColumnInfo.length; i++)
 		{
@@ -252,111 +245,9 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("\t}");			
 	}
 
-	/** Output method - writes the accessor methods. */
-	private void writeAccessorMethods() throws IOException
-	{
-		// Start the section.
-		writeLine();
-		writeLine("\t/**************************************************************************");
-		writeLine("\t*");
-		writeLine("\t*\tAccessor methods");
-		writeLine("\t*");
-		writeLine("\t**************************************************************************/");
-
-		// Any columns available?
-		if (0 >= m_ColumnInfo.length)
-			return;
-
-		writeLine();
-
-		// Write accessors.
-		for (int i = 0; i < m_ColumnInfo.length; i++)
-		{
-			writeLine("\t/** Accessor method - gets the property that represents the \"" + m_ColumnInfo[i].columnName + "\" field. */");
-			write("\tpublic " + m_ColumnInfo[i].javaType + " " + m_ColumnInfo[i].accessorMethodName + "()");
-				writeLine(" { return " + m_ColumnInfo[i].memberVariableName + "; }");
-			writeLine();
-		}
-	}
-
-	/** Output method - writes the mutator methods. */
-	private void writeMutatorMethods() throws IOException	
-	{
-		// Start the section.
-		writeLine("\t/**************************************************************************");
-		writeLine("\t*");
-		writeLine("\t*\tMutator methods");
-		writeLine("\t*");
-		writeLine("\t**************************************************************************/");
-
-		// Any columns available?
-		if (0 >= m_ColumnInfo.length)
-			return;
-
-		writeLine();
-
-		// Write mutators.
-		for (ColumnInfo i : m_ColumnInfo)
-		{
-			writeLine("\t/** Mutator method - sets the property that represents the \"" + i.columnName + "\" field. */");
-			write("\tpublic void " + i.mutatorMethodName + "(" + i.javaType + " newValue)");
-				writeLine(" { " + i.memberVariableName + " = newValue; }");
-
-			// Write the "with" method.
-			write("\tpublic " + getClassName() + " " + i.withMethodName + "(" + i.javaType + " newValue)");
-			writeLine(" { " + i.memberVariableName + " = newValue; return this; }");
-
-			writeLine();
-		}
-	}
-
-	/** Output method - writes the imported foreign key accessor methods. */
-	private void writeImportedKeysAccessorMethods() throws IOException
-	{
-		// Start the section.
-		writeLine("\t/**************************************************************************");
-		writeLine("\t*");
-		writeLine("\t*\tAccessor methods - Imported foreign keys");
-		writeLine("\t*");
-		writeLine("\t**************************************************************************/");
-
-		// Write accessors.
-		for (int i = 0; i < m_ColumnInfo.length; i++)
-		{
-			ColumnInfo columnInfo = m_ColumnInfo[i];
-
-			if (!columnInfo.isImportedKey)
-				continue;
-
-			String name = columnInfo.importedKeyName;
-			String memberName = columnInfo.importedKeyMemberName;
-
-			writeLine();
-			writeLine("/** CMR member - " + name + " name. */", 1);
-			writeLine("public String " + memberName + "Name = null;", 1);
-			writeLine();
-			writeLine("/** CMR accessor - " + name + " name. */", 1);
-			write("public String get" + name + "Name()", 1);
-			writeLine(" { return " + memberName + "Name; }");
-			writeLine();
-			writeLine("/** CMR mutator - " + name + " name. */", 1);
-			write("public void set" + name + "Name(String newValue)", 1);
-			writeLine(" { " + memberName + "Name = newValue; }");
-			writeLine("public " + getClassName() + " with" + name + "Name(String newValue) { " + memberName + "Name = newValue; return this; }", 1);
-		}
-	}
-
 	/** Output method - writes the internal helper methods. */
 	private void writeHelperMethods() throws IOException
 	{
-		// Start the section.
-		writeLine();
-		writeLine("/**************************************************************************", 1);
-		writeLine("*", 1);
-		writeLine("*\tHelper methods", 1);
-		writeLine("*", 1);
-		writeLine("**************************************************************************/", 1);
-
 		// Output the clean method for String cleansing.
 		writeLine();
 		writeLine("/** Helper method - trims all string fields and converts empty strings to NULL. */", 1);
@@ -375,14 +266,6 @@ public class EntityBeanValueObject extends EntityBeanBase
 	/** Output method - writes Object class override methods. */
 	private void writeObjectMethods() throws IOException
 	{
-		// Start section.
-		writeLine();
-		writeLine("/**************************************************************************", 1);
-		writeLine("*", 1);
-		writeLine("*\tObject methods", 1);
-		writeLine("*", 1);
-		writeLine("**************************************************************************/", 1);
-
 		// Write the toString method. */
 		ColumnInfo item = m_ColumnInfo[0];
 		writeLine();

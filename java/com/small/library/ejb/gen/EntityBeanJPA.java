@@ -198,44 +198,6 @@ public class EntityBeanJPA extends EntityBeanBase
 		writeLine("\tpublic final static long serialVersionUID = 1L;");
 	}
 
-	/** Output method - writes the <CODE>constructors</CODE>. */
-	private void writeConstructors() throws IOException
-	{
-		// Write the default/empty constructor. */
-		writeLine();
-		writeLine("\tpublic " + getClassName() + "() {}");
-
-		// Write constructor with all possible values.
-		writeLine();
-
-		// Constructor signature.
-		write("\tpublic " + getClassName() + "(");
-		for (int i = 0, last = m_ColumnInfo.length - 1; i < m_ColumnInfo.length; i++)
-		{
-			ColumnInfo item = m_ColumnInfo[i];
-
-			if (0 < i)
-				write("\t\t");
-
-			write(item.javaType + " " + item.memberVariableName);
-
-			if (last == i)
-				writeLine(")");
-			else
-				writeLine(",");
-		}
-
-		// Write body.
-		writeLine("\t{");
-		for (int i = 0; i < m_ColumnInfo.length; i++)
-		{
-			ColumnInfo item = m_ColumnInfo[i];
-			writeLine("\t\tthis." + item.memberVariableName + " = " +
-				item.memberVariableName + ";");
-		}
-		writeLine("\t}");			
-	}
-
 	/** Output method - writes the accessor methods. */
 	private void writeAccessorMethods() throws IOException
 	{
@@ -298,6 +260,44 @@ public class EntityBeanJPA extends EntityBeanBase
 			write("public void set" + name + "(" + objectName + " newValue)", 1);
 			writeLine(" { " + memberName + " = newValue; }");
 		}
+	}
+
+	/** Output method - writes the <CODE>constructors</CODE>. */
+	private void writeConstructors() throws IOException
+	{
+		// Write the default/empty constructor. */
+		writeLine();
+		writeLine("\tpublic " + getClassName() + "() {}");
+
+		// Write constructor with all possible values.
+		writeLine();
+
+		// Constructor signature.
+		write("\tpublic " + getClassName() + "(");
+		for (int i = 0, last = m_ColumnInfo.length - 1; i < m_ColumnInfo.length; i++)
+		{
+			ColumnInfo item = m_ColumnInfo[i];
+
+			if (0 < i)
+				write("\t\t");
+
+			write(item.javaType + " " + item.memberVariableName);
+
+			if (last == i)
+				writeLine(")");
+			else
+				writeLine(",");
+		}
+
+		// Write body.
+		writeLine("\t{");
+		for (int i = 0; i < m_ColumnInfo.length; i++)
+		{
+			ColumnInfo item = m_ColumnInfo[i];
+			writeLine("\t\tthis." + item.memberVariableName + " = " +
+				item.memberVariableName + ";");
+		}
+		writeLine("\t}");			
 	}
 
 	/** Output method - writes the class footer. */
