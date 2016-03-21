@@ -235,7 +235,7 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine();
 		writeLine("@POST", 1);
 		writeLine("@Timed @UnitOfWork", 1);
-		writeLine("@ApiOperation(value=\"add\", notes=\"Adds a single " + name + ". Returns the supplied client value with the auto generated identifier populated.\", response=" + getValueObjectName() + ".class)", 1);
+		writeLine("@ApiOperation(value=\"add\", notes=\"Adds a single " + name + ". Returns the supplied " + name + " value with the auto generated identifier populated.\", response=" + getValueObjectName() + ".class)", 1);
 		writeLine("public " + getValueObjectName() + " add(" + getValueObjectName() + " value) throws ValidationException", 1);
 		writeLine("{", 1);
 			writeLine("return dao.add(value);", 2);
