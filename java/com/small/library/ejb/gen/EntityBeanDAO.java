@@ -197,6 +197,9 @@ public class EntityBeanDAO extends EntityBeanBase
 				writeLine(");");
 		}
 		writeLine();
+		writeLine("/** Native SQL clauses. */", 1);
+		writeLine("public static final String FROM_ALIAS = \"o\";", 1);
+		writeLine();
 		writeLine("public " + name + "(SessionFactory factory)", 1);
 		writeLine("{", 1);
 		writeLine("super(factory);", 2);
@@ -406,6 +409,33 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("{", 1);
 		writeLine("return ((Number) criteria.setProjection(Projections.rowCount()).uniqueResult()).longValue();", 2);
 		writeLine("}", 1);
+
+		writeLine();
+		writeLine("/** Helper method - creates the a native SQL query. */", 1);
+		writeLine("private <T> QueryBuilder<T> createNativeQuery(" + filterName + " filter, String select, Class<T> entityClass, String groupBy)", 1);
+			writeLine("throws ValidationException", 2);
+		writeLine("{", 1);
+			writeLine("return new NativeQueryBuilder<>(currentSession(), select, entityClass, FROM_ALIAS, groupBy)", 2);
+			int size = m_ColumnInfo.length;
+			for (ColumnInfo info : m_ColumnInfo)
+			{
+				if (info.isString)
+					write(".addContains(\"" + info.memberVariableName + "\", \"o." + info.columnName + " LIKE :" + info.memberVariableName + "\", filter." + info.accessorMethodName + "())", 3);
+				else
+					write(".add(\"" + info.memberVariableName + "\", \"o." + info.columnName + " = :" + info.memberVariableName + "\", filter." + info.accessorMethodName + "())", 3);
+
+				// For values that have ranges, also add greater-than (>=) and less-than (<=) searches. DLS on 6/11/2015.
+				if (info.isRange())
+				{
+					writeLine();
+					writeLine(".add(\"" + info.memberVariableName + "From\", \"o." + info.columnName + " >= :" + info.memberVariableName + "From\", filter." + info.accessorMethodName + "From())", 3);
+					write(".add(\"" + info.memberVariableName + "To\", \"o." + info.columnName + " <= :" + info.memberVariableName + "To\", filter." + info.accessorMethodName + "To())", 3);
+				}
+
+				writeLine((0 == --size) ? ";" : "");
+			}
+		writeLine("}", 1);
+
 		writeLine();
 		writeLine("/** Helper method - creates the Hibernate query Criteria based on the supplied " + name + " filter. */", 1);
 		writeLine("public Criteria createCriteria(" + filterName + " filter)", 1);
@@ -439,6 +469,7 @@ public class EntityBeanDAO extends EntityBeanBase
 			writeLine();
 			writeLine("return criteria;", 2);
 		writeLine("}", 1);
+
 		writeLine();
 		writeLine("/** Helper method - creates a non-transactional value from a transactional entity. */", 1);
 		writeLine("private " + valueName + " toValue(" + name + " record)", 1);
