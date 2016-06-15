@@ -316,7 +316,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine();
 		writeLine("/** Removes a single " + name + " value.", 1);
 		writeLine(" *", 1); 
-		writeLine(" * @param value", 1);
+		writeLine(" * @param id", 1);
 		writeLine(" * @return TRUE if the entity is found and removed.", 1);
 		writeLine(" * @throws ValidationException", 1);
 		writeLine(" */", 1);
