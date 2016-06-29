@@ -301,6 +301,7 @@ public abstract class BaseTable extends BaseJDBC
 		info.isAutoIncrementing = isColumnAutoIncrementing(pColumn);
 		info.dataTypeName = pColumn.getTypeName();
 		info.javaType = getJavaType(pColumn);
+		info.dynamoDbType = getDynamoDbType(pColumn);
 		info.isPrimitive = isPrimitive(info.javaType);
 		info.jdbcTypeString = getJDBCType(pColumn);
 		info.variablePrefix = getVariablePrefix(pColumn);

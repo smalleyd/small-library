@@ -33,6 +33,9 @@ public abstract class BaseJDBC extends Base
 	/** Static member - map of SQL data types (Types) to a Java data type. */
 	private static Map<Integer, String> JAVA_TYPES = null;
 
+	/** Static member - map of SQL data types (Types) to a DynamoDB data type. */
+	private static Map<Integer, String> DYNAMO_DB_TYPES = null;
+
 	/** Static member - map of SQL data types (Types) as a number to
 	    a <I>String</String> representation.
 	*/
@@ -132,6 +135,40 @@ public abstract class BaseJDBC extends Base
 		JAVA_TYPES.put(Types.OTHER, "Object");
 		JAVA_TYPES.put(Types.REF, "Object");
 		JAVA_TYPES.put(Types.STRUCT, "Object");
+
+		DYNAMO_DB_TYPES = new HashMap<Integer, String>();
+
+		DYNAMO_DB_TYPES.put(Types.BIGINT, "Long");
+		DYNAMO_DB_TYPES.put(Types.BINARY, "Binary");
+		DYNAMO_DB_TYPES.put(Types.BLOB, "Binary");
+		DYNAMO_DB_TYPES.put(Types.LONGVARBINARY, "Binary");
+		DYNAMO_DB_TYPES.put(Types.VARBINARY, "Binary");
+		DYNAMO_DB_TYPES.put(Types.BIT, "Boolean");
+		DYNAMO_DB_TYPES.put(Types.BOOLEAN, "Boolean");
+		DYNAMO_DB_TYPES.put(Types.CHAR, "String");
+		DYNAMO_DB_TYPES.put(Types.VARCHAR, "String");
+		DYNAMO_DB_TYPES.put(Types.CLOB, "String");
+		DYNAMO_DB_TYPES.put(Types.LONGVARCHAR, "String");
+		// DYNAMO_DB_TYPES.put(Types.DATE, "Long");
+		DYNAMO_DB_TYPES.put(Types.DATE, "Long");	// JPA implementation.
+		DYNAMO_DB_TYPES.put(Types.TIME, "Long");
+		// DYNAMO_DB_TYPES.put(Types.TIMESTAMP, "Long");
+		DYNAMO_DB_TYPES.put(Types.TIMESTAMP, "Long");	// JPA implementation.
+		DYNAMO_DB_TYPES.put(Types.DECIMAL, "Number");
+		DYNAMO_DB_TYPES.put(Types.DOUBLE, "Double");
+		DYNAMO_DB_TYPES.put(Types.NUMERIC, "Number");
+		DYNAMO_DB_TYPES.put(Types.REAL, "Double");
+		DYNAMO_DB_TYPES.put(Types.FLOAT, "Float");
+		DYNAMO_DB_TYPES.put(Types.INTEGER, "Int");
+		DYNAMO_DB_TYPES.put(Types.SMALLINT, "Short");
+		DYNAMO_DB_TYPES.put(Types.TINYINT, "Short");
+		DYNAMO_DB_TYPES.put(Types.ARRAY, "List");
+		DYNAMO_DB_TYPES.put(Types.DISTINCT, "StringSet");
+		DYNAMO_DB_TYPES.put(Types.JAVA_OBJECT, "");
+		DYNAMO_DB_TYPES.put(Types.NULL, "Null");
+		DYNAMO_DB_TYPES.put(Types.OTHER, "");
+		DYNAMO_DB_TYPES.put(Types.REF, "");
+		DYNAMO_DB_TYPES.put(Types.STRUCT, "");
 
 		JDBC_TYPES = new HashMap<Integer, String>();
 
@@ -349,6 +386,15 @@ public abstract class BaseJDBC extends Base
 	public String getJavaType(Columns.Record column)
 	{
 		return JAVA_TYPES.get(getSQLType(column));
+	}
+
+	/** Accessor method - gets a <I>String</I> representation of the Dynamo DB
+	    data type that represents the column.
+		@param column A table column object.
+	*/
+	public String getDynamoDbType(Columns.Record column)
+	{
+		return DYNAMO_DB_TYPES.get(getSQLType(column));
 	}
 
 	/** Accessor method - gets a <I>String</I> representation of the JDBC

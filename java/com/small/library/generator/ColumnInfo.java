@@ -52,6 +52,9 @@ public class ColumnInfo
 	/** Member variable - String representation of the column java type. */
 	public String javaType;
 
+	/** Member variable - String representation of the column DynamoDB type. */
+	public String dynamoDbType;
+
 	/** Member variable - indicates whether the java type is a primitive. */
 	public boolean isPrimitive;
 

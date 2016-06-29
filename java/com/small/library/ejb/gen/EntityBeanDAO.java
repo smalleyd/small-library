@@ -528,6 +528,73 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine();
 		writeLine("return record;", 2);
 		writeLine("}", 1);
+
+		writeLine();
+		writeLine("/** Helper method - creates a DynamoDB Item from a non-transactional value. */", 1);
+		writeLine("public Item toItem(" + valueName + " value)", 1);
+		writeLine("{", 1);
+			write("Item item = new Item().withPrimaryKey(", 2);
+
+		// First do the primary keys.
+		i = -1;
+		for (ColumnInfo info : m_ColumnInfo)
+		{
+			if (info.isPartOfPrimaryKey)
+			{
+				if (0 < ++i)
+					write(", ");
+
+				write("\"");
+				write(info.columnName);
+				write("\", value.");
+				write(info.accessorMethodName);
+				write("()");
+			}
+		}
+		write(")");
+
+		// Do remainder of non-null columns.
+		for (ColumnInfo info : m_ColumnInfo)
+		{
+			if (info.isPartOfPrimaryKey || info.isNullable)
+				continue;
+
+			writeLine();	// Close prior line.
+			write(".with" + info.dynamoDbType + "(\"" + info.columnName + "\", value." + info.accessorMethodName + "())", 3);
+		}
+		writeLine(";");
+
+		// Do remainder of nullable columns.
+		for (ColumnInfo info : m_ColumnInfo)
+		{
+			if (!info.isNullable)
+				continue;
+
+			writeLine();
+			writeLine("if (null != value." + info.accessorMethodName + "())", 2);
+			write("item.with" + info.dynamoDbType + "(\"" + info.columnName + "\", value." + info.accessorMethodName + "());", 3);
+		}
+
+		writeLine();
+		writeLine();
+		writeLine("return item;", 2);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("/** Helper method - extracts a non-transactional value from a DynamoDB Item . */", 1);
+		writeLine("public " + valueName + " fromItem(Item item)", 1);
+		writeLine("{", 1);
+		writeLine("return new " + valueName + "(", 2);
+		i = 0;
+		for (ColumnInfo info : m_ColumnInfo)
+		{
+			if (!info.isNullable)
+				writeLine("item.get" + info.dynamoDbType + "(\"" + info.columnName + "\")" + ((++i < m_ColumnInfo.length) ? "," : ");"), 3);
+			else
+				writeLine("item.isPresent(\"" + info.columnName + "\") ? item.get" + info.dynamoDbType + "(\"" + info.columnName + "\") : null" + ((++i < m_ColumnInfo.length) ? "," : ");"), 3);
+		}
+
+		writeLine("}", 1);
 	}
 
 	/** Output method - writes the class footer. */
