@@ -267,11 +267,15 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("ResultSet rs = stmt.executeQuery();", 4);
 		writeLine("Assert.assertTrue(\"Exists\", rs.next());", 4);
 		writeLine();
-		write("check(UPDATE.withJob(INSERT.getJob()), new " + valueName + "(rs.get" + m_ColumnInfo[0].jdbcMethodSuffix + "(\"" + m_ColumnInfo[0].columnName + "\")", 4);
+		write("check(UPDATE, new " + valueName + "(rs.get" + m_ColumnInfo[0].jdbcMethodSuffix + "(\"" + m_ColumnInfo[0].columnName + "\")", 4);
 		for (int i = 1; i < m_ColumnInfo.length; i++)
 		{
 			writeLine(",");
-			write("rs.get" + m_ColumnInfo[i].jdbcMethodSuffix + "(\"" + m_ColumnInfo[i].columnName + "\")", 5);
+			ColumnInfo col = m_ColumnInfo[i];
+			if (RedshiftLoader.PRIMITIVES.contains(col.javaType) && col.isNullable)
+				write("(" + col.javaType + ") rs.getObject(\"" + col.columnName + "\")", 5);
+			else
+				write("rs.get" + col.jdbcMethodSuffix + "(\"" + col.columnName + "\")", 5);
 		}
 		writeLine("));");
 		writeLine("}", 3);

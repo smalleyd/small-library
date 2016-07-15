@@ -18,7 +18,7 @@ import com.small.library.metadata.*;
 
 public class RedshiftLoader extends EntityBeanBase
 {
-	private static final Set<String> PRIMITIVES = new HashSet<>(Arrays.asList("Boolean", "Integer", "Long"));
+	public static final Set<String> PRIMITIVES = new HashSet<>(Arrays.asList("Boolean", "Integer", "Long"));
 
 	/******************************************************************************
 	*
