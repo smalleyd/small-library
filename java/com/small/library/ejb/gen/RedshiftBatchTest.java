@@ -15,7 +15,7 @@ import com.small.library.metadata.*;
 *
 ***************************************************************************************/
 
-public class EntityBeanRedshiftTest extends EntityBeanBase
+public class RedshiftBatchTest extends EntityBeanBase
 {
 	/******************************************************************************
 	*
@@ -48,14 +48,14 @@ public class EntityBeanRedshiftTest extends EntityBeanBase
 	*****************************************************************************/
 
 	/** Constructor - constructs an empty object. */
-	public EntityBeanRedshiftTest() { super(); }
+	public RedshiftBatchTest() { super(); }
 
 	/** Constructor - constructs a populated object.
 		@param writer The output stream.
 		@param author Name of the author.
 		@param table A table record object to base the output on.
 	*/
-	public EntityBeanRedshiftTest(PrintWriter writer,
+	public RedshiftBatchTest(PrintWriter writer,
 		String author, Tables.Record table)
 	{
 		super(writer, author, table);
@@ -68,7 +68,7 @@ public class EntityBeanRedshiftTest extends EntityBeanBase
 		@param packageName Package name of the wrapper class.
 		@param version Represents the application version.
 	*/
-	public EntityBeanRedshiftTest(PrintWriter writer,
+	public RedshiftBatchTest(PrintWriter writer,
 		String author, Tables.Record table, String packageName, String version)
 	{
 		super(writer, author, table, packageName, version);
@@ -168,7 +168,7 @@ public class EntityBeanRedshiftTest extends EntityBeanBase
 	private void writeClassDeclaration() throws IOException
 	{
 		String name = getObjectName();
-		String batchName = EntityBeanRedshift.getClassName(name);
+		String batchName = RedshiftBatch.getClassName(name);
 		String valueName = valueObjectName(name);
 
 		writeLine();
@@ -350,8 +350,8 @@ public class EntityBeanRedshiftTest extends EntityBeanBase
 			pTables.load();
 
 			// Create the SQL Repository Item Descriptor generator.
-			EntityBeanRedshiftTest pGenerator =
-				new EntityBeanRedshiftTest((PrintWriter) null, strAuthor,
+			RedshiftBatchTest pGenerator =
+				new RedshiftBatchTest((PrintWriter) null, strAuthor,
 				(Tables.Record) null, strPackageName, version);
 
 			// Call the BaseTable method to handle the outputing.
@@ -368,7 +368,7 @@ public class EntityBeanRedshiftTest extends EntityBeanBase
 				System.out.println();
 			}
 
-			System.out.println("Usage: java " + EntityBeanRedshiftTest.class.getName() + " Output directory");
+			System.out.println("Usage: java " + RedshiftBatchTest.class.getName() + " Output directory");
 			System.out.println("\tJDBC_URL");
 			System.out.println("\tUser_ID");
 			System.out.println("\t[Passowrd]");

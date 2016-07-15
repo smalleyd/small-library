@@ -7,7 +7,7 @@ import com.small.library.metadata.*;
 
 /***************************************************************************************
 *
-*	Generates class for EJB Entity batch class that copies data from SQS to Redshift.
+*	Generates class that batch copies data (inserts and updates) from SQS to Redshift.
 *
 *	@author David Small
 *	@version 2.0
@@ -15,7 +15,7 @@ import com.small.library.metadata.*;
 *
 ***************************************************************************************/
 
-public class EntityBeanRedshift extends EntityBeanBase
+public class RedshiftBatch extends EntityBeanBase
 {
 	/******************************************************************************
 	*
@@ -51,14 +51,14 @@ public class EntityBeanRedshift extends EntityBeanBase
 	*****************************************************************************/
 
 	/** Constructor - constructs an empty object. */
-	public EntityBeanRedshift() { super(); }
+	public RedshiftBatch() { super(); }
 
 	/** Constructor - constructs a populated object.
 		@param pWriter The output stream.
 		@param strAuthor Name of the author.
 		@param pTable A table record object to base the output on.
 	*/
-	public EntityBeanRedshift(PrintWriter writer,
+	public RedshiftBatch(PrintWriter writer,
 		String author, Tables.Record table)
 	{
 		super(writer, author, table);
@@ -70,7 +70,7 @@ public class EntityBeanRedshift extends EntityBeanBase
 		@param pTable A table record object to base the output on.
 		@param strPackageName Package name of the wrapper class.
 	*/
-	public EntityBeanRedshift(PrintWriter writer,
+	public RedshiftBatch(PrintWriter writer,
 		String author, Tables.Record table, String packageName)
 	{
 		super(writer, author, table, packageName);
@@ -82,7 +82,7 @@ public class EntityBeanRedshift extends EntityBeanBase
 		@param pTable A table record object to base the output on.
 		@param strPackageName Package name of the wrapper class.
 	*/
-	public EntityBeanRedshift(PrintWriter writer,
+	public RedshiftBatch(PrintWriter writer,
 		String author, Tables.Record table, String packageName,
 		String version)
 	{
@@ -188,7 +188,7 @@ public class EntityBeanRedshift extends EntityBeanBase
 		writeLine("/** Size of bundle to load into S3 & subsequently Redshift. */", 1);
 		writeLine("public static final int BATCH_SIZE = 10000;", 1);
 		writeLine();
-		writeLine("/** Creates the SQL for the specific VISIT tables. The update uses a shadow table. */", 1);
+		writeLine("/** Creates the SQL for the specific " + tableName.toUpperCase() + " tables. The update uses a shadow table. */", 1);
 		writeLine("public static String createCopySQL(String entity)", 1);
 		writeLine("{", 1);
 		write("return new StringBuilder(\"COPY \").append(entity).append(\"(" + m_ColumnInfo[0].columnName, 2);
@@ -362,8 +362,8 @@ public class EntityBeanRedshift extends EntityBeanBase
 			pTables.load();
 
 			// Create the SQL Repository Item Descriptor generator.
-			EntityBeanRedshift pGenerator =
-				new EntityBeanRedshift((PrintWriter) null, strAuthor,
+			RedshiftBatch pGenerator =
+				new RedshiftBatch((PrintWriter) null, strAuthor,
 				(Tables.Record) null, strPackageName, version);
 
 			// Call the BaseTable method to handle the outputing.
@@ -380,7 +380,7 @@ public class EntityBeanRedshift extends EntityBeanBase
 				System.out.println();
 			}
 
-			System.out.println("Usage: java " + EntityBeanRedshift.class.getName() + " Output directory");
+			System.out.println("Usage: java " + RedshiftBatch.class.getName() + " Output directory");
 			System.out.println("\tJDBC_URL");
 			System.out.println("\tUser_ID");
 			System.out.println("\t[Passowrd]");
