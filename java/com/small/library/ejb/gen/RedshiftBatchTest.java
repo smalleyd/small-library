@@ -170,6 +170,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		String name = getObjectName();
 		String batchName = RedshiftBatch.getClassName(name);
 		String valueName = valueObjectName(name);
+		String tableName = getTable().getName();
 
 		writeLine();
 		writeLine("@FixMethodOrder(MethodSorters.NAME_ASCENDING)	// Ensure that the methods are executed in order listed.");
@@ -194,6 +195,8 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("aws.start();", 2);
 		writeLine("insertQueueUrl = conf.getAws().insertQueueUrl(batch.getEntityName());", 2);
 		writeLine("updateQueueUrl = conf.getAws().updateQueueUrl(batch.getEntityName());", 2);
+		writeLine();
+		writeLine("Assert.assertEquals(\"Check tableName\", \"" + tableName + "\", batch.getTableName());", 2);
 		writeLine();
 		writeLine("/* TODO: placeholder for the INSERT object.", 2);
 		write("INSERT = new " + valueName + "(ID", 2);
@@ -254,6 +257,12 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("public void process()", 1);
 		writeLine("{", 1);
 		writeLine("batch.run(conf);", 2);
+		writeLine("}", 1);
+		writeLine();
+		writeLine("@Test", 1);
+		writeLine("public void reindex()", 1);
+		writeLine("{", 1);
+		writeLine("batch.maintain(conf);", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("@Test", 1);

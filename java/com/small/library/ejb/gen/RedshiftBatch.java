@@ -232,6 +232,9 @@ public class RedshiftBatch extends EntityBeanBase
 		writeLine();
 		writeLine("/** SQS entity name. It is the basis for the INSERT and UPDATE queues. */", 1);
 		writeLine("public static final String SQS_ENTITY_NAME = \"" + tableName + "\";", 1);
+		writeLine();
+		writeLine("/** Name of the database table associated with this batcher. */", 1);
+		writeLine("public static final String TABLE_NAME = \"" + tableName + "\";", 1);
 	}
 
 	/** Output method - writes the <CODE>constructors</CODE>. */
@@ -286,6 +289,9 @@ public class RedshiftBatch extends EntityBeanBase
 		writeLine();
 		writeLine("@Override", 1);
 		writeLine("public String getEntityName() { return SQS_ENTITY_NAME; }", 1);
+		writeLine();
+		writeLine("@Override", 1);
+		writeLine("public String getTableName() { return TABLE_NAME; }", 1);
 	}
 
 	/** Output method - writes the mutator methods. */
