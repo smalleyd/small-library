@@ -251,6 +251,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("public void addUpdate()", 1);
 		writeLine("{", 1);
 		writeLine("aws.sendObject(updateQueueUrl, UPDATE);", 2);
+		writeLine("// TODO: uncomment if de-dupe is enabled. aws.sendObject(updateQueueUrl, UPDATE.withUpdatedAt(new java.util.Date(UPDATE.getUpdatedAt().getTime() + 1000L)));	// Test de-dupe.", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("@Test", 1);
