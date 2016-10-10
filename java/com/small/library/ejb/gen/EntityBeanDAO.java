@@ -581,7 +581,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("/** Helper method - extracts a non-transactional value from a DynamoDB Item . */", 1);
+		writeLine("/** Helper method - extracts a non-transactional value from a DynamoDB Item. */", 1);
 		writeLine("public " + valueName + " fromItem(Item item)", 1);
 		writeLine("{", 1);
 		writeLine("return new " + valueName + "(", 2);
