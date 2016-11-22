@@ -191,7 +191,7 @@ public class RedshiftBatch extends EntityBeanBase
 		writeLine("/** Creates the SQL for the specific " + tableName.toUpperCase() + " tables. The update uses a shadow table. */", 1);
 		writeLine("public static String createCopySQL(String entity)", 1);
 		writeLine("{", 1);
-		write("return new StringBuilder(\"COPY \").append(entity).append(\"(" + m_ColumnInfo[0].columnName, 2);
+		write("return new StringBuilder(\"COPY \").append(entity).append(\" (" + m_ColumnInfo[0].columnName, 2);
 		for (int i = 1; i < m_ColumnInfo.length; i++)
 		{
 			writeLine(", \" +");
