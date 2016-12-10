@@ -190,6 +190,8 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("public static void up() throws Exception", 1);
 		writeLine("{", 1);
 		writeLine("conf = Jackson.newObjectMapper().readValue(new File(\"conf/test.json\"), " + getAppName() + "BatchConfig.class);", 2);
+		writeLine("conf.destPool(" + getClassName() + ".class.getName()).start();", 2);
+		writeLine();
 		writeLine("batch = new " + batchName + "();", 2);
 		writeLine("aws = conf.awsManager();", 2);
 		writeLine("aws.start();", 2);
@@ -223,8 +225,9 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("public static void down() throws Exception", 1);
 		writeLine("{", 1);
 		writeLine("aws.stop();", 2);
+		writeLine("conf.destPool().stop();", 2);
 		writeLine();
-		writeLine("try (Connection conn = conf.getDest().getConnection())", 2);
+		writeLine("try (Connection conn = conf.destPool().getConnection())", 2);
 		writeLine("{", 2);
 		writeLine("try (Statement stmt = conn.createStatement())", 3);
 		writeLine("{", 3);
@@ -269,7 +272,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void verify() throws Exception", 1);
 		writeLine("{", 1);
-		writeLine("try (Connection conn = conf.getDest().getConnection())", 2);
+		writeLine("try (Connection conn = conf.destPool().getConnection())", 2);
 		writeLine("{", 2);
 		writeLine("try (PreparedStatement stmt = conn.prepareStatement(\"SELECT * FROM " + getTable().getName() + " WHERE id = ?\"))", 3);
 		writeLine("{", 3);
