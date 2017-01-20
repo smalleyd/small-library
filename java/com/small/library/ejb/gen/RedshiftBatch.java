@@ -245,12 +245,6 @@ public class RedshiftBatch extends EntityBeanBase
 
 		// Start section.
 		writeLine();
-		writeLine("/** Application entry point. */", 1);
-		writeLine("public static void main(String... args)", 1);
-		writeLine("{", 1);
-		writeLine("main(new " + className + "(), args);", 2);
-		writeLine("}", 1);
-		writeLine();
 		writeLine("/** Default/empty. */", 1);
 		writeLine("public " + className + "()", 1);
 		writeLine("{", 1);

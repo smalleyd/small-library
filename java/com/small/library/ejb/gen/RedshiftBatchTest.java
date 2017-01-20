@@ -140,13 +140,10 @@ public class RedshiftBatchTest extends EntityBeanBase
 		}
 
 		String name = getObjectName();
-		writeLine("import java.io.File;");
 		writeLine("import java.sql.*;");
 		writeLine();
 		writeLine("import org.junit.*;");
 		writeLine("import org.junit.runners.MethodSorters;");
-		writeLine();
-		writeLine("import io.dropwizard.jackson.Jackson;");
 		writeLine();
 		writeLine("import " + domainPackageName + ".dwservice.aws.AWSManager;");
 		writeLine("import " + domainPackageName + ".dwtesting.TestingUtils;");
@@ -189,7 +186,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("@BeforeClass", 1);
 		writeLine("public static void up() throws Exception", 1);
 		writeLine("{", 1);
-		writeLine("conf = Jackson.newObjectMapper().readValue(new File(\"conf/test.json\"), " + getAppName() + "BatchConfig.class);", 2);
+		writeLine("conf = AnalyticsBatchConfigTest.load(\"test.json\");", 2);
 		writeLine("conf.destPool(" + getClassName() + ".class.getName()).start();", 2);
 		writeLine();
 		writeLine("batch = new " + batchName + "();", 2);
@@ -227,12 +224,10 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("aws.stop();", 2);
 		writeLine("conf.destPool().stop();", 2);
 		writeLine();
-		writeLine("try (Connection conn = conf.destPool().getConnection())", 2);
+		writeLine("try (Connection conn = conf.destPool().getConnection();", 2);
+		writeLine("     Statement stmt = conn.createStatement())", 2);
 		writeLine("{", 2);
-		writeLine("try (Statement stmt = conn.createStatement())", 3);
-		writeLine("{", 3);
-		writeLine("stmt.executeUpdate(\"TRUNCATE TABLE \" + batch.getEntityName());", 4);
-		writeLine("}", 3);
+		writeLine("stmt.executeUpdate(\"TRUNCATE TABLE \" + batch.getEntityName());", 3);
 		writeLine("}", 2);
 		writeLine("}", 1);
 	}
@@ -272,12 +267,12 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void verify() throws Exception", 1);
 		writeLine("{", 1);
-		writeLine("try (Connection conn = conf.destPool().getConnection())", 2);
+		writeLine("try (Connection conn = conf.destPool().getConnection();", 2);
+		writeLine("     PreparedStatement stmt = conn.prepareStatement(\"SELECT * FROM " + getTable().getName() + " WHERE id = ?\"))", 2);
 		writeLine("{", 2);
-		writeLine("try (PreparedStatement stmt = conn.prepareStatement(\"SELECT * FROM " + getTable().getName() + " WHERE id = ?\"))", 3);
+		writeLine("stmt.setLong(1, ID);", 3);
+		writeLine("try (ResultSet rs = stmt.executeQuery())", 3);
 		writeLine("{", 3);
-		writeLine("stmt.setLong(1, ID);", 4);
-		writeLine("ResultSet rs = stmt.executeQuery();", 4);
 		writeLine("Assert.assertTrue(\"Exists\", rs.next());", 4);
 		writeLine();
 		write("check(UPDATE, new " + valueName + "(rs.get" + m_ColumnInfo[0].jdbcMethodSuffix + "(\"" + m_ColumnInfo[0].columnName + "\")", 4);

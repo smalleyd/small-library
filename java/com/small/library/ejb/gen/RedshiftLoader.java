@@ -242,14 +242,9 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine();
 		writeLine("// Get the last ID loaded.", 2);
 		writeLine("long maxId = 0L;", 2);
-		writeLine("try (Connection conn = conf.getDest().getConnection())", 2);
+		writeLine("try (Connection conn = conf.destPool().getConnection())", 2);
 		writeLine("{", 2);
-		writeLine("try (Statement stmt = conn.createStatement())", 3);
-		writeLine("{", 3);
-		writeLine("ResultSet rs = stmt.executeQuery(SELECT_MAX_ID);", 4);
-		writeLine("if (rs.next())", 4);
-		writeLine("maxId = rs.getLong(1);", 5);
-		writeLine("}", 3);
+		writeLine("maxId = getMaxId(conn, SELECT_MAX_ID, maxId);", 3);
 		writeLine("}", 2);
 		writeLine("catch (SQLException ex) { throw new RuntimeException(ex); }", 2);
 		writeLine();
