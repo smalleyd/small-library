@@ -195,7 +195,7 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine("public static final int BATCH_SIZE = 10000;", 1);
 		writeLine();
 		writeLine("/** Creates the SELECT SQL for the specific " + tableName.toUpperCase() + " table. */", 1);
-		write("public static String SELECT = \"SELECT o." + m_ColumnInfo[0].columnName, 1);
+		write("public static final String SELECT = \"SELECT o." + m_ColumnInfo[0].columnName, 1);
 		for (int i = 1; i < m_ColumnInfo.length; i++)
 		{
 			writeLine(", \" +");
@@ -207,7 +207,7 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine("\"ORDER BY o." + m_ColumnInfo[0].columnName + " LIMIT ? OFFSET ?\";", 2);
 		writeLine();
 		writeLine("/** Creates the COPY SQL for the specific " + tableName.toUpperCase() + " table. */", 1);
-		write("public static String COPY = \"COPY " + tableName + " (" + m_ColumnInfo[0].columnName, 1);
+		write("public static final String COPY = \"COPY " + tableName + " (" + m_ColumnInfo[0].columnName, 1);
 		for (int i = 1; i < m_ColumnInfo.length; i++)
 		{
 			writeLine(", \" +");
