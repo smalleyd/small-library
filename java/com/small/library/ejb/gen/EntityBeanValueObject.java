@@ -140,6 +140,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("import java.io.Serializable;");
 		writeLine("import java.math.BigDecimal;");
 		writeLine("import java.util.Date;");
+		writeLine("import java.util.Objects;");
 		writeLine();
 		writeLine("import org.apache.commons.lang3.StringUtils;");
 		writeLine();
@@ -176,11 +177,11 @@ public class EntityBeanValueObject extends EntityBeanBase
 			if (!i.isPrimitive)
 				write(" = null");
 			writeLine(";");
-			write("\tpublic void " + i.mutatorMethodName + "(" + i.javaType + " newValue)");
+			write("\tpublic void " + i.mutatorMethodName + "(final " + i.javaType + " newValue)");
 			writeLine(" { " + i.memberVariableName + " = newValue; }");
 
 			// Write the "with" method.
-			write("\tpublic " + getClassName() + " " + i.withMethodName + "(" + i.javaType + " newValue)");
+			write("\tpublic " + getClassName() + " " + i.withMethodName + "(final " + i.javaType + " newValue)");
 			writeLine(" { " + i.memberVariableName + " = newValue; return this; }");
 		}
 	}
@@ -203,9 +204,9 @@ public class EntityBeanValueObject extends EntityBeanBase
 			write("public String get" + name + "Name()", 1);
 			writeLine(" { return " + memberName + "Name; }");
 			writeLine("public String " + memberName + "Name = null;", 1);
-			write("public void set" + name + "Name(String newValue)", 1);
+			write("public void set" + name + "Name(final String newValue)", 1);
 			writeLine(" { " + memberName + "Name = newValue; }");
-			writeLine("public " + getClassName() + " with" + name + "Name(String newValue) { " + memberName + "Name = newValue; return this; }", 1);
+			writeLine("public " + getClassName() + " with" + name + "Name(final String newValue) { " + memberName + "Name = newValue; return this; }", 1);
 		}
 	}
 
@@ -226,7 +227,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 			if (0 < i)
 				write("\t\t");
 
-			write(item.javaType + " " + item.memberVariableName);
+			write("final " + item.javaType + " " + item.memberVariableName);
 
 			if (last == i)
 				writeLine(")");
@@ -266,8 +267,31 @@ public class EntityBeanValueObject extends EntityBeanBase
 	/** Output method - writes Object class override methods. */
 	private void writeObjectMethods() throws IOException
 	{
-		// Write the toString method. */
+		final String clazz = getClassName();
+
+		// Write the equals method. */
+		writeLine();
+		writeLine("@Override", 1);
+		writeLine("public boolean equals(final Object o)", 1);
+		writeLine("{", 1);
+		writeLine("if ((null == o) || !(o instanceof " + clazz + "))", 2);
+		writeLine("return false;", 3);
+		writeLine();
+		writeLine("final " + clazz + " v = (" + clazz + ") o;", 2);
 		ColumnInfo item = m_ColumnInfo[0];
+		writeLine("return Objects.equals(" + item.memberVariableName + ", v." + item.memberVariableName + ") &&", 2);
+		final int last = m_ColumnInfo.length - 1;
+		for (int i = 1; i < m_ColumnInfo.length; i++)
+		{
+			final String term = (last > i) ? " &&" : ";";
+			writeLine("Objects.equals(" + (item = m_ColumnInfo[i]).memberVariableName + ", v." + item.memberVariableName + ")" + term, 3);
+			if (null != item.importedKeyMemberName)
+				writeLine("Objects.equals(" + item.importedKeyMemberName + "Name, v." + item.importedKeyMemberName + "Name)" + term, 3);
+		}
+		writeLine("}", 1);
+		
+		// Write the toString method. */
+		item = m_ColumnInfo[0];
 		writeLine();
 		writeLine("@Override", 1);
 		writeLine("public String toString()", 1);
