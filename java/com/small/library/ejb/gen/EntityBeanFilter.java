@@ -214,11 +214,11 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine("\tprivate " + type + " " + i.memberVariableName + suffix + " = null;");
 
 		// Write the setter.
-		write("\tpublic void " + i.mutatorMethodName + suffix + "(" + type + " newValue)");
+		write("\tpublic void " + i.mutatorMethodName + suffix + "(final " + type + " newValue)");
 		writeLine(" { " + i.memberVariableName + suffix + " = newValue; }");
 
 		// Write the "with" method.
-		write("\tpublic " + getClassName() + " " + i.withMethodName + suffix + "(" + type + " newValue)");
+		write("\tpublic " + getClassName() + " " + i.withMethodName + suffix + "(final " + type + " newValue)");
 		writeLine(" { " + i.memberVariableName + suffix + " = newValue; return this; }");
 	}
 
@@ -244,7 +244,7 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine("@param page", 2);
 		writeLine("@param pageSize", 2);
 		writeLine("*/", 1);
-		writeLine("public " + getClassName() + "(int page, int pageSize) { super(page, pageSize); }", 1);
+		writeLine("public " + getClassName() + "(final int page, final int pageSize) { super(page, pageSize); }", 1);
 
 		// Write constructor with sorting values.
 		writeLine();
@@ -252,7 +252,7 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine("@param sortOn", 2);
 		writeLine("@param sortDir", 2);
 		writeLine("*/", 1);
-		writeLine("public " + getClassName() + "(String sortOn, String sortDir) { super(sortOn, sortDir); }", 1);
+		writeLine("public " + getClassName() + "(final String sortOn, final String sortDir) { super(sortOn, sortDir); }", 1);
 
 		// Write constructor with paging & sorting values.
 		writeLine();
@@ -262,7 +262,7 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine("@param sortOn", 2);
 		writeLine("@param sortDir", 2);
 		writeLine("*/", 1);
-		writeLine("public " + getClassName() + "(int page, int pageSize, String sortOn, String sortDir) { super(page, pageSize, sortOn, sortDir); }", 1);
+		writeLine("public " + getClassName() + "(final int page, final int pageSize, final String sortOn, final String sortDir) { super(page, pageSize, sortOn, sortDir); }", 1);
 
 		// Write constructor with all possible values.
 		writeLine();
@@ -296,14 +296,14 @@ public class EntityBeanFilter extends EntityBeanBase
 			if (item.isPrimitive)
 				type = fromPrimitiveToObject(item.javaType);
 
-			write(type + " " + item.memberVariableName);
+			write("final "); write(type); write(" "); write(item.memberVariableName);
 
 			// Integer and date fields filter by range so need an additional "lower boundary" property and an "upper boundary" property.
 			if (item.isRange())
 			{
 				writeLine(",");
-				writeLine(type + " " + item.memberVariableName + "From,", 2);
-				write(type + " " + item.memberVariableName + "To", 2);
+				writeLine("final " + type + " " + item.memberVariableName + "From,", 2);
+				write("final " + type + " " + item.memberVariableName + "To", 2);
 			}
 
 			if (last == i)
