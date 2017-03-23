@@ -420,16 +420,16 @@ public class EntityBeanDAO extends EntityBeanBase
 			for (ColumnInfo info : m_ColumnInfo)
 			{
 				if (info.isString)
-					write(".addContains(\"" + info.memberVariableName + "\", \"o." + info.columnName + " LIKE :" + info.memberVariableName + "\", filter." + info.accessorMethodName + "())", 3);
+					write(".addContains(\"" + info.memberVariableName + "\", \"o." + info.columnName + " LIKE :" + info.memberVariableName + "\", filter." + info.memberVariableName + ")", 3);
 				else
-					write(".add(\"" + info.memberVariableName + "\", \"o." + info.columnName + " = :" + info.memberVariableName + "\", filter." + info.accessorMethodName + "())", 3);
+					write(".add(\"" + info.memberVariableName + "\", \"o." + info.columnName + " = :" + info.memberVariableName + "\", filter." + info.memberVariableName + ")", 3);
 
 				// For values that have ranges, also add greater-than (>=) and less-than (<=) searches. DLS on 6/11/2015.
 				if (info.isRange())
 				{
 					writeLine();
-					writeLine(".add(\"" + info.memberVariableName + "From\", \"o." + info.columnName + " >= :" + info.memberVariableName + "From\", filter." + info.accessorMethodName + "From())", 3);
-					write(".add(\"" + info.memberVariableName + "To\", \"o." + info.columnName + " <= :" + info.memberVariableName + "To\", filter." + info.accessorMethodName + "To())", 3);
+					writeLine(".add(\"" + info.memberVariableName + "From\", \"o." + info.columnName + " >= :" + info.memberVariableName + "From\", filter." + info.memberVariableName + "From)", 3);
+					write(".add(\"" + info.memberVariableName + "To\", \"o." + info.columnName + " <= :" + info.memberVariableName + "To\", filter." + info.memberVariableName + "To)", 3);
 				}
 
 				writeLine((0 == --size) ? ";" : "");
@@ -447,23 +447,23 @@ public class EntityBeanDAO extends EntityBeanBase
 			{
 				if (info.isString)
 				{
-					writeLine("if (null != filter." + info.accessorMethodName + "())", 2);
-					writeLine("criteria.add(Restrictions.like(\"" + info.memberVariableName + "\", filter." + info.accessorMethodName + "(), MatchMode.START));", 3);
+					writeLine("if (null != filter." + info.memberVariableName + ")", 2);
+					writeLine("criteria.add(Restrictions.like(\"" + info.memberVariableName + "\", filter." + info.memberVariableName + ", MatchMode.START));", 3);
 				}
 				else
 				{
-					writeLine("if (null != filter." + info.accessorMethodName + "())", 2);
-					writeLine("criteria.add(Restrictions.eq(\"" + info.memberVariableName + "\", filter." + info.accessorMethodName + "()));", 3);
+					writeLine("if (null != filter." + info.memberVariableName + ")", 2);
+					writeLine("criteria.add(Restrictions.eq(\"" + info.memberVariableName + "\", filter." + info.memberVariableName + "));", 3);
 				}
 
 				// For values that have ranges, also add greater-than (>=) and less-than (<=) searches. DLS on 6/11/2015.
 				if (info.isRange())
 				{
-					writeLine("if (null != filter." + info.accessorMethodName + "From())", 2);
-					writeLine("criteria.add(Restrictions.ge(\"" + info.memberVariableName + "\", filter." + info.accessorMethodName + "From()));", 3);
+					writeLine("if (null != filter." + info.memberVariableName + "From)", 2);
+					writeLine("criteria.add(Restrictions.ge(\"" + info.memberVariableName + "\", filter." + info.memberVariableName + "From));", 3);
 					
-					writeLine("if (null != filter." + info.accessorMethodName + "To())", 2);
-					writeLine("criteria.add(Restrictions.le(\"" + info.memberVariableName + "\", filter." + info.accessorMethodName + "To()));", 3);
+					writeLine("if (null != filter." + info.memberVariableName + "To)", 2);
+					writeLine("criteria.add(Restrictions.le(\"" + info.memberVariableName + "\", filter." + info.memberVariableName + "To));", 3);
 				}
 			}
 			writeLine();
@@ -486,7 +486,7 @@ public class EntityBeanDAO extends EntityBeanBase
 
 			int tabs = 2;
 			if (info.isNullable)
-				writeLine("if (null != value." + info.accessorMethodName  + "())", tabs++);
+				writeLine("if (null != value." + info.memberVariableName  + ")", tabs++);
 			writeLine("value." + info.importedKeyMemberName  + "Name = record.get" + info.importedKeyName + "().getName();", tabs);
 		}
 		writeLine();
@@ -506,7 +506,7 @@ public class EntityBeanDAO extends EntityBeanBase
 				if (info.isImportedKey)
 					writeLine("(" + info.importedObjectName + ") cmrs[" + cmrs++ + "]" + ((i < last) ? "," : ");"), 3);
 				else
-					writeLine("value." + info.accessorMethodName + "()" + ((i < last) ? "," : ");"), 3);
+					writeLine("value." + info.memberVariableName + ((i < last) ? "," : ");"), 3);
 			}
 			i++;
 		}
@@ -521,7 +521,7 @@ public class EntityBeanDAO extends EntityBeanBase
 			if (info.isPartOfPrimaryKey)
 				continue;
 
-			writeLine("record." + info.mutatorMethodName + "(value." + info.accessorMethodName + "());", 2);
+			writeLine("record." + info.mutatorMethodName + "(value." + info.memberVariableName + ");", 2);
 			if (info.isImportedKey)
 				writeLine("record.set" + info.importedKeyName + "((" + info.importedObjectName + ") cmrs[" + cmrs++ + "]);", 2);
 		}
@@ -547,7 +547,7 @@ public class EntityBeanDAO extends EntityBeanBase
 				write("\"");
 				write(info.columnName);
 				write("\", value.");
-				write(info.accessorMethodName);
+				write(info.memberVariableName);
 				write("()");
 			}
 		}
@@ -560,7 +560,7 @@ public class EntityBeanDAO extends EntityBeanBase
 				continue;
 
 			writeLine();	// Close prior line.
-			write(".with" + info.dynamoDbType + "(\"" + info.columnName + "\", value." + info.accessorMethodName + "())", 3);
+			write(".with" + info.dynamoDbType + "(\"" + info.columnName + "\", value." + info.memberVariableName + ")", 3);
 		}
 		writeLine(";");
 
@@ -571,8 +571,8 @@ public class EntityBeanDAO extends EntityBeanBase
 				continue;
 
 			writeLine();
-			writeLine("if (null != value." + info.accessorMethodName + "())", 2);
-			write("item.with" + info.dynamoDbType + "(\"" + info.columnName + "\", value." + info.accessorMethodName + "());", 3);
+			writeLine("if (null != value." + info.memberVariableName + ")", 2);
+			write("item.with" + info.dynamoDbType + "(\"" + info.columnName + "\", value." + info.memberVariableName + ");", 3);
 		}
 
 		writeLine();

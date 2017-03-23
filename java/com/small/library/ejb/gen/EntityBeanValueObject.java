@@ -90,8 +90,9 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeHeader();
 		writeClassDeclaration();
 
-		writeAccessorMethods();
-		writeImportedKeysAccessorMethods();
+		writeMembers();
+		writeMutators();
+		// writeImportedKeysAccessorMethods();
 		writeConstructors();
 		writeHelperMethods();
 		writeObjectMethods();
@@ -161,32 +162,50 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine();
 		writeLine("public class " + getClassName() + " implements Serializable");
 		writeLine("{");
-		writeLine("\tpublic static final long serialVersionUID = 1L;");
+		writeLine("private static final long serialVersionUID = 1L;", 1);
 	}
 
 	/** Output method - writes the accessor methods. */
-	private void writeAccessorMethods() throws IOException
+	private void writeMembers() throws IOException
 	{
-		// Write accessors.
+		writeLine();
+		writeLine("// Members", 1);
+
 		for (ColumnInfo i : m_ColumnInfo)
 		{
-			writeLine();
-			write("\tpublic " + i.javaType + " " + i.accessorMethodName + "()");
-				writeLine(" { return " + i.memberVariableName + "; }");
-			write("\tpublic " + i.javaType + " " + i.memberVariableName);
+			// write("\tpublic " + i.javaType + " " + i.accessorMethodName + "()");
+			// 	writeLine(" { return " + i.memberVariableName + "; }");
+			write("public " + i.javaType + " " + i.memberVariableName, 1);
 			if (!i.isPrimitive)
 				write(" = null");
 			writeLine(";");
-			write("\tpublic void " + i.mutatorMethodName + "(final " + i.javaType + " newValue)");
-			writeLine(" { " + i.memberVariableName + " = newValue; }");
+			// write("\tpublic void " + i.mutatorMethodName + "(final " + i.javaType + " newValue)");
+			// writeLine(" { " + i.memberVariableName + " = newValue; }");
 
-			// Write the "with" method.
-			write("\tpublic " + getClassName() + " " + i.withMethodName + "(final " + i.javaType + " newValue)");
+			if (i.isImportedKey)
+				writeLine("public String " + i.importedKeyMemberName + "Name = null;", 1);
+		}
+	}
+
+	/** Output method - writes the accessor methods. */
+	private void writeMutators() throws IOException
+	{
+		writeLine();
+		writeLine("// Mutators", 1);
+
+		final String className = getClassName();
+		for (ColumnInfo i : m_ColumnInfo)
+		{
+			write("public " + className + " " + i.withMethodName + "(final " + i.javaType + " newValue)", 1);
 			writeLine(" { " + i.memberVariableName + " = newValue; return this; }");
+
+			if (i.isImportedKey)
+				writeLine("public " + className + " with" + i.importedKeyName + "Name(final String newValue) { " + i.importedKeyMemberName + "Name = newValue; return this; }", 1);
 		}
 	}
 
 	/** Output method - writes the imported foreign key accessor methods. */
+	@SuppressWarnings("unused")
 	private void writeImportedKeysAccessorMethods() throws IOException
 	{
 		// Write accessors.

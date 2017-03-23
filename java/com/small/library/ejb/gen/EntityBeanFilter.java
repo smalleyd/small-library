@@ -90,7 +90,8 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeHeader();
 		writeClassDeclaration();
 
-		writeMemberVariables();
+		writeMembers();
+		writeMutators();
 		writeConstructors();
 		writeHelpers();
 		writeToString();
@@ -161,61 +162,102 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine();
 		writeLine("public class " + getClassName() + " extends QueryFilter");
 		writeLine("{");
-		writeLine("\t/** Constant - serial version UID. */");
-		writeLine("\tpublic static final long serialVersionUID = 1L;");
+		// writeLine("/** Constant - serial version UID. */", 1);
+		writeLine("private static final long serialVersionUID = 1L;", 1);
 	}
 
 	/** Output method - writes the member variables. */
-	private void writeMemberVariables() throws IOException
+	private void writeMembers() throws IOException
 	{
 		// Any columns available?
 		if (0 >= m_ColumnInfo.length)
 			return;
 
+		writeLine();
+		writeLine("// Members", 1);
+
 		// Write member variables.
 		for (ColumnInfo i : m_ColumnInfo)
 		{
-			writeMethod(i);
+			writeMember(i);
 
 			// Integer and date fields filter by range so need an additional "lower boundary" property and an "upper boundary" property.
 			if (i.isRange())
 			{
-				writeMethod(i, "From", "lower boundary");
-				writeMethod(i, "To", "upper boundary");
+				writeMember(i, "From", "lower boundary");
+				writeMember(i, "To", "upper boundary");
 			}
 		}
 	}
 
 	/** Helper method: write the methods. */
-	private void writeMethod(ColumnInfo i) throws IOException
+	private void writeMember(ColumnInfo i) throws IOException
 	{
-		writeMethod(i, "", null);
+		writeMember(i, "", null);
 	}
 
 	/** Helper method: write the methods. */
-	private void writeMethod(ColumnInfo i, String suffix, String commentSuffix) throws IOException
+	private void writeMember(ColumnInfo i, String suffix, String commentSuffix) throws IOException
 	{
-		writeLine();
-		write("\t/** Filter option that represents the \"" + i.columnName + "\" field");
+		/* writeLine();
+		write("/** Filter option that represents the \"" + i.columnName + "\" field");
 		if (null != commentSuffix)
 			write(" - " + commentSuffix);
-		writeLine(". */");
+		writeLine(". *", 1);	*/
 
 		// Primitives should be nullable for the filter.
 		String type = i.javaType;
 		if (i.isPrimitive)
 			type = fromPrimitiveToObject(i.javaType);
 
-		// Write the getter.
-		write("\tpublic " + type + " " + i.accessorMethodName + suffix + "()");
+		/* Write the getter.
+		write("public " + type + " " + i.accessorMethodName + suffix + "()", 1);
+		writeLine(" { return " + i.memberVariableName + suffix + "; }"); */
 
-		// Writer the member variable.
-		writeLine(" { return " + i.memberVariableName + suffix + "; }");
-		writeLine("\tprivate " + type + " " + i.memberVariableName + suffix + " = null;");
+		writeLine("public " + type + " " + i.memberVariableName + suffix + " = null;", 1);
 
-		// Write the setter.
-		write("\tpublic void " + i.mutatorMethodName + suffix + "(final " + type + " newValue)");
-		writeLine(" { " + i.memberVariableName + suffix + " = newValue; }");
+		/* Write the setter.
+		write("public void " + i.mutatorMethodName + suffix + "(final " + type + " newValue)", 1);
+		writeLine(" { " + i.memberVariableName + suffix + " = newValue; }"); */
+	}
+
+	/** Output method - writes the member variables. */
+	private void writeMutators() throws IOException
+	{
+		// Any columns available?
+		if (0 >= m_ColumnInfo.length)
+			return;
+
+		writeLine();
+		writeLine("// Mutators", 1);
+
+		// Write member variables.
+		for (ColumnInfo i : m_ColumnInfo)
+		{
+			writeMutator(i);
+
+			// Integer and date fields filter by range so need an additional "lower boundary" property and an "upper boundary" property.
+			if (i.isRange())
+			{
+				writeMutator(i, "From", "lower boundary");
+				writeMutator(i, "To", "upper boundary");
+			}
+		}
+	}
+
+	/** Helper method: write the methods. */
+	private void writeMutator(ColumnInfo i) throws IOException
+	{
+		writeMutator(i, "", null);
+	}
+
+	/** Helper method: write the methods. */
+	private void writeMutator(ColumnInfo i, String suffix, String commentSuffix) throws IOException
+	{
+		// Primitives should be nullable for the filter.
+		String type = i.javaType;
+		if (i.isPrimitive)
+			type = fromPrimitiveToObject(i.javaType);
 
 		// Write the "with" method.
 		write("\tpublic " + getClassName() + " " + i.withMethodName + suffix + "(final " + type + " newValue)");

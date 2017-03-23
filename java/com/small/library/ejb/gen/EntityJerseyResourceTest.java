@@ -334,11 +334,11 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("{", 1);
 		for (ColumnInfo i : m_ColumnInfo)
 		{
-			writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.accessorMethodName + "()), 1L);", 2);
+			writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 1L);", 2);
 			if (i.isRange())
 			{
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.accessorMethodName + "()), 1L);", 2);
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.accessorMethodName + "()), 1L);", 2);
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.memberVariableName + "), 1L);", 2);
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.memberVariableName + "), 1L);", 2);
 			}
 		}
 		writeLine("}", 1);
@@ -438,9 +438,9 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
 		{
-			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), value." + i.accessorMethodName + "());", 2);
+			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", value." + i.memberVariableName + ");", 2);
 			if (i.isImportedKey)
-				writeLine("Assert.assertEquals(assertId + \"Check " + i.importedKeyMemberName + " name\", expected.get" + i.importedKeyName + "Name(), value.get" + i.importedKeyName + "Name());", 2);
+				writeLine("Assert.assertEquals(assertId + \"Check " + i.importedKeyMemberName + " name\", expected." + i.importedKeyMemberName + "Name, value." + i.importedKeyMemberName + "Name);", 2);
 		}
 		writeLine("}", 1);
 	}
