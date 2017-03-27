@@ -183,15 +183,17 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("private static " + valueName + " INSERT = null;", 1);
 		writeLine("private static " + valueName + " UPDATE = null;", 1);
 		writeLine();
+		writeLine("@ClassRule", 1);
+		writeLine("public static final LifecycleRule RULE = new LifecycleRule();", 1);
+		writeLine();
 		writeLine("@BeforeClass", 1);
 		writeLine("public static void up() throws Exception", 1);
 		writeLine("{", 1);
 		writeLine("conf = AnalyticsBatchConfigTest.load(\"test.json\");", 2);
-		writeLine("conf.destPool(" + getClassName() + ".class.getName()).start();", 2);
 		writeLine();
 		writeLine("batch = new " + batchName + "();", 2);
-		writeLine("aws = conf.awsManager();", 2);
-		writeLine("aws.start();", 2);
+		writeLine("RULE.manage(aws = conf.awsManager());", 2);
+		writeLine("conf.destDbi(dest = RULE.manageForDBI(conf.dest, \"dest\"));", 2);
 		writeLine("insertQueueUrl = conf.getAws().insertQueueUrl(batch.getEntityName());", 2);
 		writeLine("updateQueueUrl = conf.getAws().updateQueueUrl(batch.getEntityName());", 2);
 		writeLine();
@@ -221,13 +223,9 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("@AfterClass", 1);
 		writeLine("public static void down() throws Exception", 1);
 		writeLine("{", 1);
-		writeLine("aws.stop();", 2);
-		writeLine("conf.destPool().stop();", 2);
-		writeLine();
-		writeLine("try (Connection conn = conf.destPool().getConnection();", 2);
-		writeLine("     Statement stmt = conn.createStatement())", 2);
+		writeLine("try (final Handle h = dest.open())", 2);
 		writeLine("{", 2);
-		writeLine("stmt.executeUpdate(\"TRUNCATE TABLE \" + batch.getEntityName());", 3);
+		writeLine("h.update(\"TRUNCATE TABLE \" + batch.getEntityName());", 3);
 		writeLine("}", 2);
 		writeLine("}", 1);
 	}
@@ -267,26 +265,20 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void verify() throws Exception", 1);
 		writeLine("{", 1);
-		writeLine("try (Connection conn = conf.destPool().getConnection();", 2);
-		writeLine("     PreparedStatement stmt = conn.prepareStatement(\"SELECT * FROM " + getTable().getName() + " WHERE id = ?\"))", 2);
+		writeLine("try (final Handle h = dest.open())", 2);
 		writeLine("{", 2);
-		writeLine("stmt.setLong(1, ID);", 3);
-		writeLine("try (ResultSet rs = stmt.executeQuery())", 3);
-		writeLine("{", 3);
-		writeLine("Assert.assertTrue(\"Exists\", rs.next());", 4);
+		writeLine("final List<Map<String, Object>> records = h.select(\"SELECT * FROM " + getTable().getName() + " WHERE id = ?\", ID);", 3);
+		writeLine("Assert.assertEquals(\"Check size\", 1, records.size());", 3);
+		writeLine("final Map<String, Object> rs = records.get(0);", 3);
 		writeLine();
-		write("check(UPDATE, new " + valueName + "(rs.get" + m_ColumnInfo[0].jdbcMethodSuffix + "(\"" + m_ColumnInfo[0].columnName + "\")", 4);
+		write("check(UPDATE, new " + valueName + "((" + m_ColumnInfo[0].javaType + ")rs.get(\"" + m_ColumnInfo[0].columnName + "\")", 3);
 		for (int i = 1; i < m_ColumnInfo.length; i++)
 		{
 			writeLine(",");
 			ColumnInfo col = m_ColumnInfo[i];
-			if (RedshiftLoader.PRIMITIVES.contains(col.javaType) && col.isNullable)
-				write("(" + col.javaType + ") rs.getObject(\"" + col.columnName + "\")", 5);
-			else
-				write("rs.get" + col.jdbcMethodSuffix + "(\"" + col.columnName + "\")", 5);
+			write("(" + col.javaType + ") rs.get(\"" + col.columnName + "\")", 4);
 		}
 		writeLine("));");
-		writeLine("}", 3);
 		writeLine("}", 2);
 		writeLine("}", 1);
 		writeLine();
@@ -296,7 +288,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
 		{
-			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.accessorMethodName + "(), value." + i.accessorMethodName + "());", 2);
+			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", value." + i.memberVariableName + ");", 2);
 			if (i.isImportedKey)
 				writeLine("Assert.assertEquals(assertId + \"Check " + i.importedKeyMemberName + " name\", expected.get" + i.importedKeyName + "Name(), value.get" + i.importedKeyName + "Name());", 2);
 		}

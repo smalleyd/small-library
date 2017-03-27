@@ -298,7 +298,7 @@ public class RedshiftBatch extends EntityBeanBase
 		writeLine("{", 1);
 		writeLine("out", 2);
 		for (ColumnInfo i : m_ColumnInfo)
-			writeLine(".add(value." + i.accessorMethodName + "())", 3);
+			writeLine(".add(value." + i.memberVariableName + ")", 3);
 		writeLine(".add();	// Line terminator", 3);
 		writeLine("}", 1);
 	}
