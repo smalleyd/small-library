@@ -156,6 +156,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("import " + domainPackageName + ".common.error.ValidationException;");
 		writeLine("import " + domainPackageName + ".common.error.Validator;");
 		writeLine("import " + domainPackageName + ".common.hibernate.OrderByBuilder;");
+		writeLine("import " + domainPackageName + ".common.hibernate.QueryBuilder;");
 		writeLine("import " + basePackageName + ".entity.*;");
 		writeLine("import " + basePackageName + ".filter." + EntityBeanFilter.getClassName(name) + ";");
 		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(name) + ";");
@@ -174,14 +175,17 @@ public class EntityBeanDAO extends EntityBeanBase
 	/** Output method - writes the class declaration. */
 	private void writeClassDeclaration() throws IOException
 	{
-		String name = getClassName();
+		final String name = getClassName();
+		final String objectName = getObjectName();
 
 		writeLine();
 		write("public class " + name + " extends AbstractDAO<");
 			write(getObjectName());
 			writeLine(">");
 		writeLine("{");
-		writeLine("private static final OrderByBuilder ORDER = new OrderByBuilder(", 1);
+		writeLine("private static final String SELECT = \"SELECT OBJECT(o) FROM " + objectName + " o\";", 1);
+		writeLine("private static final String COUNT = \"SELECT COUNT(o." + m_ColumnInfo[0].memberVariableName + ") FROM " + objectName + " o\";", 1);
+		writeLine("private static final OrderByBuilder ORDER = new OrderByBuilder('o', ", 1);
 		int size = m_ColumnInfo.length;
 		for (ColumnInfo i : m_ColumnInfo)
 		{
@@ -221,7 +225,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" * @return never NULL.", 1);
 		writeLine(" * @throws ValidationException", 1);
 		writeLine(" */", 1);
-		writeLine("public " + valueName + " add(" + valueName + " value) throws ValidationException", 1);
+		writeLine("public " + valueName + " add(final " + valueName + " value) throws ValidationException", 1);
 		writeLine("{", 1);
 			writeLine("return value.withId(persist(toEntity(value, _validate(value.withId(null)))).getId());", 2);
 		writeLine("}", 1);
@@ -231,9 +235,9 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" * @param value", 1);
 		writeLine(" * @throws ValidationException", 1);
 		writeLine(" */", 1);
-		writeLine("public " + valueName + " update(" + valueName + " value) throws ValidationException", 1);
+		writeLine("public " + valueName + " update(final " + valueName + " value) throws ValidationException", 1);
 		writeLine("{", 1);
-			writeLine("Object[] cmrs = _validate(value);", 2);
+			writeLine("final Object[] cmrs = _validate(value);", 2);
 			writeLine(name + " record = (" + name + ") cmrs[0];", 2);
 			writeLine("if (null == record)", 2);
 			writeLine("record = findWithException(value.getId());", 3);
@@ -246,7 +250,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" * @param value", 1);
 		writeLine(" * @throws ValidationException", 1);
 		writeLine(" */", 1);
-		writeLine("public void validate(" + valueName + " value) throws ValidationException", 1);
+		writeLine("public void validate(final " + valueName + " value) throws ValidationException", 1);
 		writeLine("{", 1);
 		writeLine("_validate(value);", 2);
 		writeLine("}", 1);
@@ -257,10 +261,10 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" * @return array of CMRs entities.", 1);
 		writeLine(" * @throws ValidationException", 1);
 		writeLine(" */", 1);
-		writeLine("private Object[] _validate(" + valueName + " value) throws ValidationException", 1);
+		writeLine("private Object[] _validate(final " + valueName + " value) throws ValidationException", 1);
 		writeLine("{", 1);
 		writeLine("value.clean();", 2);
-		writeLine("Validator validator = new Validator();", 2);
+		writeLine("final Validator validator = new Validator();", 2);
 		writeLine();
 		boolean first = true;
 		writeLine("// Throw exception after field existence checks and before FK checks.", 2);
@@ -320,9 +324,9 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" * @return TRUE if the entity is found and removed.", 1);
 		writeLine(" * @throws ValidationException", 1);
 		writeLine(" */", 1);
-		writeLine("public boolean remove(" + primaryKeyType + " id) throws ValidationException", 1);
+		writeLine("public boolean remove(final " + primaryKeyType + " id) throws ValidationException", 1);
 		writeLine("{", 1);
-			writeLine("" + name + " record = get(id);", 2);
+			writeLine("final " + name + " record = get(id);", 2);
 			writeLine("if (null == record)", 2);
 				writeLine("return false;", 3);
 			writeLine();
@@ -337,9 +341,9 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" * @return never NULL.", 1);
 		writeLine(" * @throws ValidationException if the identifier is invalid.", 1);
 		writeLine(" */", 1);
-		writeLine("public " + name + " findWithException(" + primaryKeyType + " id) throws ValidationException", 1);
+		writeLine("public " + name + " findWithException(final " + primaryKeyType + " id) throws ValidationException", 1);
 		writeLine("{", 1);
-		writeLine(name + " record = get(id);", 2);
+		writeLine("final " + name + " record = get(id);", 2);
 		writeLine("if (null == record)", 2);
 			writeLine("throw new ValidationException(\"id\", \"Could not find the " + name + " because id '\" + id + \"' is invalid.\");", 3);
 		writeLine();
@@ -351,9 +355,9 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" * @param id", 1);
 		writeLine(" * @return NULL if not found.", 1);
 		writeLine(" */", 1);
-		writeLine("public " + valueName + " getById(" + primaryKeyType + " id)", 1);
+		writeLine("public " + valueName + " getById(final " + primaryKeyType + " id)", 1);
 		writeLine("{", 1);
-		writeLine(name + " record = get(id);", 2);
+		writeLine("final " + name + " record = get(id);", 2);
 		writeLine("if (null == record)", 2);
 			writeLine("return null;", 3);
 		writeLine();
@@ -366,7 +370,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" * @return never NULL.", 1);
 		writeLine(" * @throws ValidationException if the identifier is valid.", 1);
 		writeLine(" */", 1);
-		writeLine("public " + valueName + " getByIdWithException(" + primaryKeyType + " id) throws ValidationException", 1);
+		writeLine("public " + valueName + " getByIdWithException(final " + primaryKeyType + " id) throws ValidationException", 1);
 		writeLine("{", 1);
 		writeLine("return toValue(findWithException(id));", 2);
 		writeLine("}", 1);
@@ -377,10 +381,18 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" * @return never NULL.", 1);
 		writeLine(" * @throws ValidationException", 1);
 		writeLine(" */", 1);
-		writeLine("public QueryResults<" + valueName + ", " + filterName + "> search(" + name + "Filter filter) throws ValidationException", 1);
+		writeLine("public QueryResults<" + valueName + ", " + filterName + "> search(final " + name + "Filter filter) throws ValidationException", 1);
 		writeLine("{", 1);
-			writeLine("Criteria criteria = createCriteria(filter.clean());", 2);
-			writeLine("QueryResults<" + valueName + ", " + filterName + "> value = new QueryResults<>(count(criteria), filter);", 2);
+			writeLine("final QueryBuilder<" + name + "> builder = createQueryBuilder(filter.clean(), SELECT);", 2);
+			writeLine("final QueryResults<" + valueName + ", " + filterName + "> v = new QueryResults<>(builder.aggregate(COUNT), filter);", 2);
+			writeLine("if (v.isEmpty())", 2);
+			writeLine("return v;", 3);
+			writeLine();
+			writeLine("return v.withRecords(builder.orderBy(ORDER.normalize(v)).run(v.retrieveFirstResult(), v.getPageSize()).stream().map(o -> toValue(o)).collect(Collectors.toList()));", 2);
+			writeLine();
+			writeLine("/*", 2);
+			writeLine("final Criteria criteria = createCriteria(filter.clean());", 2);
+			writeLine("final QueryResults<" + valueName + ", " + filterName + "> value = new QueryResults<>(count(criteria), filter);", 2);
 			writeLine("if (value.isEmpty())", 2);
 				writeLine("return value;", 3);
 			writeLine();
@@ -390,6 +402,7 @@ public class EntityBeanDAO extends EntityBeanBase
 			writeLine(".setMaxResults(value.getPageSize());", 3);
 			writeLine();
 			writeLine("return value.withRecords(list(ORDER.build(criteria, value)).stream().map(o -> toValue(o)).collect(Collectors.toList()));", 2);
+			writeLine("*/", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("/** Counts the number of " + name + " entities based on the supplied filter.", 1);
@@ -398,25 +411,52 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" * @return zero if none found.", 1);
 		writeLine(" * @throws ValidationException", 1);
 		writeLine(" */", 1);
-		writeLine("public long count(" + filterName + " filter) throws ValidationException", 1);
+		writeLine("public long count(final " + filterName + " filter) throws ValidationException", 1);
 		writeLine("{", 1);
-			writeLine("return count(createCriteria(filter.clean()));", 2);
+			writeLine("return createQueryBuilder(filter.clean(), null).aggregate(COUNT);", 2);
+			writeLine("// return count(createCriteria(filter.clean()));", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("/** Helper method - counts the number of " + name + " entities based on the supplied criteria. */", 1);
-		writeLine("private long count(Criteria criteria)", 1);
+		writeLine("private long count(final Criteria criteria)", 1);
 		writeLine("{", 1);
 		writeLine("return ((Number) criteria.setProjection(Projections.rowCount()).uniqueResult()).longValue();", 2);
 		writeLine("}", 1);
 
 		writeLine();
+		writeLine("/** Helper method - creates the a standard Hibernate query builder. */", 1);
+		writeLine("private QueryBuilder<" + name + "> createQueryBuilder(final " + filterName + " filter, final String select)", 1);
+			writeLine("throws ValidationException", 2);
+		writeLine("{", 1);
+			writeLine("return new QueryBuilder<" + name + ">(currentSession(), select)", 2);
+			int size = m_ColumnInfo.length;
+			for (ColumnInfo info : m_ColumnInfo)
+			{
+				if (info.isString)
+					write(".addContains(\"" + info.memberVariableName + "\", \"o." + info.memberVariableName + " LIKE :" + info.memberVariableName + "\", filter." + info.memberVariableName + ")", 3);
+				else
+					write(".add(\"" + info.memberVariableName + "\", \"o." + info.memberVariableName + " = :" + info.memberVariableName + "\", filter." + info.memberVariableName + ")", 3);
+
+				// For values that have ranges, also add greater-than (>=) and less-than (<=) searches. DLS on 6/11/2015.
+				if (info.isRange())
+				{
+					writeLine();
+					writeLine(".add(\"" + info.memberVariableName + "From\", \"o." + info.memberVariableName + " >= :" + info.memberVariableName + "From\", filter." + info.memberVariableName + "From)", 3);
+					write(".add(\"" + info.memberVariableName + "To\", \"o." + info.memberVariableName + " <= :" + info.memberVariableName + "To\", filter." + info.memberVariableName + "To)", 3);
+				}
+
+				writeLine((0 == --size) ? ";" : "");
+			}
+		writeLine("}", 1);
+
+		writeLine();
 		writeLine("/** Helper method - creates the a native SQL query. */", 1);
-		writeLine("private <T> QueryBuilder<T> createNativeQuery(" + filterName + " filter, String select, Class<T> entityClass, String groupBy)", 1);
+		writeLine("private <T> QueryBuilder<T> createNativeQuery(final " + filterName + " final filter, String select, final Class<T> entityClass, final String groupBy)", 1);
 			writeLine("throws ValidationException", 2);
 		writeLine("{", 1);
 			writeLine("return new NativeQueryBuilder<>(currentSession(), select, entityClass, FROM_ALIAS, groupBy)", 2);
-			int size = m_ColumnInfo.length;
+			size = m_ColumnInfo.length;
 			for (ColumnInfo info : m_ColumnInfo)
 			{
 				if (info.isString)
@@ -438,7 +478,7 @@ public class EntityBeanDAO extends EntityBeanBase
 
 		writeLine();
 		writeLine("/** Helper method - creates the Hibernate query Criteria based on the supplied " + name + " filter. */", 1);
-		writeLine("public Criteria createCriteria(" + filterName + " filter)", 1);
+		writeLine("public Criteria createCriteria(final " + filterName + " filter)", 1);
 			writeLine("throws ValidationException", 2);
 		writeLine("{", 1);
 			writeLine("Criteria criteria = criteria();", 2);
@@ -472,7 +512,7 @@ public class EntityBeanDAO extends EntityBeanBase
 
 		writeLine();
 		writeLine("/** Helper method - creates a non-transactional value from a transactional entity. */", 1);
-		writeLine("private " + valueName + " toValue(" + name + " record)", 1);
+		writeLine("private " + valueName + " toValue(final " + name + " record)", 1);
 		writeLine("{", 1);
 			writeLine("" + valueName + " value = new " + valueName + "(", 2);
 		int i = 0, last = m_ColumnInfo.length - 1;
@@ -494,7 +534,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("}", 1);
 		writeLine();
 		writeLine("/** Helper method - creates a transactional entity from a non-transactional value. */", 1);
-		writeLine("public " + name + " toEntity(" + valueName + " value, Object[] cmrs)", 1);
+		writeLine("public " + name + " toEntity(final " + valueName + " value, final Object[] cmrs)", 1);
 		writeLine("{", 1);
 			writeLine("return new " + name + "(", 2);
 		i = 0;
@@ -513,7 +553,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("}", 1);
 		writeLine();
 		writeLine("/** Helper method - populates the transactional entity from the non-transactional value. */", 1);
-		writeLine("public " + name + " toEntity(" + valueName + " value, " + name + " record, Object[] cmrs)", 1);
+		writeLine("public " + name + " toEntity(final " + valueName + " value, final " + name + " record, final Object[] cmrs)", 1);
 		writeLine("{", 1);
 		cmrs = 1;
 		for (ColumnInfo info : m_ColumnInfo)
@@ -531,7 +571,7 @@ public class EntityBeanDAO extends EntityBeanBase
 
 		writeLine();
 		writeLine("/** Helper method - creates a DynamoDB Item from a non-transactional value. */", 1);
-		writeLine("public Item toItem(" + valueName + " value)", 1);
+		writeLine("public Item toItem(final " + valueName + " value)", 1);
 		writeLine("{", 1);
 			write("Item item = new Item().withPrimaryKey(", 2);
 
@@ -582,7 +622,7 @@ public class EntityBeanDAO extends EntityBeanBase
 
 		writeLine();
 		writeLine("/** Helper method - extracts a non-transactional value from a DynamoDB Item. */", 1);
-		writeLine("public " + valueName + " fromItem(Item item)", 1);
+		writeLine("public " + valueName + " fromItem(final Item item)", 1);
 		writeLine("{", 1);
 		writeLine("return new " + valueName + "(", 2);
 		i = 0;
