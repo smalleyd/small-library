@@ -204,7 +204,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("/** Native SQL clauses. */", 1);
 		writeLine("public static final String FROM_ALIAS = \"o\";", 1);
 		writeLine();
-		writeLine("public " + name + "(SessionFactory factory)", 1);
+		writeLine("public " + name + "(final SessionFactory factory)", 1);
 		writeLine("{", 1);
 		writeLine("super(factory);", 2);
 		writeLine("}", 1);
@@ -240,7 +240,7 @@ public class EntityBeanDAO extends EntityBeanBase
 			writeLine("final Object[] cmrs = _validate(value);", 2);
 			writeLine(name + " record = (" + name + ") cmrs[0];", 2);
 			writeLine("if (null == record)", 2);
-			writeLine("record = findWithException(value.getId());", 3);
+			writeLine("record = findWithException(value.id);", 3);
 			writeLine();
 			writeLine("return value.withId(toEntity(value, record, cmrs).getId());", 2);
 		writeLine("}", 1);
@@ -388,7 +388,7 @@ public class EntityBeanDAO extends EntityBeanBase
 			writeLine("if (v.isEmpty())", 2);
 			writeLine("return v;", 3);
 			writeLine();
-			writeLine("return v.withRecords(builder.orderBy(ORDER.normalize(v)).run(v.retrieveFirstResult(), v.getPageSize()).stream().map(o -> toValue(o)).collect(Collectors.toList()));", 2);
+			writeLine("return v.withRecords(builder.orderBy(ORDER.normalize(v)).run(v).stream().map(o -> toValue(o)).collect(Collectors.toList()));", 2);
 			writeLine();
 			writeLine("/*", 2);
 			writeLine("final Criteria criteria = createCriteria(filter.clean());", 2);
@@ -452,7 +452,7 @@ public class EntityBeanDAO extends EntityBeanBase
 
 		writeLine();
 		writeLine("/** Helper method - creates the a native SQL query. */", 1);
-		writeLine("private <T> QueryBuilder<T> createNativeQuery(final " + filterName + " final filter, String select, final Class<T> entityClass, final String groupBy)", 1);
+		writeLine("private <T> QueryBuilder<T> createNativeQuery(final " + filterName + " filter, final String select, final Class<T> entityClass, final String groupBy)", 1);
 			writeLine("throws ValidationException", 2);
 		writeLine("{", 1);
 			writeLine("return new NativeQueryBuilder<>(currentSession(), select, entityClass, FROM_ALIAS, groupBy)", 2);
@@ -588,7 +588,6 @@ public class EntityBeanDAO extends EntityBeanBase
 				write(info.columnName);
 				write("\", value.");
 				write(info.memberVariableName);
-				write("()");
 			}
 		}
 		write(")");

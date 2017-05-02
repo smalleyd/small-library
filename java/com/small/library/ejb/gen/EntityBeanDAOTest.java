@@ -188,7 +188,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@BeforeClass", 1);
 		writeLine("public static void up()", 1);
 		writeLine("{", 1);
-		writeLine("SessionFactory factory = DAO_RULE.getSessionFactory();", 2);
+		writeLine("final SessionFactory factory = DAO_RULE.getSessionFactory();", 2);
 		writeLine("dao = new " + daoName + "(factory);", 2);
 		writeLine("}", 1);
 	}
@@ -219,7 +219,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("public void add()", 1);
 		writeLine("{", 1);
 		writeLine("// TODO: populate the VALUE with data.", 2);
-		writeLine(valueName + " value = dao.add(VALUE = new " + valueName + "());", 2);
+		writeLine("final " + valueName + " value = dao.add(VALUE = new " + valueName + "());", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
@@ -265,7 +265,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 				writeLine("@Test(expected=ValidationException.class)", 1);
 				writeLine("public void add_invalid" + i.name + "()", 1);
 				writeLine("{", 1);
-				writeLine("dao.add(createValid()." + i.withMethodName + "(VALUE.getId() + " + invalidId_ + "));", 2);
+				writeLine("dao.add(createValid()." + i.withMethodName + "(VALUE.id + " + invalidId_ + "));", 2);
 				writeLine("}", 1);
 			}
 		}
@@ -274,7 +274,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void find()", 1);
 		writeLine("{", 1);
-		writeLine(entityName + " record = dao.findWithException(VALUE.getId());", 2);
+		writeLine("final " + entityName + " record = dao.findWithException(VALUE.id);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", record);", 2);
 		writeLine("check(VALUE, record);", 2);
 		writeLine("}", 1);
@@ -283,14 +283,14 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test(expected=ValidationException.class)", 1);
 		writeLine("public void findWithException()", 1);
 		writeLine("{", 1);
-		writeLine("dao.findWithException(VALUE.getId() + " + invalidId + ");", 2);
+		writeLine("dao.findWithException(VALUE.id + " + invalidId + ");", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void get()", 1);
 		writeLine("{", 1);
-		writeLine(valueName + " value = dao.getByIdWithException(VALUE.getId());", 2);
+		writeLine("final " + valueName + " value = dao.getByIdWithException(VALUE.id);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
@@ -299,7 +299,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test(expected=ValidationException.class)", 1);
 		writeLine("public void getWithException()", 1);
 		writeLine("{", 1);
-		writeLine("dao.getByIdWithException(VALUE.getId() + " + invalidId + ");", 2);
+		writeLine("dao.getByIdWithException(VALUE.id + " + invalidId + ");", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -310,7 +310,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 0L);", 2);
 		writeLine();
 		writeLine("// TODO: provide a change to the VALUE.", 2);
-		writeLine(valueName + " value = dao.update(VALUE);", 2);
+		writeLine("final " + valueName + " value = dao.update(VALUE);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine();
@@ -322,7 +322,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void modify_find()", 1);
 		writeLine("{", 1);
-		writeLine(entityName + " record = dao.findWithException(VALUE.getId());", 2);
+		writeLine("final " + entityName + " record = dao.findWithException(VALUE.id);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", record);", 2);
 		writeLine("// TODO: check the changed property.", 2);
 		writeLine("check(VALUE, record);", 2);
@@ -345,10 +345,10 @@ public class EntityBeanDAOTest extends EntityBeanBase
 
 		writeLine();
 		writeLine("/** Helper method: performs the search and checks the counts. */", 1);
-		writeLine("private void search(" + filterName + " filter, long expectedTotal)", 1);
+		writeLine("private void search(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
-		writeLine("QueryResults<" + valueName + ", " + filterName + "> results = dao.search(filter);", 2);
-		writeLine("String assertId = \"SEARCH \" + filter + \": \";", 2);
+		writeLine("final QueryResults<" + valueName + ", " + filterName + "> results = dao.search(filter);", 2);
+		writeLine("final String assertId = \"SEARCH \" + filter + \": \";", 2);
 		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
 		writeLine("Assert.assertEquals(assertId + \"Check total\", expectedTotal, results.getTotal());", 2);
 		writeLine("if (0L == expectedTotal)", 2);
@@ -401,7 +401,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 
 		writeLine();
 		writeLine("/** Helper method: performs the search and checks sort option fields. */", 1);
-		writeLine("private void search_sort(" + filterName + " filter, String expectedSortOn, String expectedSortDir)", 1);
+		writeLine("private void search_sort(final " + filterName + " filter, final String expectedSortOn, final String expectedSortDir)", 1);
 		writeLine("{", 1);
 		writeLine("QueryResults<" + valueName + ", " + filterName + "> results = dao.search(filter);", 2);
 		writeLine("String assertId = \"SEARCH_SORT (\" + filter.getSortOn() + \", \" + filter.getSortDir() + \"): \";", 2);
@@ -415,9 +415,9 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void testRemove()", 1);
 		writeLine("{", 1);
-		writeLine("Assert.assertFalse(\"Invalid\", dao.remove(VALUE.getId() + " + invalidId + "));", 2);
-		writeLine("Assert.assertTrue(\"Removed\", dao.remove(VALUE.getId()));", 2);
-		writeLine("Assert.assertFalse(\"Already removed\", dao.remove(VALUE.getId()));", 2);
+		writeLine("Assert.assertFalse(\"Invalid\", dao.remove(VALUE.id + " + invalidId + "));", 2);
+		writeLine("Assert.assertTrue(\"Removed\", dao.remove(VALUE.id));", 2);
+		writeLine("Assert.assertFalse(\"Already removed\", dao.remove(VALUE.id));", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -425,7 +425,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test(expected=ValidationException.class)", 1);
 		writeLine("public void testRemove_find()", 1);
 		writeLine("{", 1);
-		writeLine("dao.findWithException(VALUE.getId());", 2);
+		writeLine("dao.findWithException(VALUE.id);", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -433,7 +433,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void testRemove_search()", 1);
 		writeLine("{", 1);
-		writeLine("count(new " + filterName + "().withId(VALUE.getId()), 0L);", 2);
+		writeLine("count(new " + filterName + "().withId(VALUE.id), 0L);", 2);
 		writeLine("// TODO: provide secondary test count.", 2);
 		writeLine("}", 1);
 
@@ -443,25 +443,25 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine(" * @param filter", 1);
 		writeLine(" * @param expectedTotal", 1);
 		writeLine(" */", 1);
-		writeLine("private void count(" + filterName + " filter, long expectedTotal)", 1);
+		writeLine("private void count(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
 		writeLine("Assert.assertEquals(\"COUNT \" + filter + \": Check total\", expectedTotal, dao.count(filter));", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("/** Helper method - checks an expected value against a supplied entity record. */", 1);
-		writeLine("private void check(" + valueName + " expected, " + name + " record)", 1);
+		writeLine("private void check(final " + valueName + " expected, final " + name + " record)", 1);
 		writeLine("{", 1);
-		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
+		writeLine("final String assertId = \"ID (\" + expected.id + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
 			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", record." + i.accessorMethodName + "());", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("/** Helper method - checks an expected value against a supplied value object. */", 1);
-		writeLine("private void check(" + valueName + " expected, " + valueName + " value)", 1);
+		writeLine("private void check(final " + valueName + " expected, final " + valueName + " value)", 1);
 		writeLine("{", 1);
-		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
+		writeLine("final String assertId = \"ID (\" + expected.id + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
 		{
 			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", value." + i.memberVariableName + ");", 2);

@@ -217,7 +217,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@BeforeClass", 1);
 		writeLine("public static void up()", 1);
 		writeLine("{", 1);
-		writeLine("SessionFactory factory = DAO_RULE.getSessionFactory();", 2);
+		writeLine("final SessionFactory factory = DAO_RULE.getSessionFactory();", 2);
 		writeLine("dao = new " + daoName + "(factory);", 2);
 		writeLine("}", 1);
 	}
@@ -249,11 +249,11 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("public void add()", 1);
 		writeLine("{", 1);
 		writeLine("// TODO: populate the VALUE with data.", 2);
-		writeLine("Response response = request()", 2);
+		writeLine("final Response response = request()", 2);
 		writeLine(".post(Entity.entity(VALUE = new " + valueName + "(), JerseyUtils.APPLICATION_JSON_TYPE));", 3);
 		writeLine();
 		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
-		writeLine(valueName + " value = response.readEntity(" + valueName + ".class);", 2);
+		writeLine("final " + valueName + " value = response.readEntity(" + valueName + ".class);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
@@ -262,12 +262,12 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void find()", 1);
 		writeLine("{", 1);
-		writeLine("Response response = target().queryParam(\"name\", \"\")", 2);
+		writeLine("final Response response = target().queryParam(\"name\", \"\")", 2);
 		writeLine(".request(JerseyUtils.APPLICATION_JSON_TYPE)", 3);
 		writeLine(".get();", 3);
 		writeLine();
 		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
-		writeLine("List<NameValue> values = response.readEntity(TYPE_LIST_NAME_VALUE);", 2);
+		writeLine("final List<NameValue> values = response.readEntity(TYPE_LIST_NAME_VALUE);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", values);", 2);
 		writeLine();
 		writeLine("// TODO: do other checks.", 2);
@@ -277,17 +277,17 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void get()", 1);
 		writeLine("{", 1);
-		writeLine("Response response = get(VALUE.getId());", 2);
+		writeLine("final Response response = get(VALUE.id);", 2);
 		writeLine();
 		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
-		writeLine(valueName + " value = response.readEntity(" + valueName + ".class);", 2);
+		writeLine("final " + valueName + " value = response.readEntity(" + valueName + ".class);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("/** Helper method - calls the GET endpoint. */", 1);
-		writeLine("private Response get(" + pkTypeName + " id)", 1);
+		writeLine("private Response get(final " + pkTypeName + " id)", 1);
 		writeLine("{", 1);
 		writeLine("return request(id" + to_s + ").get();", 2);
 		writeLine("}", 1);
@@ -296,7 +296,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void getWithException()", 1);
 		writeLine("{", 1);
-		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.getId() + " + invalidId + ").getStatus());", 2);
+		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.id + " + invalidId + ").getStatus());", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -307,10 +307,10 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 0L);", 2);
 		writeLine();
 		writeLine("// TODO: provide a change to the VALUE.", 2);
-		writeLine("Response response = request().put(Entity.entity(VALUE, JerseyUtils.APPLICATION_JSON_TYPE));", 2);
+		writeLine("final Response response = request().put(Entity.entity(VALUE, JerseyUtils.APPLICATION_JSON_TYPE));", 2);
 		writeLine();
 		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
-		writeLine(valueName + " value = response.readEntity(" + valueName + ".class);", 2);
+		writeLine("final " + valueName + " value = response.readEntity(" + valueName + ".class);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine();
@@ -322,7 +322,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void modify_get()", 1);
 		writeLine("{", 1);
-		writeLine(valueName + " value = get(VALUE.getId()).readEntity(" + valueName + ".class);", 2);
+		writeLine("final " + valueName + " value = get(VALUE.id).readEntity(" + valueName + ".class);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("// TODO: check the changed property.", 2);
 		writeLine("check(VALUE, value);", 2);
@@ -345,14 +345,14 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 
 		writeLine();
 		writeLine("/** Helper method - calls the search endpoint and verifies the counts and records. */", 1);
-		writeLine("private void search(" + filterName + " filter, long expectedTotal)", 1);
+		writeLine("private void search(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
-		writeLine("Response response = request(\"search\")", 2);
+		writeLine("final Response response = request(\"search\")", 2);
 		writeLine(".post(Entity.entity(filter, JerseyUtils.APPLICATION_JSON_TYPE));", 3);
 		writeLine();
-		writeLine("String assertId = \"SEARCH \" + filter + \": \";", 2);
+		writeLine("final String assertId = \"SEARCH \" + filter + \": \";", 2);
 		writeLine("Assert.assertEquals(assertId + \"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
-		writeLine("QueryResults<" + valueName + ", " + filterName + "> results = response.readEntity(TYPE_QUERY_RESULTS);", 2);
+		writeLine("final QueryResults<" + valueName + ", " + filterName + "> results = response.readEntity(TYPE_QUERY_RESULTS);", 2);
 		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
 		writeLine("Assert.assertEquals(assertId + \"Check total\", expectedTotal, results.getTotal());", 2);
 		writeLine("if (0L == expectedTotal)", 2);
@@ -377,20 +377,20 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void testRemove()", 1);
 		writeLine("{", 1);
-		writeLine("remove(VALUE.getId() + " + invalidId + ", false);", 2);
-		writeLine("remove(VALUE.getId(), true);", 2);
-		writeLine("remove(VALUE.getId(), false);", 2);
+		writeLine("remove(VALUE.id + " + invalidId + ", false);", 2);
+		writeLine("remove(VALUE.id, true);", 2);
+		writeLine("remove(VALUE.id, false);", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("/** Helper method - call the DELETE endpoint. */", 1);
-		writeLine("private void remove(" + pkTypeName + " id, boolean success)", 1);
+		writeLine("private void remove(final " + pkTypeName + " id, boolean success)", 1);
 		writeLine("{", 1);
-		writeLine("Response response = request(id" + to_s + ").delete();", 2);
+		writeLine("final Response response = request(id" + to_s + ").delete();", 2);
 		writeLine();
-		writeLine("String assertId = \"DELETE (\" + id + \", \" + success + \"): \";", 2);
+		writeLine("final String assertId = \"DELETE (\" + id + \", \" + success + \"): \";", 2);
 		writeLine("Assert.assertEquals(assertId + \"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
-		writeLine("Model<Boolean> results = response.readEntity(TYPE_BOOLEAN);", 2);
+		writeLine("final Model<Boolean> results = response.readEntity(TYPE_BOOLEAN);", 2);
 		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
 		writeLine("Assert.assertEquals(assertId + \"Check value\", success, results.getValue());", 2);
 		writeLine("}", 1);
@@ -399,14 +399,14 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void testRemove_get()", 1);
 		writeLine("{", 1);
-		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.getId()).getStatus());", 2);
+		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.id).getStatus());", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void testRemove_search()", 1);
 		writeLine("{", 1);
-		writeLine("count(new " + filterName + "().withId(VALUE.getId()), 0L);", 2);
+		writeLine("count(new " + filterName + "().withId(VALUE.id), 0L);", 2);
 		writeLine("// TODO: provide secondary test count.", 2);
 		writeLine("}", 1);
 
@@ -418,7 +418,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("private Invocation.Builder request() { return target().request(JerseyUtils.APPLICATION_JSON_TYPE); }", 1);
 		writeLine();
 		writeLine("/** Helper method - creates the request from the WebTarget. */", 1);
-		writeLine("private Invocation.Builder request(String path) { return target().path(path).request(JerseyUtils.APPLICATION_JSON_TYPE); }", 1);
+		writeLine("private Invocation.Builder request(final String path) { return target().path(path).request(JerseyUtils.APPLICATION_JSON_TYPE); }", 1);
 
 		writeLine();
 		writeLine("/** Helper method - calls the DAO count call and compares the expected total value.", 1);
@@ -426,16 +426,16 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine(" * @param filter", 1);
 		writeLine(" * @param expectedTotal", 1);
 		writeLine(" */", 1);
-		writeLine("private void count(" + filterName + " filter, long expectedTotal)", 1);
+		writeLine("private void count(final " + filterName + " filter, long expectedTotal)", 1);
 		writeLine("{", 1);
 		writeLine("Assert.assertEquals(\"COUNT \" + filter + \": Check total\", expectedTotal, dao.count(filter));", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("/** Helper method - checks an expected value against a supplied value object. */", 1);
-		writeLine("private void check(" + valueName + " expected, " + valueName + " value)", 1);
+		writeLine("private void check(final " + valueName + " expected, final " + valueName + " value)", 1);
 		writeLine("{", 1);
-		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
+		writeLine("final String assertId = \"ID (\" + expected.id + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
 		{
 			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", value." + i.memberVariableName + ");", 2);

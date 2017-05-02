@@ -229,7 +229,7 @@ public class EntityBeanJPA extends EntityBeanBase
 			write("\tpublic " + item.javaType + " " + item.accessorMethodName + "()");
 				writeLine(" { return " + item.memberVariableName + "; }");
 			writeLine("\tpublic " + item.javaType + " " + item.memberVariableName + ";");
-			write("\tpublic void " + item.mutatorMethodName + "(" + item.javaType + " newValue)");
+			write("\tpublic void " + item.mutatorMethodName + "(final " + item.javaType + " newValue)");
 			writeLine(" { " + item.memberVariableName + " = newValue; }");
 		}
 	}
@@ -257,7 +257,7 @@ public class EntityBeanJPA extends EntityBeanBase
 			write("public " + objectName + " get" + name + "()", 1);
 			writeLine(" { return " + memberName + "; }");
 			writeLine("public " + objectName + " " + memberName + ";", 1);
-			write("public void set" + name + "(" + objectName + " newValue)", 1);
+			write("public void set" + name + "(final " + objectName + " newValue)", 1);
 			writeLine(" { " + memberName + " = newValue; }");
 		}
 	}
@@ -281,7 +281,7 @@ public class EntityBeanJPA extends EntityBeanBase
 			if (0 < i)
 				write("\t\t");
 
-			write(item.javaType + " " + item.memberVariableName);
+			write("final " + item.javaType + " " + item.memberVariableName);
 
 			if (last == i)
 				writeLine(")");
