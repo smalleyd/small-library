@@ -285,7 +285,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("/** Helper method - checks an expected value against a supplied value object. */", 1);
 		writeLine("private void check(" + valueName + " expected, " + valueName + " value)", 1);
 		writeLine("{", 1);
-		writeLine("String assertId = \"ID (\" + expected.getId() + \"): \";", 2);
+		writeLine("final String assertId = \"ID (\" + expected.id + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
 		{
 			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", value." + i.memberVariableName + ");", 2);
