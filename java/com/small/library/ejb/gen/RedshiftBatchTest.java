@@ -140,14 +140,18 @@ public class RedshiftBatchTest extends EntityBeanBase
 		}
 
 		String name = getObjectName();
-		writeLine("import java.sql.*;");
+		writeLine("import java.util.List;");
+		writeLine("import java.util.Map;");
 		writeLine();
 		writeLine("import org.junit.*;");
 		writeLine("import org.junit.runners.MethodSorters;");
+		writeLine("import org.skife.jdbi.v2.Handle;");
+		writeLine("import org.skife.jdbi.v2.DBI;");
 		writeLine();
+		writeLine("import " + domainPackageName + ".junit.dropwizard.LifecycleRule;");
 		writeLine("import " + domainPackageName + ".dwservice.aws.AWSManager;");
-		writeLine("import " + domainPackageName + ".dwtesting.TestingUtils;");
 		writeLine("import " + basePackageName + "." + getAppName() + "BatchConfig;");
+		writeLine("import " + basePackageName + "." + getAppName() + "BatchConfigTest;");
 		writeLine("import " + basePackageName + ".value." + valueObjectName(name) + ";");
 		writeLine();
 		writeLine("/**********************************************************************************");
@@ -177,6 +181,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("private static " + getAppName() + "BatchConfig conf;", 1);
 		writeLine("private static " + batchName + " batch;", 1);
 		writeLine("private static AWSManager aws;", 1);
+		writeLine("private static DBI dest;", 1);
 		writeLine("private static String insertQueueUrl;", 1);
 		writeLine("private static String updateQueueUrl;", 1);
 		writeLine();
@@ -194,8 +199,8 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("batch = new " + batchName + "();", 2);
 		writeLine("RULE.manage(aws = conf.awsManager());", 2);
 		writeLine("conf.destDbi(dest = RULE.manageForDBI(conf.dest, \"dest\"));", 2);
-		writeLine("insertQueueUrl = conf.getAws().insertQueueUrl(batch.getEntityName());", 2);
-		writeLine("updateQueueUrl = conf.getAws().updateQueueUrl(batch.getEntityName());", 2);
+		writeLine("insertQueueUrl = conf.aws.insertQueueUrl(batch.getEntityName());", 2);
+		writeLine("updateQueueUrl = conf.aws.updateQueueUrl(batch.getEntityName());", 2);
 		writeLine();
 		writeLine("Assert.assertEquals(\"Check tableName\", \"" + tableName + "\", batch.getTableName());", 2);
 		writeLine();
@@ -283,7 +288,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("}", 1);
 		writeLine();
 		writeLine("/** Helper method - checks an expected value against a supplied value object. */", 1);
-		writeLine("private void check(" + valueName + " expected, " + valueName + " value)", 1);
+		writeLine("private void check(final " + valueName + " expected, final " + valueName + " value)", 1);
 		writeLine("{", 1);
 		writeLine("final String assertId = \"ID (\" + expected.id + \"): \";", 2);
 		for (ColumnInfo i : m_ColumnInfo)
