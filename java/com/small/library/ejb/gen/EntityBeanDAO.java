@@ -429,7 +429,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("private QueryBuilder<" + name + "> createQueryBuilder(final " + filterName + " filter, final String select)", 1);
 			writeLine("throws ValidationException", 2);
 		writeLine("{", 1);
-			writeLine("return new QueryBuilder<" + name + ">(currentSession(), select)", 2);
+			writeLine("return new QueryBuilder<" + name + ">(currentSession(), select, " + name + ".class)", 2);
 			int size = m_ColumnInfo.length;
 			for (ColumnInfo info : m_ColumnInfo)
 			{
