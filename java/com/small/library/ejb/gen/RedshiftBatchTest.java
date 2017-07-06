@@ -276,7 +276,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("Assert.assertEquals(\"Check size\", 1, records.size());", 3);
 		writeLine("final Map<String, Object> rs = records.get(0);", 3);
 		writeLine();
-		write("check(UPDATE, new " + valueName + "((" + m_ColumnInfo[0].javaType + ")rs.get(\"" + m_ColumnInfo[0].columnName + "\")", 3);
+		write("check(UPDATE, new " + valueName + "((" + m_ColumnInfo[0].javaType + ") rs.get(\"" + m_ColumnInfo[0].columnName + "\")", 3);
 		for (int i = 1; i < m_ColumnInfo.length; i++)
 		{
 			writeLine(",");
