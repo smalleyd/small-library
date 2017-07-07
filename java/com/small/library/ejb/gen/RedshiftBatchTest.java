@@ -140,8 +140,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		}
 
 		String name = getObjectName();
-		writeLine("import java.util.List;");
-		writeLine("import java.util.Map;");
+		writeLine("import java.util.*;");
 		writeLine();
 		writeLine("import org.junit.*;");
 		writeLine("import org.junit.runners.MethodSorters;");
@@ -252,7 +251,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("public void addUpdate()", 1);
 		writeLine("{", 1);
 		writeLine("aws.sendObject(updateQueueUrl, UPDATE);", 2);
-		writeLine("// TODO: uncomment if de-dupe is enabled. aws.sendObject(updateQueueUrl, UPDATE.withUpdatedAt(new java.util.Date(UPDATE.getUpdatedAt().getTime() + 1000L)));	// Test de-dupe.", 2);
+		writeLine("// TODO: uncomment if de-dupe is enabled. aws.sendObject(updateQueueUrl, UPDATE.withUpdatedAt(new Date(UPDATE.updatedAt.getTime() + 1000L)));	// Test de-dupe.", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("@Test", 1);
