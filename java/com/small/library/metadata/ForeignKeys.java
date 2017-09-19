@@ -1,7 +1,9 @@
 package com.small.library.metadata;
 
 import java.sql.*;
-import java.util.*;
+
+import javax.sql.DataSource;
+
 import com.small.library.data.*;
 
 /***************************************************************************************
@@ -17,14 +19,14 @@ import com.small.library.data.*;
 public abstract class ForeignKeys extends MetaDataCollection
 {
 	/** Constructs the data collection and supplies a JDBC connection factory.
-		@param pConnectionFactory A reference to a connection factory.
+		@param pDataSource A reference to a connection factory.
 		@param pParent <I>Table.Record</I> object that contains the
 			foreign keys.
 	*/
-	public ForeignKeys(ConnectionFactory pConnectionFactory,
+	public ForeignKeys(DataSource pDataSource,
 		Tables.Record pParent)
 	{
-		super(pConnectionFactory);
+		super(pDataSource);
 		setParent(pParent);
 	}
 

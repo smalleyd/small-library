@@ -2,7 +2,8 @@ package com.small.library.doc;
 
 import java.io.*;
 import java.sql.*;
-import java.util.ArrayList;
+
+import javax.sql.DataSource;
 
 import com.small.library.data.*;
 import com.small.library.metadata.*;
@@ -30,12 +31,12 @@ public class ProceduresHtml
 	public ProceduresHtml() { this(null, null); }
 
 	/** Constructor - constructs a populated object.
-		@param pConnectionFactory The database connection's connection factory.
+		@param pDataSource The database connection's connection factory.
 		@param pWriter HTML document's output stream.
 	*/
-	public ProceduresHtml(ConnectionFactory pConnectionFactory, PrintWriter pWriter)
+	public ProceduresHtml(DataSource pDataSource, PrintWriter pWriter)
 	{
-		m_ConnectionFactory = pConnectionFactory;
+		m_DataSource = pDataSource;
 		m_Writer = pWriter;
 	}
 
@@ -121,8 +122,7 @@ public class ProceduresHtml
 	public void run()
 		throws SQLException, IOException
 	{
-		Procedures pProcedures = new Procedures(m_ConnectionFactory);
-		m_Warnings = new ArrayList();
+		Procedures pProcedures = new Procedures(m_DataSource);
 
 		pProcedures.load(true);
 
@@ -136,7 +136,7 @@ public class ProceduresHtml
 	{
 		// Get a title for the document.
 		String strCatalog = null;
-		Connection pConnection = m_ConnectionFactory.getConnection();
+		Connection pConnection = m_DataSource.getConnection();
 
 		try
 		{
@@ -146,7 +146,7 @@ public class ProceduresHtml
 		finally
 		{
 			if (null != pConnection)
-				m_ConnectionFactory.release(pConnection);
+				pConnection.close();
 		}
 
 		writeLine("<HTML>");
@@ -264,7 +264,7 @@ public class ProceduresHtml
 	*
 	*****************************************************************************/
 
-	public ConnectionFactory getConnectionFactory() { return m_ConnectionFactory; }
+	public DataSource getDataSource() { return m_DataSource; }
 	public PrintWriter getWriter() { return m_Writer; }
 
 	/******************************************************************************
@@ -273,7 +273,7 @@ public class ProceduresHtml
 	*
 	*****************************************************************************/
 
-	public void setConnectionFactory(ConnectionFactory pNewValue) { m_ConnectionFactory = pNewValue; }
+	public void setDataSource(DataSource pNewValue) { m_DataSource = pNewValue; }
 	public void setWriter(OutputStream pNewValue) { setWriter(new PrintWriter(pNewValue)); }
 	public void setWriter(PrintWriter pNewValue) { m_Writer = pNewValue; }
 
@@ -283,9 +283,8 @@ public class ProceduresHtml
 	*
 	*****************************************************************************/
 
-	private ConnectionFactory m_ConnectionFactory = null;
+	private DataSource m_DataSource = null;
 	private PrintWriter m_Writer = null;
-	private ArrayList m_Warnings = null;
 
 	/******************************************************************************
 	*
@@ -316,11 +315,11 @@ public class ProceduresHtml
 			else
 				strUrl = "jdbc:odbc:" + strUrl;
 
-			DataSource pDataSource = new DataSource(strDriver,
+			DataSource pDataSource = DataCollection.createDataSource(strDriver,
 				strUrl, strUserName, strPassword);
 			PrintWriter pWriter = new PrintWriter(new FileWriter(strFile));
 
-			(new ProceduresHtml(pDataSource.getConnectionPool(), pWriter)).run();
+			(new ProceduresHtml(pDataSource, pWriter)).run();
 
 			pWriter.close();
 		}

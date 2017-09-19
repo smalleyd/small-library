@@ -2,8 +2,9 @@ package com.small.library.data;
 
 import java.util.*;
 import java.sql.*;
+import javax.sql.DataSource;
 
-import com.small.library.util.MapList;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 /***************************************************************************************
 *
@@ -17,6 +18,18 @@ import com.small.library.util.MapList;
 
 public abstract class DataCollection
 {
+	/** Helper method - creates JDBC DataSource object. */
+	public static DataSource createDataSource(final String driver, final String url, final String userName, final String password)
+	{
+		final BasicDataSource value = new BasicDataSource();
+		value.setDriverClassName(driver);
+		value.setUrl(url);
+		value.setUsername(userName);
+		value.setPassword(password);
+
+		return value;
+	}
+
 	/******************************************************************************
 	*
 	* Constructors/Destructor
@@ -24,11 +37,11 @@ public abstract class DataCollection
 	******************************************************************************/
 
 	/** Constructs the data collection and supplies a JDBC connection factory.
-		@param pConnectionFactory A reference to a connection factory.
+		@param pDataSource A reference to a connection factory.
 	*/
-	protected DataCollection(ConnectionFactory pConnectionFactory)
+	protected DataCollection(DataSource pDataSource)
 	{
-		setConnectionFactory(pConnectionFactory);
+		setDataSource(pDataSource);
 	}
 
 	/******************************************************************************
@@ -113,7 +126,7 @@ public abstract class DataCollection
 		{
 			PreparedStatement pStmt = prepareUpdateStatement();
  
-			int nSize = m_Data.size();
+			int nSize = list.size();
 
 			for (int i = 0; i < nSize; i++)
 				item(i).update(pStmt);
@@ -185,7 +198,7 @@ public abstract class DataCollection
 		                to the data collection.
 		@return Returns the number of records added.
 	*/
-	public int add(List pRecords) throws SQLException
+	public int add(List<DataRecord> pRecords) throws SQLException
 	{
 		int nSize = pRecords.size();
 
@@ -276,7 +289,7 @@ public abstract class DataCollection
 	*/
 	public boolean isDirty()
 	{
-		int nSize = m_Data.size();
+		int nSize = list.size();
 
 		for (int i = 0; i < nSize; i++)
 			if (item(i).isDirty())
@@ -286,24 +299,28 @@ public abstract class DataCollection
 	}
 
 	/** Returns the number of data record objects in the data collection. */
-	public int size() { return m_Data.size(); }
+	public int size() { return list.size(); }
 
 	/** Returns a reference to a data record object at the index value in the
 	    data collection.
 		@param nItem The index value of the data record object in the data collection.
 	*/
-	public DataRecord item(int nItem) { return (DataRecord) m_Data.get(nItem);	}
+	public DataRecord item(int nItem) { return (DataRecord) list.get(nItem);	}
 
 	/** Returns a reference to a data record object that matches the key parameter.
 		@param strKey A reference to a string key value.
 	*/
-	public DataRecord find(String strKey) { return (DataRecord) m_Data.get(strKey); }
+	public DataRecord find(String strKey)
+	{
+		final Integer i = map.get(strKey);
+		return (null != i) ? list.get(i) : null;
+	}
 
 	/** Returns whether a data record object matching the key parameter exists
 	    in the data collection.
 		@param strKey A reference to a string key value.
 	*/
-	public boolean exists(String strKey) { return m_Data.containsKey(strKey); }
+	public boolean exists(String strKey) { return map.containsKey(strKey); }
 
 	/******************************************************************************
 	*
@@ -370,21 +387,21 @@ public abstract class DataCollection
 	}
 
 	/** Accessor method - gets a reference to the connection factory in use. */
-	public ConnectionFactory getConnectionFactory()
-	{ return m_ConnectionFactory; }
+	public DataSource getDataSource()
+	{ return m_DataSource; }
 
 	/** Mutator method - Sets the connection factory for use in the data collection.
-		@param pConnectionFactory A reference to a connection factory for use.
+		@param pDataSource A reference to a connection factory for use.
 	*/
-	public void setConnectionFactory(ConnectionFactory pNewValue)
-	{ m_ConnectionFactory = pNewValue; }
+	public void setDataSource(DataSource pNewValue)
+	{ m_DataSource = pNewValue; }
 
 	/** Mutator method - initializes the connection object for the current
 	    operation.
 	*/
 	private void initConnection() throws SQLException
 	{
-		m_Connection = m_ConnectionFactory.getConnection();
+		m_Connection = m_DataSource.getConnection();
 	}
 
 	/** Mutator method - releases the connection object used for the current
@@ -393,7 +410,7 @@ public abstract class DataCollection
 	private void releaseConnection() throws SQLException
 	{
 		if (null != m_Connection)
-			m_ConnectionFactory.release(m_Connection);
+			m_Connection.close();
 
 		m_Connection = null;
 	}
@@ -447,25 +464,31 @@ public abstract class DataCollection
 	/** Adds a new data record object to the in-memory collection. */
 	private void addItem(DataRecord pRecord)
 	{
-		m_Data.put(pRecord.toString(), pRecord);
+		list.add(pRecord);
+		map.put(pRecord.toString(), list.size() - 1);
 	}
 
 	/** Replaces the data record with a cloned version. Mainly used for stores. */
 	private DataRecord setItem(DataRecord pRecord)
 	{
-		return (DataRecord) m_Data.put(pRecord.toString(), pRecord);
+		final Integer i = map.get(pRecord.toString());
+		if (null == i)
+			return null;
+
+		list.set(i, pRecord);
+		return pRecord;
 	}
 
 	/** Removes all data record objects from the in-memory collection. */
 	private void reset()
 	{
-		m_Data.clear();
+		list.clear();
 	}
 
 	/** Removes the item from both collections and compacts their order. */
 	private void removeItem(DataRecord pRecord)
 	{
-		m_Data.remove(pRecord.toString());
+		list.remove(pRecord.toString());
 	}
 
 	/******************************************************************************
@@ -477,7 +500,7 @@ public abstract class DataCollection
 	/** Member variable - reference to the connection factory used by the
 	    data collection.
 	*/
-	private ConnectionFactory m_ConnectionFactory = null;
+	private DataSource m_DataSource = null;
 
 	/** Member variable - reference to the connection object being used by the
 	    current data collection operation.
@@ -487,5 +510,6 @@ public abstract class DataCollection
 	/** Member variable - reference to the container for the collection of
 	    data records.
 	*/
-	private MapList m_Data = new MapList();
+	private List<DataRecord> list = new LinkedList<>();
+	private Map<String, Integer> map = new HashMap<>();
 }

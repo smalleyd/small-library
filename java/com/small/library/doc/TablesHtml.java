@@ -6,6 +6,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import com.small.library.data.*;
 import com.small.library.metadata.*;
 
@@ -31,15 +33,15 @@ public class TablesHtml
 	public TablesHtml() { this(null, null, null); }
 
 	/** Constructor - constructs a populated object.
-		@param pConnectionFactory The database connection's connection factory.
+		@param pDataSource The database connection's connection factory.
 		@param pWriter HTML document's output stream.
 		@param strSchemaName Schema Name pattern to filter the tables list by.
 			Use <CODE>null</CODE> for no filter.
 	*/
-	public TablesHtml(ConnectionFactory pConnectionFactory, PrintWriter pWriter,
+	public TablesHtml(DataSource pDataSource, PrintWriter pWriter,
 		String strSchemaNamePattern)
 	{
-		connectionFactory = pConnectionFactory;
+		connectionFactory = pDataSource;
 		out = pWriter;
 		schemaNamePattern = strSchemaNamePattern;
 	}
@@ -148,17 +150,10 @@ public class TablesHtml
 	{
 		// Get a title for the document.
 		String strCatalog = null;
-		Connection pConnection = connectionFactory.getConnection();
 
-		try
+		try (final Connection pConnection = connectionFactory.getConnection())
 		{
 			strCatalog = pConnection.getCatalog();
-		}
-
-		finally
-		{
-			if (null != pConnection)
-				connectionFactory.release(pConnection);
 		}
 
 		writeLine("<HTML>");
@@ -198,9 +193,8 @@ public class TablesHtml
 
 		String count = null;
 		NumberFormat formatter = NumberFormat.getNumberInstance();
-		Connection connection = connectionFactory.getConnection();
 
-		try
+		try (final Connection connection = connectionFactory.getConnection())
 		{
 			connection.setReadOnly(true);
 			connection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
@@ -223,11 +217,6 @@ public class TablesHtml
 	
 				System.out.println(record.getName() + " - Row Count: " + count);
 			}
-		}
-
-		finally
-		{
-			this.connectionFactory.release(connection);
 		}
 
 		out.flush();
@@ -338,12 +327,6 @@ public class TablesHtml
 			pPrimaryKeys.load();
 		}
 
-		catch (OperationNotSupportedException pEx)
-		{
-			strUnsupportedException = "Cannot get index information (" +
-				pEx.getMessage() + ").";
-		}
-
 		catch (SQLException pEx)
 		{
 			warnings.add(pEx);
@@ -432,12 +415,6 @@ public class TablesHtml
 		// DO NOT ABORT. Indexes and foreign keys errors are only warnings.
 		try { pImportedKeys.load(); }
 
-		catch (OperationNotSupportedException pEx)
-		{
-			strUnsupportedException = "Cannot get imported key information (" +
-				pEx.getMessage() + ").";
-		}
-
 		catch (SQLException pEx)
 		{
 			warnings.add(pEx);
@@ -494,12 +471,6 @@ public class TablesHtml
 
 		// DO NOT ABORT. Indexes and foreign keys errors are only warnings.
 		try { pExportedKeys.load(); }
-
-		catch (OperationNotSupportedException pEx)
-		{
-			strUnsupportedException = "Cannot get exported key information (" +
-				pEx.getMessage() + ").";
-		}
 
 		catch (SQLException pEx)
 		{
@@ -561,7 +532,7 @@ public class TablesHtml
 	*
 	*****************************************************************************/
 
-	public ConnectionFactory getConnectionFactory() { return connectionFactory; }
+	public DataSource getDataSource() { return connectionFactory; }
 	public PrintWriter getWriter() { return out; }
 
 	/******************************************************************************
@@ -570,7 +541,7 @@ public class TablesHtml
 	*
 	*****************************************************************************/
 
-	public void setConnectionFactory(ConnectionFactory pNewValue) { connectionFactory = pNewValue; }
+	public void setDataSource(DataSource pNewValue) { connectionFactory = pNewValue; }
 	public void setWriter(OutputStream pNewValue) { setWriter(new PrintWriter(pNewValue)); }
 	public void setWriter(PrintWriter pNewValue) { out = pNewValue; }
 
@@ -580,7 +551,7 @@ public class TablesHtml
 	*
 	*****************************************************************************/
 
-	private ConnectionFactory connectionFactory = null;
+	private DataSource connectionFactory = null;
 	private PrintWriter out = null;
 	private String schemaNamePattern = null;
 	private List<Exception> warnings = null;
@@ -618,11 +589,11 @@ public class TablesHtml
 			if (5 < strArgs.length)
 				strSchemaNamePattern = strArgs[5];
 
-			DataSource pDataSource = new DataSource(strDriver,
+			DataSource pDataSource = DataCollection.createDataSource(strDriver,
 				strUrl, strUserName, strPassword);
 			PrintWriter pWriter = new PrintWriter(new FileWriter(strFile));
 
-			(new TablesHtml(pDataSource.getConnectionPool(1), pWriter,
+			(new TablesHtml(pDataSource, pWriter,
 				strSchemaNamePattern)).run();
 
 			pWriter.close();

@@ -14,6 +14,8 @@ package com.small.library.generator;
 
 public class GeneratorException extends Exception
 {
+	private static final long serialVersionUID = 1L;
+
 	/*****************************************************************************
 	*
 	*	Constructors/Destructor

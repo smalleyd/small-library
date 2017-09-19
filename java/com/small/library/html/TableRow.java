@@ -2,6 +2,7 @@ package com.small.library.html;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -19,131 +20,69 @@ import java.util.ArrayList;
 
 public class TableRow extends TagElement
 {
-	/*************************************************************************
-	*
-	*	Constants
-	*
-	*************************************************************************/
+	public static final String TAG = "tr";
 
-	/** Constant - element's tag name. */
-	public static final String TAG = "TR";
+	private final List<TableCell> cells;
 
-	/*************************************************************************
-	*
-	*	Constructors
-	*
-	*************************************************************************/
+	public TableRow() { super(null); cells = new ArrayList<>(); }
 
-	/** Constructor - constructs an empty object.
-	*/
-	public TableRow() { super(null); m_TableCells = new ArrayList(); }
-
-	/** Constructor - constructs a populated object.
-		@param pTableCells An array of <I>TableCell</I> objects.
-	*/
-	public TableRow(TableCell[] pTableCells)
+	public TableRow(final TableCell... cells)
 	{
 		super(null);
 
-		m_TableCells = new ArrayList(pTableCells.length);
-
-		add(pTableCells);
+		this.cells = Arrays.asList(cells);
 	}
 
-	/** Constructor - constructs a populated object.
-		@param pTableCells An <I>List</I> of <I>TableCell</I> objects.
-	*/
-	public TableRow(List pTableCells)
+	public TableRow(final List<TableCell> cells)
 	{
 		super(null);
 
-		m_TableCells = new ArrayList(pTableCells);
+		this.cells = new ArrayList<>(cells);
 	}
-
-	/*************************************************************************
-	*
-	*	Required methods: Element
-	*
-	*************************************************************************/
 
 	/** Action method - creates the HTML table row element and underlying
 	    table cell elements.
-		@param pWriter <I>Writer</I> object used to output HTML.
+		@param writer <I>Writer</I> object used to output HTML.
 	*/
-	public void create(Writer pWriter) throws IOException
+	public void create(final Writer writer) throws IOException
 	{
-		writeTag(pWriter, TAG);
+		writeTag(writer, TAG);
 
-		int nSize = m_TableCells.size();
+		for (final TableCell c : cells) c.create(writer);
 
-		for (int i = 0; i < nSize; i++)
-			((TableCell) m_TableCells.get(i)).create(pWriter);
-
-		writeTagClosing(pWriter, TAG);
+		writeTagClosing(writer, TAG);
 	}
-
-	/*************************************************************************
-	*
-	*	Accessor methods
-	*
-	*************************************************************************/
-
-	/** Accessor method - gets the number of <I>TableCell</I> objects in the
-	    collection.
-	*/
-	public int size() { return m_TableCells.size(); }
-
-	/** Accessor method - gets a <I>TableCell</I> object in the collection
-	    by index.
-		@param nIndex Index of the <I>TableCell</I> object.
-	*/
-	public TableCell get(int nIndex) { return (TableCell) m_TableCells.get(nIndex); }
-
-	/*************************************************************************
-	*
-	*	Mutator methods
-	*
-	*************************************************************************/
 
 	/** Mutator method - adds a <I>TableCell</I> object to the collection.
 		@param pTableCell New <I>TableCell</I> object to add to
 			the collection.
 	*/
-	public void add(TableCell pTableCell) { m_TableCells.add(pTableCell); }
+	public void add(TableCell cell) { cells.add(cell); }
 
 	/** Mutator method - adds an array of <I>TableCell</I> objects to the collection.
-		@param pTableCells An array of <I>TableCell</I> objects.
+		@param cells An array of <I>TableCell</I> objects.
 	*/
-	public void add(TableCell[] pTableCells)
+	public void add(TableCell... cells)
 	{
-		for (int i = 0; i < pTableCells.length; i++)
-			add(pTableCells[i]);
+		for (final TableCell i : cells)
+			add(i);
 	}
 
 	/** Mutator method - adds an <I>List</I> of <I>TableCell</I> objects
 	    to the collection.
-		@param pTableCells An <I>List</I> of <I>TableCell</I> objects.
+		@param cells An <I>List</I> of <I>TableCell</I> objects.
 	*/
-	public void add(List pTableCells)
+	public void add(List<TableCell> cells)
 	{
-		m_TableCells.add(pTableCells);
+		cells.addAll(cells);
 	}
 
 	/** Mutator method - clears the collection of <I>TableCell</I> objects. */
-	public void clear() { m_TableCells.clear(); }
+	public void clear() { cells.clear(); }
 
 	/** Mutator method - removes a <I>TableCell</I> object from the collection
 	    at the specified index.
-		@param nIndex Index of the <I>TableCell</I> object to remove.
+		@param i Index of the <I>TableCell</I> object to remove.
 	*/
-	public void remove(int nIndex) { m_TableCells.remove(nIndex); }
-
-	/*************************************************************************
-	*
-	*	Member variables
-	*
-	*************************************************************************/
-
-	/** Member variable - contains reference to list of <I>TableCell</I> objects. */
-	private ArrayList m_TableCells = null;
+	public void remove(int i) { cells.remove(i); }
 }

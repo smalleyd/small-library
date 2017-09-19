@@ -18,179 +18,101 @@ import java.io.Writer;
 
 public abstract class TagElement extends Element
 {
-	/******************************************************************************
-	*
-	*	Constants
-	*
-	******************************************************************************/
-
-	/** Constant - Attribute name for the Name attribute. */
-	public static final String ATTRIBUTE_NAME = "NAME";
-
-	/** Constant - Attribute name for the Cascading Stylesheet class name attribute. */
-	public static final String ATTRIBUTE_CSS_CLASS = "CLASS";
-
-	/** Constant - Attribute name for the Cascading Stylesheet stle string attribute. */
-	public static final String ATTRIBUTE_CSS_STYLE = "STYLE";
-
-	/** Constant - integer value that represents "no value" for element
-	    attributes, when calling <CODE>writeAttribute</CODE> with an
-	    integer value.
-	*/
+	public static final String ATTRIBUTE_NAME = "name";
+	public static final String ATTRIBUTE_CSS_CLASS = "class";
+	public static final String ATTRIBUTE_CSS_STYLE = "style";
 	public static final int ATTR_VALUE_NO_VALUE = Integer.MIN_VALUE;
 
-	/******************************************************************************
-	*
-	*	Constructors
-	*
-	******************************************************************************/
+	private final String name;
+	private final String cssClass;
+	private final String cssStyle;
 
-	/** Constructor - constructs an object with a Name.
-		@param strName Name of the element.
-	*/
-	public TagElement(String strName) { this(strName, null, null); }
+	public TagElement(final String name) { this(name, null, null); }
 
-	/** Constructor - constructs an object with a Name, a Cascading Stylesheet
-	    class name, and a Cascading Stylesheet style string.
-		@param strName Name of the element.
-		@param strCSSClass Cascading Stylesheet class name.
-		@param strCSSStyle Cascading Stylesheet style string.
-	*/
-	public TagElement(String strName, String strCSSClass, String strCSSStyle)
+	public TagElement(final String name, final String cssClass, final String cssStyle)
 	{
 		super();
 
-		m_strName = strName;
-		m_strCSSClass = strCSSClass;
-		m_strCSSStyle = strCSSStyle;
+		this.name = name;
+		this.cssClass = cssClass;
+		this.cssStyle = cssStyle;
 	}
 
-	/******************************************************************************
-	*
-	*	Helper methods
-	*
-	******************************************************************************/
-
 	/** Helper method - Writes HTML string attributes. */
-	protected void writeAttribute(String strName, String strValue)
+	protected void writeAttribute(String name, String value)
 		throws IOException
-	{ writeAttribute(getWriter(), strName, strValue); }
+	{ writeAttribute(writer, name, value); }
 
 	/** Helper method - Writes HTML string attributes. */
-	protected static void writeAttribute(Writer pWriter, String strName, String strValue)
+	protected static void writeAttribute(Writer writer, String name, String value)
 		throws IOException
 	{
-		if (null == strValue)
+		if (null == value)
 			return;
 
-		write(pWriter, " ");
-		write(pWriter, strName);
-		write(pWriter, "=");
-		writeWithQuotes(pWriter, strValue);
+		write(writer, " ");
+		write(writer, name);
+		write(writer, "=");
+		writeWithQuotes(writer, value);
 	}
 
 	/** Helper method - Writes HTML integer attributes. */
-	protected void writeAttribute(String strName, int nValue)
+	protected void writeAttribute(String name, int value)
 		throws IOException
-	{ writeAttribute(getWriter(), strName, nValue); }
+	{ writeAttribute(writer, name, value); }
 
 	/** Helper method - Writes HTML integer attributes. */
-	protected static void writeAttribute(Writer pWriter, String strName, int nValue)
+	protected static void writeAttribute(Writer writer, String name, int value)
 		throws IOException
 	{
-		if (ATTR_VALUE_NO_VALUE == nValue)
+		if (ATTR_VALUE_NO_VALUE == value)
 			return;
 
-		writeAttribute(pWriter, strName, "" + nValue);
+		writeAttribute(writer, name, "" + value);
 	}
 
 	/** Helper method - Writes HTML tags. */
-	protected void writeTag(String strTag) throws IOException
-	{ writeTag(getWriter(), strTag); }
+	protected void writeTag(String tag) throws IOException
+	{ writeTag(writer, tag); }
 
 	/** Helper method - Writes HTML tags. */
-	protected static void writeTag(Writer pWriter, String strTag) throws IOException
-	{ write(pWriter, "<"); write(pWriter, strTag); write(pWriter, ">"); }
+	protected static void writeTag(Writer writer, String tag) throws IOException
+	{ write(writer, "<"); write(writer, tag); write(writer, ">"); }
 
 	/** Helper method - Writes HTML closing tags. */
-	protected void writeTagClosing(String strTag) throws IOException
-	{ writeTagClosing(getWriter(), strTag); }
+	protected void writeTagClosing(String tag) throws IOException
+	{ writeTagClosing(writer, tag); }
 
 	/** Helper method - Writes HTML closing tags. */
-	protected static void writeTagClosing(Writer pWriter, String strTag) throws IOException
-	{ write(pWriter, "</"); write(pWriter, strTag); write(pWriter, ">"); }
+	protected static void writeTagClosing(Writer writer, String tag) throws IOException
+	{ write(writer, "</"); write(writer, tag); write(writer, ">"); }
 
 	/** Helper method - opens a tag of the specified element name.
-		@param strElementName Tag's element name.
+		@param elementName Tag's element name.
 	*/
-	protected void openTag(String strElementName) throws IOException
+	protected void openTag(String elementName) throws IOException
 	{
-		openTag(getWriter(), strElementName);
+		openTag(writer, elementName);
 	}
 
 	/** Helper method - opens a tag of the specified element name.
-		@param pWriter <I>Writer</I> object used to output HTML.
-		@param strElementName Tag's element name.
+		@param writer <I>Writer</I> object used to output HTML.
+		@param elementName Tag's element name.
 	*/
-	protected void openTag(Writer pWriter, String strElementName)
+	protected void openTag(Writer writer, String elementName)
 		throws IOException
 	{
-		write(pWriter, "<");
-		write(pWriter, strElementName);
+		write(writer, "<");
+		write(writer, elementName);
 
-		writeAttribute(pWriter, ATTRIBUTE_NAME, getName());
-		writeAttribute(pWriter, ATTRIBUTE_CSS_CLASS, getCSSClass());
-		writeAttribute(pWriter, ATTRIBUTE_CSS_STYLE, getCSSStyle());
+		writeAttribute(writer, ATTRIBUTE_NAME, name);
+		writeAttribute(writer, ATTRIBUTE_CSS_CLASS, cssClass);
+		writeAttribute(writer, ATTRIBUTE_CSS_STYLE, cssStyle);
 	}
 
 	/** Helper method - Closes HTML tags. */
-	protected void closeTag() throws IOException { closeTag(getWriter()); }
+	protected void closeTag() throws IOException { closeTag(writer); }
 
 	/** Helper method - Closes HTML tags. */
-	protected static void closeTag(Writer pWriter) throws IOException { write(pWriter, ">"); }
-
-	/******************************************************************************
-	*
-	*	Accessor methods
-	*
-	******************************************************************************/
-
-	/** Accessor method - gets the Name of the element. */
-	public String getName() { return m_strName; }
-
-	/** Accessor method - gets the Cascading Stylesheet class name. */
-	public String getCSSClass() { return m_strCSSClass; }
-
-	/** Accessor method - gets the Cascading Stylesheet style string. */
-	public String getCSSStyle() { return m_strCSSStyle; }
-
-	/******************************************************************************
-	*
-	*	Mutator methods
-	*
-	******************************************************************************/
-
-	/** Mutator method - sets the Name of the element. */
-	public void setName(String strNewValue) { m_strName = strNewValue; }
-
-	/** Mutator method - sets the Cascading Stylesheet class name. */
-	public void setCSSClass(String strNewValue) { m_strCSSClass = strNewValue; }
-
-	/** Mutator method - sets the Cascading Stylesheet style string. */
-	public void setCSSStyle(String strNewValue) { m_strCSSStyle = strNewValue; }
-
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	******************************************************************************/
-
-	/** Member variable - contains the Name of the input element. */
-	private String m_strName = null;
-
-	/** Member variable - contains the Cascading Stylesheet class name. */
-	private String m_strCSSClass = null;
-
-	/** Member variable - contains the Cascading Stylesheet style string. */
-	private String m_strCSSStyle = null;
+	protected static void closeTag(Writer writer) throws IOException { write(writer, ">"); }
 }

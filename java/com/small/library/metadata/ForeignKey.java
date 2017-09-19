@@ -1,7 +1,6 @@
 package com.small.library.metadata;
 
 import java.sql.*;
-import com.small.library.data.*;
 
 /***************************************************************************************
 *

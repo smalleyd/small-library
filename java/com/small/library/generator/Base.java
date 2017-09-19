@@ -5,6 +5,8 @@ import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import com.small.library.data.*;
 
 /************************************************************************************************
@@ -420,7 +422,7 @@ public abstract class Base
 			URL, User ID, Password, & Driver.
 	*/
 	protected static DataSource extractDataSource(String[] strArgs,
-		int nFirstArgument) throws DataSourceException, IllegalArgumentException
+		int nFirstArgument) throws IllegalArgumentException
 	{
 		if (strArgs.length < nFirstArgument + 2)
 			throw new IllegalArgumentException("Missing JDBC_URL or User_ID argument.");
@@ -436,7 +438,7 @@ public abstract class Base
 			strUrl = "jdbc:odbc:" + strUrl;
 
 		// Create the data source.
-		return new DataSource(strDriver, strUrl, strUserName, strPassword);
+		return DataCollection.createDataSource(strDriver, strUrl, strUserName, strPassword);
 	}
 
 	/** Helper method - extracts the author name from the command line

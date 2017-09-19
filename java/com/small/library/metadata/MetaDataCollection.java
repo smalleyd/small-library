@@ -1,6 +1,7 @@
 package com.small.library.metadata;
 
 import java.sql.*;
+import javax.sql.DataSource;
 
 import com.small.library.data.*;
 
@@ -22,11 +23,11 @@ public abstract class MetaDataCollection extends DataCollection
 	******************************************************************************/
 
 	/** Constructs the data collection and supplies a JDBC connection factory.
-		@param pConnectionFactory A reference to a connection factory.
+		@param pDataSource A reference to a connection factory.
 	*/
-	protected MetaDataCollection(ConnectionFactory pConnectionFactory)
+	protected MetaDataCollection(DataSource pDataSource)
 	{
-		super(pConnectionFactory);
+		super(pDataSource);
 	}
 
 	/*******************************************************************************

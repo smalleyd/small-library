@@ -1,6 +1,9 @@
 package com.small.library.metadata;
 
 import java.sql.*;
+
+import javax.sql.DataSource;
+
 import com.small.library.data.*;
 
 /***************************************************************************************
@@ -18,12 +21,12 @@ import com.small.library.data.*;
 public class Columns extends MetaDataCollection
 {
 	/** Constructor - minimal.
-		@param pConnectionFactory A reference to a connection factory.
+		@param pDataSource A reference to a connection factory.
 		@param pParent Table record object.
 	*/
-	public Columns(ConnectionFactory pConnectionFactory,
+	public Columns(DataSource pDataSource,
 		Tables.Record pParent)
-	{ super(pConnectionFactory); m_Parent = pParent; }
+	{ super(pDataSource); m_Parent = pParent; }
 
 	/** Abstract implementation - gets the ResultSet to be used by the <CODE>load</CODE> method. */
 	protected ResultSet getResultSet() throws SQLException
@@ -43,9 +46,6 @@ public class Columns extends MetaDataCollection
 
 	/** Accessor method - gets the parent table record object. */
 	public Tables.Record getParent() { return m_Parent; }
-
-	/** Mutator method - sets the parent table record object. */
-	private void setParent(Tables.Record pValue) { m_Parent = pValue; }
 
 	/** Member variable - reference to the parent table. */
 	private Tables.Record m_Parent;

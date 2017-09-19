@@ -16,72 +16,29 @@ import java.io.Writer;
 
 public class TextElement extends Element
 {
-	/*************************************************************************
-	*
-	*	Constructors
-	*
-	*************************************************************************/
+	private final String value;
 
-	/** Constructor - constructs an empty text element. */
-	public TextElement() { super(); }
-
-	/** Constructor - constructs a populated text element.
-		@param strValue Text value to be written to the page.
-	*/
-	public TextElement(String strValue)
+	public TextElement(final String value)
 	{
 		super();
 
-		m_strValue = strValue;
-	}
-
-	/*************************************************************************
-	*
-	*	Required methods: Element
-	*
-	*************************************************************************/
-
-	/** Action method - creates the HTML text element.
-		@param pWriter <I>Writer</I> object used to output HTML.
-	*/
-	public void create(Writer pWriter) throws IOException
-	{
-		create(pWriter, getValue());
+		this.value = value;
 	}
 
 	/** Action method - creates the HTML text element.
-		@param pWriter <I>Writer</I> object used to output HTML.
-		@param strValue Text value to be written to the page.
+		@param writer <I>Writer</I> object used to output HTML.
 	*/
-	public static void create(Writer pWriter, String strValue) throws IOException
+	public void create(final Writer writer) throws IOException
 	{
-		write(pWriter, strValue);
+		create(writer, value);
 	}
 
-	/*************************************************************************
-	*
-	*	Accessor methods
-	*
-	*************************************************************************/
-
-	/** Accessor method - gets the text value. */
-	public String getValue() { return m_strValue; }
-
-	/*************************************************************************
-	*
-	*	Mutator methods
-	*
-	*************************************************************************/
-
-	/** Mutator method - sets the text value. */
-	public void setValue(String strNewValue) { m_strValue = strNewValue; }
-
-	/*************************************************************************
-	*
-	*	Member variables
-	*
-	*************************************************************************/
-
-	/** Member variable - contains the text value. */
-	private String m_strValue = null;
+	/** Action method - creates the HTML text element.
+		@param writer <I>Writer</I> object used to output HTML.
+		@param value Text value to be written to the page.
+	*/
+	public static void create(final Writer writer, final String value) throws IOException
+	{
+		write(writer, value);
+	}
 }

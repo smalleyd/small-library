@@ -16,53 +16,26 @@ import java.io.Writer;
 
 public class Table extends TagElement
 {
-	/******************************************************************************
-	*
-	*	Constants
-	*
-	******************************************************************************/
-
-	/** Constant - Left alignment attribute constant. */
-	public static final String ALIGN_LEFT = "LEFT";
-
-	/** Constant - Center alignment attribute constant. */
-	public static final String ALIGN_CENTER = "CENTER";
-
-	/** Constant - Right alignment attribute constant. */
-	public static final String ALIGN_RIGHT = "RIGHT";
-
-	/** Constant - No alignment specified attribute constant. */
+	public static final String ALIGN_LEFT = "left";
+	public static final String ALIGN_CENTER = "center";
+	public static final String ALIGN_RIGHT = "right";
 	public static final String ALIGN_NONE = null;
+	public static final String TAG = "table";
+	public static final String ATTRIBUTE_BORDER = "border";
+	public static final String ATTRIBUTE_CELL_PADDING = "cellpadding";
+	public static final String ATTRIBUTE_CELL_SPACING = "cellspacing";
+	public static final String ATTRIBUTE_WIDTH = "width";
+	public static final String ATTRIBUTE_BORDER_COLOR = "bordercolor";
+	public static final String ATTRIBUTE_ALIGNMENT = "align";
+	public static final String ATTRIBUTE_VERTICAL_ALIGNMENT = "valign";
 
-	/** Constant - Table tag name constant. */
-	public static final String TAG = "TABLE";
-
-	/** Constant - Attribute name for the Border attribute. */
-	public static final String ATTRIBUTE_BORDER = "BORDER";
-
-	/** Constant - Attribute name for the Cell Padding attribute. */
-	public static final String ATTRIBUTE_CELL_PADDING = "CELLPADDING";
-
-	/** Constant - Attribute name for the Cell Spacing attribute. */
-	public static final String ATTRIBUTE_CELL_SPACING = "CELLSPACING";
-
-	/** Constant - Attribute name for the Width attribute. */
-	public static final String ATTRIBUTE_WIDTH = "WIDTH";
-
-	/** Constant - Attribute name for the Border Color attribute. */
-	public static final String ATTRIBUTE_BORDER_COLOR = "BORDERCOLOR";
-
-	/** Constant - Attribute name for the Alignment attribute. */
-	public static final String ATTRIBUTE_ALIGNMENT = "ALIGN";
-
-	/** Constant - Attribute name for the Vertical Alignment attribute. */
-	public static final String ATTRIBUTE_VERTICAL_ALIGNMENT = "VALIGN";
-
-	/******************************************************************************
-	*
-	*	Constructors
-	*
-	******************************************************************************/
+	private final int border;
+	private final int cellPadding;
+	private final int cellSpacing;
+	private final String width;
+	private final String borderColor;
+	private final String align;
+	private final TableRows rows;
 
 	/** Constructor - constructs an object populated with default values. */
 	public Table()
@@ -71,61 +44,61 @@ public class Table extends TagElement
 	}
 
 	/** Constructor - constructs an object populated with default values.
-		@param pTableRows <I>TableRows</I> object that represents the body
+		@param rows <I>TableRows</I> object that represents the body
 			of the table element.
 	*/
-	public Table(TableRows pTableRows)
+	public Table(TableRows rows)
 	{
 		this(null, ATTR_VALUE_NO_VALUE, ATTR_VALUE_NO_VALUE, ATTR_VALUE_NO_VALUE,
-			null, null, null, pTableRows);
+			null, null, null, rows);
 	}
 
 	/** Constructor - constructs a populate object.
-		@param strName Name of the element.
-		@param nBorder Border attribute of the table element.
-		@param nCellPadding Cell Padding attribute of the table element.
-		@param nCellSpacing Cell Spacing attribute of the table element.
-		@param strWidth Width attribute of the table element.
-		@param strBorderColor Border Color attribute of the table element.
-		@param strAlignment Alignment attribute of the table element.
-		@param pTableRows <I>TableRows</I> object that represents the body
+		@param name Name of the element.
+		@param border Border attribute of the table element.
+		@param cellPadding Cell Padding attribute of the table element.
+		@param cellSpacing Cell Spacing attribute of the table element.
+		@param width Width attribute of the table element.
+		@param borderColor Border Color attribute of the table element.
+		@param align Alignment attribute of the table element.
+		@param rows <I>TableRows</I> object that represents the body
 			of the table element.
 	*/
-	public Table(String strName, int nBorder, int nCellPadding, int nCellSpacing,
-		String strWidth, String strBorderColor, String strAlignment,
-		TableRows pTableRows)
+	public Table(String name, int border, int cellPadding, int cellSpacing,
+		String width, String borderColor, String align,
+		TableRows rows)
 	{
-		this(strName, null, null, nBorder, nCellPadding, nCellSpacing,
-			strWidth, strBorderColor, strAlignment, pTableRows);
+		this(name, null, null, border, cellPadding, cellSpacing,
+			width, borderColor, align, rows);
 	}
 
 	/** Constructor - constructs a populate object.
-		@param strName Name of the element.
-		@param strCSSClass Cascading Stylesheet class name.
-		@param strCSSStyle Cascading Stylesheet style string.
-		@param nBorder Border attribute of the table element.
-		@param nCellPadding Cell Padding attribute of the table element.
-		@param nCellSpacing Cell Spacing attribute of the table element.
-		@param strWidth Width attribute of the table element.
-		@param strBorderColor Border Color attribute of the table element.
-		@param strAlignment Alignment attribute of the table element.
-		@param pTableRows <I>TableRows</I> object that represents the body
+		@param name Name of the element.
+		@param cssClass Cascading Stylesheet class name.
+		@param cssStyle Cascading Stylesheet style string.
+		@param border Border attribute of the table element.
+		@param cellPadding Cell Padding attribute of the table element.
+		@param cellSpacing Cell Spacing attribute of the table element.
+		@param width Width attribute of the table element.
+		@param borderColor Border Color attribute of the table element.
+		@param align Alignment attribute of the table element.
+		@param rows <I>TableRows</I> object that represents the body
 			of the table element.
 	*/
-	public Table(String strName, String strCSSClass, String strCSSStyle,
-		int nBorder, int nCellPadding, int nCellSpacing,
-		String strWidth, String strBorderColor, String strAlignment,
-		TableRows pTableRows)
+	public Table(String name, String cssClass, String cssStyle,
+		int border, int cellPadding, int cellSpacing,
+		String width, String borderColor, String align,
+		TableRows rows)
 	{
-		super(strName, strCSSClass, strCSSStyle);
+		super(name, cssClass, cssStyle);
 
-		m_nBorder = nBorder;
-		m_nCellPadding = nCellPadding;
-		m_nCellSpacing = nCellSpacing;
-		m_strWidth = strWidth;
-		m_strBorderColor = strBorderColor;
-		m_strAlignment = strAlignment;
-		m_TableRows = pTableRows;
+		this.border = border;
+		this.cellPadding = cellPadding;
+		this.cellSpacing = cellSpacing;
+		this.width = width;
+		this.borderColor = borderColor;
+		this.align = align;
+		this.rows = rows;
 	}
 
 	/******************************************************************************
@@ -135,26 +108,26 @@ public class Table extends TagElement
 	******************************************************************************/
 
 	/** Action method - create the HTML table element.
-		@param pWriter <I>Writer</I> object used to output HTML.
+		@param writer <I>Writer</I> object used to output HTML.
 	*/
-	public void create(Writer pWriter) throws IOException
+	public void create(Writer writer) throws IOException
 	{
-		create(pWriter, m_TableRows);
+		create(writer, rows);
 	}
 
 	/** Action method - create the HTML table element.
-		@param pWriter <I>Writer</I> object used to output HTML.
-		@param pTableRows <I>TableRows</I> object that represents the body
+		@param writer <I>Writer</I> object used to output HTML.
+		@param rows <I>TableRows</I> object that represents the body
 			of the table element.
 	*/
-	public void create(Writer pWriter, TableRows pTableRows) throws IOException
+	public void create(Writer writer, TableRows rows) throws IOException
 	{
-		open(pWriter);
+		open(writer);
 
-		if (null != pTableRows)
-			pTableRows.create(pWriter);
+		if (null != rows)
+			rows.create(writer);
 
-		close(pWriter);
+		close(writer);
 	}
 
 	/******************************************************************************
@@ -166,122 +139,35 @@ public class Table extends TagElement
 	/** Action method - opens the HTML table element. */
 	public void open() throws IOException
 	{
-		open(getWriter());
+		open(writer);
 	}
 
 	/** Action method - opens the HTML table element.
-		@param pWriter <I>Writer</I> object used to output HTML.
+		@param writer <I>Writer</I> object used to output HTML.
 	*/
-	public void open(Writer pWriter)
+	public void open(Writer writer)
 		throws IOException
 	{
-		openTag(pWriter, TAG);
+		openTag(writer, TAG);
 
-		writeAttribute(pWriter, ATTRIBUTE_BORDER, getBorder());
-		writeAttribute(pWriter, ATTRIBUTE_CELL_PADDING, getCellPadding());
-		writeAttribute(pWriter, ATTRIBUTE_CELL_SPACING, getCellSpacing());
-		writeAttribute(pWriter, ATTRIBUTE_WIDTH, getWidth());
-		writeAttribute(pWriter, ATTRIBUTE_BORDER_COLOR, getBorderColor());
-		writeAttribute(pWriter, ATTRIBUTE_ALIGNMENT, getAlignment());
+		writeAttribute(writer, ATTRIBUTE_BORDER, border);
+		writeAttribute(writer, ATTRIBUTE_CELL_PADDING, cellPadding);
+		writeAttribute(writer, ATTRIBUTE_CELL_SPACING, cellSpacing);
+		writeAttribute(writer, ATTRIBUTE_WIDTH, width);
+		writeAttribute(writer, ATTRIBUTE_BORDER_COLOR, borderColor);
+		writeAttribute(writer, ATTRIBUTE_ALIGNMENT, align);
 
-		closeTag(pWriter);
+		closeTag(writer);
 
-		writeNewLine(pWriter);
+		writeNewLine(writer);
 	}
 
 	/** Action method - closes the HTML table element. */
-	public void close() throws IOException { close(getWriter()); }
+	public void close() throws IOException { close(writer); }
 
 	/** Action method - closes the HTML table element.
-		@param pWriter <I>Writer</I> object used to output HTML.
+		@param writer <I>Writer</I> object used to output HTML.
 	*/
-	public void close(Writer pWriter) throws IOException
-	{ writeTagClosing(pWriter, TAG); writeNewLine(pWriter); }
-
-	/******************************************************************************
-	*
-	*	Accessor methods
-	*
-	******************************************************************************/
-
-	/** Accessor method - gets the Border attribute of the table element. */
-	public int getBorder() { return m_nBorder; }
-
-	/** Accessor method - gets the Cell Padding attribute of the table element. */
-	public int getCellPadding() { return m_nCellPadding; }
-
-	/** Accessor method - gets the Cell Spacing attribute of the table element. */
-	public int getCellSpacing() { return m_nCellSpacing; }
-
-	/** Accessor method - gets the Width attribute of the table element. */
-	public String getWidth() { return m_strWidth; }
-
-	/** Accessor method - gets the Border Color attribute of the table element. */
-	public String getBorderColor() { return m_strBorderColor; }
-
-	/** Accessor method - gets the Alignment attribute of the table element. */
-	public String getAlignment() { return m_strAlignment; }
-
-	/** Accessor method - gets the <I>TableRows</I> object that represents the
-	    body of the table element.
-	*/
-	public TableRows getTableRows() { return m_TableRows; }
-
-	/******************************************************************************
-	*
-	*	Mutator methods
-	*
-	******************************************************************************/
-
-	/** Mutator method - sets the Border attribute of the table element. */
-	public void setBorder(int nNewValue) { m_nBorder = nNewValue; }
-
-	/** Mutator method - sets the Cell Padding attribute of the table element. */
-	public void setCellPadding(int nNewValue) { m_nCellPadding = nNewValue; }
-
-	/** Mutator method - sets the Cell Spacing attribute of the table element. */
-	public void setCellSpacing(int nNewValue) { m_nCellSpacing = nNewValue; }
-
-	/** Mutator method - sets the Width attribute of the table element. */
-	public void setWidth(String strNewValue) { m_strWidth = strNewValue; }
-
-	/** Mutator method - sets the Border Color attribute of the table element. */
-	public void setBorderColor(String strNewValue) { m_strBorderColor = strNewValue; }
-
-	/** Mutator method - sets the Alignment attribute of the table element. */
-	public void setAlignment(String strNewValue) { m_strAlignment = strNewValue; }
-
-	/** Mutator method - sets the <I>TableRows</I> object that represents the
-	    body of the table element.
-	*/
-	public void setTableRows(TableRows pNewValue) { m_TableRows = pNewValue; }
-
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	******************************************************************************/
-
-	/** Member variable - contains the Border attribute of the table element. */
-	private int m_nBorder = ATTR_VALUE_NO_VALUE;
-
-	/** Member variable - contains the Cell Padding attribute of the table element. */
-	private int m_nCellPadding = ATTR_VALUE_NO_VALUE;
-
-	/** Member variable - contains the Cell Spacing attribute of the table element. */
-	private int m_nCellSpacing = ATTR_VALUE_NO_VALUE;
-
-	/** Member variable - contains the Width attribute of the table element. */
-	private String m_strWidth = null;
-
-	/** Member variable - contains the Border Color attribute of the table element. */
-	private String m_strBorderColor = null;
-
-	/** Member variable - contains the Alignment attribute of the table element. */
-	private String m_strAlignment = null;
-
-	/** Member variable - contains a reference to a <I>TableRows</I> object that
-	    represents the body of the table element.
-	*/
-	private TableRows m_TableRows = null;
+	public void close(final Writer writer) throws IOException
+	{ writeTagClosing(writer, TAG); writeNewLine(writer); }
 }

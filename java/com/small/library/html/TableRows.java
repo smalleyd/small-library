@@ -2,6 +2,7 @@ package com.small.library.html;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -18,118 +19,63 @@ import java.util.ArrayList;
 
 public class TableRows extends Element
 {
-	/*************************************************************************
-	*
-	*	Constructors
-	*
-	*************************************************************************/
+	private final List<TableRow> rows;
 
-	/** Constructor - constructs an empty object.
-	*/
-	public TableRows() { super(null); m_TableRows = new ArrayList(); }
+	public TableRows() { super(null); rows = new ArrayList<>(); }
 
-	/** Constructor - constructs a populated object.
-		@param pTableRows An array of <I>TableRow</I> objects.
-	*/
-	public TableRows(TableRow[] pTableRows)
+	public TableRows(final TableRow... rows)
 	{
 		super(null);
 
-		m_TableRows = new ArrayList(pTableRows.length);
-
-		add(pTableRows);
+		this.rows = Arrays.asList(rows);
 	}
 
-	/** Constructor - constructs a populated object.
-		@param pTableRows An <I>List</I> of <I>TableRow</I> objects.
-	*/
-	public TableRows(List pTableRows)
+	public TableRows(final List<TableRow> rows)
 	{
 		super(null);
 
-		m_TableRows = new ArrayList(pTableRows);
+		this.rows = new ArrayList<>(rows);
 	}
-
-	/*************************************************************************
-	*
-	*	Required methods: Element
-	*
-	*************************************************************************/
 
 	/** Action method - creates the HTML table row element and underlying
 	    table cell elements.
-		@param pWriter <I>Writer</I> object used to output HTML.
+		@param writer <I>Writer</I> object used to output HTML.
 	*/
-	public void create(Writer pWriter) throws IOException
+	public void create(final Writer writer) throws IOException
 	{
-		int nSize = m_TableRows.size();
-
-		for (int i = 0; i < nSize; i++)
-			((TableRow) m_TableRows.get(i)).create(pWriter);
+		for (final TableRow r : rows) r.create(writer);
 	}
 
-	/*************************************************************************
-	*
-	*	Accessor methods
-	*
-	*************************************************************************/
-
-	/** Accessor method - gets the number of <I>TableRow</I> objects in the
-	    collection.
-	*/
-	public int size() { return m_TableRows.size(); }
-
-	/** Accessor method - gets a <I>TableRow</I> object in the collection
-	    by index.
-		@param nIndex Index of the <I>TableRow</I> object.
-	*/
-	public TableRow get(int nIndex) { return (TableRow) m_TableRows.get(nIndex); }
-
-	/*************************************************************************
-	*
-	*	Mutator methods
-	*
-	*************************************************************************/
-
 	/** Mutator method - adds a <I>TableRow</I> object to the collection.
-		@param pTableRow New <I>TableRow</I> object to add to
+		@param row New <I>TableRow</I> object to add to
 			the collection.
 	*/
-	public void add(TableRow pTableRow) { m_TableRows.add(pTableRow); }
+	public void add(final TableRow row) { rows.add(row); }
 
 	/** Mutator method - adds an array of <I>TableRow</I> objects to the collection.
-		@param pTableRows An array of <I>TableRow</I> objects.
+		@param rows An array of <I>TableRow</I> objects.
 	*/
-	public void add(TableRow[] pTableRows)
+	public void add(final TableRow... rows)
 	{
-		for (int i = 0; i < pTableRows.length; i++)
-			add(pTableRows[i]);
+		for (final TableRow i : rows)
+			add(i);
 	}
 
 	/** Mutator method - adds an <I>List</I> of <I>TableRow</I> objects
 	    to the collection.
-		@param pTableRows An <I>List</I> of <I>TableRow</I> objects.
+		@param rows An <I>List</I> of <I>TableRow</I> objects.
 	*/
-	public void add(List pTableRows)
+	public void add(List<TableRow> rows)
 	{
-		m_TableRows.add(pTableRows);
+		rows.addAll(rows);
 	}
 
 	/** Mutator method - clears the collection of <I>TableRow</I> objects. */
-	public void clear() { m_TableRows.clear(); }
+	public void clear() { rows.clear(); }
 
 	/** Mutator method - removes a <I>TableRow</I> object from the collection
 	    at the specified index.
 		@param nIndex Index of the <I>TableRow</I> object to remove.
 	*/
-	public void remove(int nIndex) { m_TableRows.remove(nIndex); }
-
-	/*************************************************************************
-	*
-	*	Member variables
-	*
-	*************************************************************************/
-
-	/** Member variable - contains reference to list of <I>TableRow</I> objects. */
-	private List m_TableRows = null;
+	public void remove(int nIndex) { rows.remove(nIndex); }
 }

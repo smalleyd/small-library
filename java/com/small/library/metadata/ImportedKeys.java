@@ -1,6 +1,9 @@
 package com.small.library.metadata;
 
 import java.sql.*;
+
+import javax.sql.DataSource;
+
 import com.small.library.data.*;
 
 /***************************************************************************************
@@ -15,38 +18,26 @@ import com.small.library.data.*;
 public class ImportedKeys extends ForeignKeys
 {
 	/** Constructs the data collection and supplies a JDBC connection factory.
-		@param pConnectionFactory A reference to a connection factory.
+		@param pDataSource A reference to a connection factory.
 		@param pParent <I>Table.Record</I> object that contains the
 			foreign keys.
 	*/
-	public ImportedKeys(ConnectionFactory pConnectionFactory,
+	public ImportedKeys(DataSource pDataSource,
 		Tables.Record pParent)
 	{
-		super(pConnectionFactory, pParent);
+		super(pDataSource, pParent);
 	}
 
 	/** Accessor method - gets a <I>ResultSet</I> object of the imported keys. */
 	public ResultSet getResultSet() throws SQLException
 	{
-		// Make sure the driver supports the retrieval of foreign keys.
-		try
-		{
-			/** NOTE: Using schema name of the table as well as the table
-			    name to get the imported keys. DB2 does not return anything
-			    otherwise.
-			*/
-			Tables.Record pParent = getParent();
+		/** NOTE: Using schema name of the table as well as the table
+		    name to get the imported keys. DB2 does not return anything
+		    otherwise.
+		*/
+		Tables.Record pParent = getParent();
 
-			return getDatabaseMetaData().getImportedKeys(null, pParent.getSchema(), pParent.getName());
-		}
-
-		catch (SQLException pEx)
-		{
-			if (OperationNotSupportedException.isUnsupportedOperation(pEx))
-				throw new OperationNotSupportedException(pEx);
-
-			throw pEx;
-		}
+		return getDatabaseMetaData().getImportedKeys(null, pParent.getSchema(), pParent.getName());
 	}
 
 	/** Accessor method - instantiates a new imported keys record object. */

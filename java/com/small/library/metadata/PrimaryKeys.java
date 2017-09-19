@@ -1,6 +1,9 @@
 package com.small.library.metadata;
 
 import java.sql.*;
+
+import javax.sql.DataSource;
+
 import com.small.library.data.*;
 
 /***************************************************************************************
@@ -15,14 +18,14 @@ import com.small.library.data.*;
 public class PrimaryKeys extends MetaDataCollection
 {
 	/** Constructs the data collection and supplies a JDBC connection factory.
-		@param pConnectionFactory A reference to a connection factory.
+		@param pDataSource A reference to a connection factory.
 		@param pParent <I>Table.Record</I> object that contains the
 			foreign keys.
 	*/
-	public PrimaryKeys(ConnectionFactory pConnectionFactory,
+	public PrimaryKeys(DataSource pDataSource,
 		Tables.Record pParent)
 	{
-		super(pConnectionFactory);
+		super(pDataSource);
 		setParent(pParent);
 	}
 

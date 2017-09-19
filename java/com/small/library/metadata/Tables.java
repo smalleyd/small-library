@@ -1,6 +1,9 @@
 package com.small.library.metadata;
 
 import java.sql.*;
+
+import javax.sql.DataSource;
+
 import com.small.library.data.*;
 
 /***************************************************************************************
@@ -40,28 +43,28 @@ public class Tables extends MetaDataCollection
 	********************************************************************************************/
 
 	/** Constructor - Defaults to table type of "user defined".
-		@param pConnectionFactory A reference to a connection factory.
+		@param pDataSource A reference to a connection factory.
 	*/
-	public Tables(ConnectionFactory pConnectionFactory)
-	{ this(pConnectionFactory, TYPE_TABLE); }
+	public Tables(DataSource pDataSource)
+	{ this(pDataSource, TYPE_TABLE); }
 
 	/** Constructor - accepts a table type.
-		@param pConnectionFactory A reference to a connection factory.
+		@param pDataSource A reference to a connection factory.
 		@param strType Table type value.
 	*/
-	public Tables(ConnectionFactory pConnectionFactory, String strType)
-	{ this(pConnectionFactory, strType, null); }
+	public Tables(DataSource pDataSource, String strType)
+	{ this(pDataSource, strType, null); }
 
 	/** Constructor - accepts a table type.
-		@param pConnectionFactory A reference to a connection factory.
+		@param pDataSource A reference to a connection factory.
 		@param strType Table type value.
 		@param tablePattern Table name pattern to filter the table
 			collection by.
 	*/
-	public Tables(ConnectionFactory pConnectionFactory,
+	public Tables(DataSource pDataSource,
 		String strType, String tablePattern)
 	{
-		super(pConnectionFactory);
+		super(pDataSource);
 		setType(strType);
 		setTablePattern(tablePattern);
 	}
@@ -72,7 +75,7 @@ public class Tables extends MetaDataCollection
 		@param tablePattern Table name pattern to filter the table
 			collection by.
 	*/
-	public Tables(ConnectionFactory connectionFactory,
+	public Tables(DataSource connectionFactory,
 		String[] types, String tablePattern)
 	{
 		super(connectionFactory);
@@ -93,7 +96,7 @@ public class Tables extends MetaDataCollection
 	}
 
 	/** Abstract implementation - gets a new data record object. */
-	public DataRecord newRecord() { return new Record(getConnectionFactory()); }
+	public DataRecord newRecord() { return new Record(getDataSource()); }
 
 	/********************************************************************************************
 	*
@@ -165,9 +168,9 @@ public class Tables extends MetaDataCollection
 		    connection factory as the child objects require
 		    a reference in order to load themselves.
 		*/
-		private Record(ConnectionFactory pConnectionFactory)
+		private Record(DataSource pDataSource)
 		{
-			m_ConnectionFactory = pConnectionFactory;
+			m_DataSource = pDataSource;
 		}
 
 		/** Abstract implementation - gets a single record from the ResultSet. */
@@ -222,19 +225,19 @@ public class Tables extends MetaDataCollection
 		public boolean isUnknown() { return m_bUnknown; }
 
 		/** Accessor methods - gets a Columns object associated with this table. */
-		public Columns getColumns() { return new Columns(m_ConnectionFactory, this); }
+		public Columns getColumns() { return new Columns(m_DataSource, this); }
 
 		/** Accessor methods - gets an Indexes object associated with this table. */
-		public Indexes getIndexes() { return new Indexes(m_ConnectionFactory, this); }
+		public Indexes getIndexes() { return new Indexes(m_DataSource, this); }
 
 		/** Accessor methods - gets a Primary Keys object associated with this table. */
-		public PrimaryKeys getPrimaryKeys() { return new PrimaryKeys(m_ConnectionFactory, this); }
+		public PrimaryKeys getPrimaryKeys() { return new PrimaryKeys(m_DataSource, this); }
 
 		/** Accessor methods - gets a Imported Keys object associated with this table. */
-		public ImportedKeys getImportedKeys() { return new ImportedKeys(m_ConnectionFactory, this); }
+		public ImportedKeys getImportedKeys() { return new ImportedKeys(m_DataSource, this); }
 
 		/** Accessor methods - gets a Exported Keys object associated with this table. */
-		public ExportedKeys getExportedKeys() { return new ExportedKeys(m_ConnectionFactory, this); }
+		public ExportedKeys getExportedKeys() { return new ExportedKeys(m_DataSource, this); }
 
 		/************************************************************************
 		*
@@ -245,7 +248,7 @@ public class Tables extends MetaDataCollection
 		/** Member variable - reference to the connection factory used by
 		    by the child objects to load additional table information.
 		*/
-		private ConnectionFactory m_ConnectionFactory = null;
+		private DataSource m_DataSource = null;
 
 		/** Member variable - refernece to the table catalog (database). */
 		private String m_strCatalog = null;

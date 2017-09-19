@@ -12,112 +12,50 @@ package com.small.library.html;
 
 public class TableHeader extends TableCell
 {
-	/*****************************************************************************
-	*
-	*	Constants
-	*
-	*****************************************************************************/
+	public static final String TAG = "th";
 
-	/** Constant - element's tag name. */
-	public static final String TAG = "TH";
+	@Override
+	public String getTag() { return TAG; }
 
-	/*****************************************************************************
-	*
-	*	Constructor
-	*
-	*****************************************************************************/
-
-	/** Constructor - constructs a populated object with default values.
-		@param strChildElement <I>String</I> that resides within the table cell.
-	*/
-	public TableHeader(String strChildElement)
+	public TableHeader(final String child)
 	{
-		this(new TextElement(strChildElement));
+		this(new TextElement(child));
 	}
 
-	/** Constructor - constructs a populated object with default values.
-		@param pChildElement <I>Element</I> object that resides within the table cell.
-	*/
-	public TableHeader(Element pChildElement)
+	public TableHeader(Element child)
 	{
 		this(ALIGN_LEFT, VALIGN_TOP,
 			null, null,
 			ATTR_VALUE_NO_VALUE, ATTR_VALUE_NO_VALUE,
-			null, null, pChildElement);
+			null, null, child);
 	}
 
-	/** Constructor - constructs an populated object.
-		@param strHorizontalAlignment Horizontal Alignment attribute of the table cell.
-		@param strVerticalAlignment Vertical Alignment attribute of the table cell.
-		@param strWidth Width attribute of the table cell.
-		@param strHeight Height attribute of the table cell.
-		@param nColumnSpan Column Span attribute of the table cell.
-		@param nRowSpan Row Span attribute of the table cell.
-		@param strBackgroundColor Background Color attribute of the table cell.
-		@param strBackgroundImage Background Image attribute of the table cell.
-		@param pData <I>Element</I> object that resides within the table cell.
-	*/
-	public TableHeader(String strHorizontalAlignment, String strVerticalAlignment,
-		String strWidth, String strHeight, int nColumnSpan, int nRowSpan,
-		String strBackgroundColor, String strBackgroundImage, Element pData)
+	public TableHeader(String hAlign, String vAlign,
+		String width, String height, int colSpan, int rowSpan,
+		String backgroundColor, String backgroundImage, Element data)
 	{
-		this(null, strHorizontalAlignment, strVerticalAlignment,
-			strWidth, strHeight, nColumnSpan, nRowSpan,
-			strBackgroundColor, strBackgroundImage, pData);
+		this(null, hAlign, vAlign,
+			width, height, colSpan, rowSpan,
+			backgroundColor, backgroundImage, data);
 	}
 
-	/** Constructor - constructs an populated object.
-		@param strName Name of the element.
-		@param strHorizontalAlignment Horizontal Alignment attribute of the table cell.
-		@param strVerticalAlignment Vertical Alignment attribute of the table cell.
-		@param strWidth Width attribute of the table cell.
-		@param strHeight Height attribute of the table cell.
-		@param nColumnSpan Column Span attribute of the table cell.
-		@param nRowSpan Row Span attribute of the table cell.
-		@param strBackgroundColor Background Color attribute of the table cell.
-		@param strBackgroundImage Background Image attribute of the table cell.
-		@param pData <I>Element</I> object that resides within the table cell.
-	*/
-	public TableHeader(String strName, String strHorizontalAlignment, String strVerticalAlignment,
-		String strWidth, String strHeight, int nColumnSpan, int nRowSpan,
-		String strBackgroundColor, String strBackgroundImage, Element pData)
+	public TableHeader(String name, String hAlign, String vAlign,
+		String width, String height, int colSpan, int rowSpan,
+		String backgroundColor, String backgroundImage, Element data)
 	{
-		this(strName, null, null, strHorizontalAlignment, strVerticalAlignment,
-			strWidth, strHeight, nColumnSpan, nRowSpan,
-			strBackgroundColor, strBackgroundImage, pData);
+		this(name, null, null, hAlign, vAlign,
+			width, height, colSpan, rowSpan,
+			backgroundColor, backgroundImage, data);
 	}
 
-	/** Constructor - constructs an populated object.
-		@param strName Name of the element.
-		@param strCSSClass Cascading Stylesheet class name.
-		@param strCSSStyle Cascading Stylesheet style string.
-		@param strHorizontalAlignment Horizontal Alignment attribute of the table cell.
-		@param strVerticalAlignment Vertical Alignment attribute of the table cell.
-		@param strWidth Width attribute of the table cell.
-		@param strHeight Height attribute of the table cell.
-		@param nColumnSpan Column Span attribute of the table cell.
-		@param nRowSpan Row Span attribute of the table cell.
-		@param strBackgroundColor Background Color attribute of the table cell.
-		@param strBackgroundImage Background Image attribute of the table cell.
-		@param pData <I>Element</I> object that resides within the table cell.
-	*/
-	public TableHeader(String strName, String strCSSClass, String strCSSStyle,
-		String strHorizontalAlignment, String strVerticalAlignment,
-		String strWidth, String strHeight, int nColumnSpan, int nRowSpan,
-		String strBackgroundColor, String strBackgroundImage, Element pData)
+	public TableHeader(String name, String cssClass, String cssStyle,
+		String hAlign, String vAlign,
+		String width, String height, int colSpan, int rowSpan,
+		String backgroundColor, String backgroundImage, Element data)
 	{
-		super(strName, strCSSClass, strCSSStyle,
-			strHorizontalAlignment, strVerticalAlignment,
-			strWidth, strHeight, nColumnSpan, nRowSpan,
-			strBackgroundColor, strBackgroundImage, pData);
+		super(name, cssClass, cssStyle,
+			hAlign, vAlign,
+			width, height, colSpan, rowSpan,
+			backgroundColor, backgroundImage, data);
 	}
-
-	/*****************************************************************************
-	*
-	*	Parent Override: TableCell
-	*
-	*****************************************************************************/
-
-	/** Parent Override - supplies a more specific element tag name. */
-	public String getTag() { return TAG; }
 }

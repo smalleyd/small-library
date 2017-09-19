@@ -3,7 +3,8 @@ package com.small.library.generator;
 import java.io.*;
 import java.sql.*;
 
-import com.small.library.data.*;
+import javax.sql.DataSource;
+
 import com.small.library.metadata.*;
 
 /*********************************************************************************************
@@ -410,15 +411,15 @@ public abstract class BaseTable extends BaseJDBC
 	*/
 	protected static Tables extractTables(String[] strArgs,
 		int nFirstArgument, String tableNamePattern)
-			throws DataSourceException, IllegalArgumentException,
+			throws IllegalArgumentException,
 				SQLException
 	{
 		DataSource dataSource = extractDataSource(strArgs, nFirstArgument);
 
 		if ((null == tableNamePattern) || (0 == tableNamePattern.length()))
-			return new Tables(dataSource.getConnectionPool());
+			return new Tables(dataSource);
 		else
-			return new Tables(dataSource.getConnectionPool(),
+			return new Tables(dataSource,
 				(String[]) null, tableNamePattern);
 	}
 
@@ -433,7 +434,7 @@ public abstract class BaseTable extends BaseJDBC
 	*/
 	protected static Tables extractTables(String[] strArgs,
 		int nFirstArgument, int tableNamePatternArg)
-			throws DataSourceException, IllegalArgumentException,
+			throws IllegalArgumentException,
 				SQLException
 	{
 		return extractTables(strArgs, nFirstArgument,
@@ -449,7 +450,7 @@ public abstract class BaseTable extends BaseJDBC
 	*/
 	protected static Tables extractTables(String[] strArgs,
 		int nFirstArgument)
-			throws DataSourceException, IllegalArgumentException,
+			throws IllegalArgumentException,
 				SQLException
 	{
 		return extractTables(strArgs, nFirstArgument, (String) null);

@@ -1,6 +1,9 @@
 package com.small.library.metadata;
 
 import java.sql.*;
+
+import javax.sql.DataSource;
+
 import com.small.library.data.*;
 
 /***************************************************************************************
@@ -15,13 +18,13 @@ import com.small.library.data.*;
 public class Parameters extends MetaDataCollection
 {
 	/** Constructs the data collection and supplies a JDBC connection factory.
-		@param pConnectionFactory A reference to a connection factory.
+		@param pDataSource A reference to a connection factory.
 		@param pParent The parent procedure that contains the parameters.
 	*/
-	public Parameters(ConnectionFactory pConnectionFactory,
+	public Parameters(DataSource pDataSource,
 		Procedures.Record pParent)
 	{
-		super(pConnectionFactory);
+		super(pDataSource);
 		setParent(pParent);
 	}
 

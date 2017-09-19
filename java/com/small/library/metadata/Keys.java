@@ -1,9 +1,6 @@
 package com.small.library.metadata;
 
-import java.sql.*;
 import java.util.*;
-
-import com.small.library.data.DataRecord;
 
 /***************************************************************************************
 *
@@ -55,7 +52,7 @@ public class Keys
 		return strReturn.toString();
 	}
 
-	private ArrayList m_Data = new ArrayList();
+	private List<Record> m_Data = new LinkedList<>();
 
 /***************************************************************************************
 *

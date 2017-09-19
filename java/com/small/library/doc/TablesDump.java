@@ -5,10 +5,12 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import com.small.library.data.*;
+import javax.sql.DataSource;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.small.library.generator.*;
 import com.small.library.metadata.*;
-import com.small.library.util.StringHelper;
 
 /***************************************************************************************
 *
@@ -121,16 +123,9 @@ public class TablesDump extends BaseTable
 		select+= " FROM " + selectTableName;
 
 		// Call the SELECT statement and write-out each INSERT statement.
-		ConnectionPool pool = null;
-		Connection connection = null;
-		ResultSet rs = null;
-
-		try
+		try (final Connection connection = dataSource.getConnection();
+		     final ResultSet rs = connection.createStatement().executeQuery(select))
 		{
-			pool = dataSource.getConnectionPool();
-			connection = pool.getConnection();
-			rs = connection.createStatement().executeQuery(select);
-
 			while (rs.next())
 			{
 				write(insert);
@@ -156,8 +151,7 @@ public class TablesDump extends BaseTable
 					else if (value instanceof java.sql.Date)
 					{
 						write("'");
-						write(db2DateFormat.format(
-							(java.util.Date) value));
+						write(db2DateFormat.format((java.util.Date) value));
 						write("'");
 					}
 
@@ -166,8 +160,7 @@ public class TablesDump extends BaseTable
 						if (column.isCharacter)
 							write("'");
 
-						write(StringHelper.replace(value.toString(),
-							"'", "''"));
+						write(StringUtils.replace(value.toString(), "'", "''"));
 
 						if (column.isCharacter)
 							write("'");
@@ -178,15 +171,6 @@ public class TablesDump extends BaseTable
 			}
 		}
 		catch (SQLException ex) { throw new GeneratorException(ex); }
-		finally
-		{
-			try
-			{
-				if (null != rs) rs.close();
-				if (null != connection) pool.release(connection);
-			}
-			catch (SQLException ex) { /** No need to do anything. */ }
-		}
 	}
 
 	/******************************************************************************

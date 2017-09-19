@@ -2,11 +2,11 @@ package com.small.library.doc;
 
 import java.io.*;
 import java.sql.*;
-import java.util.*;
+
+import javax.sql.DataSource;
 
 import com.small.library.data.*;
 import com.small.library.html.*;
-import com.small.library.metadata.*;
 
 /***********************************************************************************
 *
@@ -30,13 +30,13 @@ public class DatabaseHtml
 	public DatabaseHtml() { this(null, null); }
 
 	/** Constructor - constructs a populated object.
-		@param pConnectionFactory The database connection's connection factory.
+		@param pDataSource The database connection's connection factory.
 		@param pWriter HTML document's output stream.
 	*/
-	public DatabaseHtml(ConnectionFactory pConnectionFactory,
+	public DatabaseHtml(DataSource pDataSource,
 		PrintWriter pWriter)
 	{
-		m_ConnectionFactory = pConnectionFactory;
+		m_DataSource = pDataSource;
 		m_Writer = pWriter;
 		m_Table = new Table("DatabaseMetaData",
 			1, 3, 0,
@@ -54,7 +54,7 @@ public class DatabaseHtml
 	public void run()
 		throws SQLException, IOException
 	{
-		Connection pConnection = m_ConnectionFactory.getConnection();
+		Connection pConnection = m_DataSource.getConnection();
 		DatabaseMetaData pMetaData = pConnection.getMetaData();
 		TableRows pRows = createTableRows(pMetaData);
 
@@ -276,7 +276,7 @@ public class DatabaseHtml
 	***************************************************************************/
 
 	/** Accessor method - gets the database connection's connection factory. */
-	public ConnectionFactory getConnectionFactory() { return m_ConnectionFactory; }
+	public DataSource getDataSource() { return m_DataSource; }
 
 	/** Accessor method - gets the HTML document's output stream. */
 	public PrintWriter getWriter() { return m_Writer; }
@@ -288,8 +288,8 @@ public class DatabaseHtml
 	***************************************************************************/
 
 	/** Mutator method - sets the database connection's connection factory. */
-	public void setConnectionFactory(ConnectionFactory pNewValue)
-	{ m_ConnectionFactory = pNewValue; }
+	public void setDataSource(DataSource pNewValue)
+	{ m_DataSource = pNewValue; }
 
 	/** Mutator method - sets the HTML document's output stream. */
 	public void setWriter(PrintWriter pNewValue) { m_Writer = pNewValue; }
@@ -303,7 +303,7 @@ public class DatabaseHtml
 	/** Private member variable - reference to the database connection's
 	    connection factory.
 	*/
-	private ConnectionFactory m_ConnectionFactory = null;
+	private DataSource m_DataSource = null;
 
 	/** Private member variable - reference to the HTML document's output
 	    stream.
@@ -344,11 +344,11 @@ public class DatabaseHtml
 			else
 				strUrl = "jdbc:odbc:" + strUrl;
 
-			DataSource pDataSource = new DataSource(strDriver,
+			DataSource pDataSource = DataCollection.createDataSource(strDriver,
 				strUrl, strUserName, strPassword);
 			PrintWriter pWriter = new PrintWriter(new FileWriter(strFile));
 
-			(new DatabaseHtml(pDataSource.getConnectionPool(), pWriter)).run();
+			(new DatabaseHtml(pDataSource, pWriter)).run();
 
 /* Used to list of meta data method calls.
 			java.lang.reflect.Method[] pMethods = DatabaseMetaData.class.getMethods();

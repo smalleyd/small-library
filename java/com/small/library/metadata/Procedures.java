@@ -1,6 +1,9 @@
 package com.small.library.metadata;
 
 import java.sql.*;
+
+import javax.sql.DataSource;
+
 import com.small.library.data.*;
 
 /***************************************************************************************
@@ -15,29 +18,20 @@ import com.small.library.data.*;
 public class Procedures extends MetaDataCollection
 {
 	/** Constructs the data collection and supplies a JDBC connection factory.
-		@param pConnectionFactory A reference to a connection factory.
+		@param pDataSource A reference to a connection factory.
 	*/
-	public Procedures(ConnectionFactory pConnectionFactory)
+	public Procedures(DataSource pDataSource)
 	{
-		super(pConnectionFactory);
+		super(pDataSource);
 	}
 
 	/** Creates a new Procedure data record. */
-	public DataRecord newRecord() { return (DataRecord) new Record(getConnectionFactory()); }
+	public DataRecord newRecord() { return (DataRecord) new Record(getDataSource()); }
 
 	/** Create a result set used to populate this data collection. */
 	public ResultSet getResultSet() throws SQLException
 	{
-		try
-		{ return getDatabaseMetaData().getProcedures(null, null, null); }
-
-		catch (SQLException pEx)
-		{
-			if (OperationNotSupportedException.isUnsupportedOperation(pEx))
-				throw new OperationNotSupportedException(pEx);
-
-			throw pEx;
-		}
+		return getDatabaseMetaData().getProcedures(null, null, null);
 	}
 
 /***************************************************************************************
@@ -52,12 +46,12 @@ public class Procedures extends MetaDataCollection
 	public static class Record extends MetaDataRecord
 	{
 		/** Constructs a populated object.
-			@param pConnectionFactory The connection factory used
+			@param pDataSource The connection factory used
 				to load the child objects.
 		*/
-		private Record(ConnectionFactory pConnectionFactory)
+		private Record(DataSource pDataSource)
 		{
-			m_ConnectionFactory = pConnectionFactory;
+			m_DataSource = pDataSource;
 		}
 
 		public void fetch(ResultSet rs) throws SQLException
@@ -89,7 +83,7 @@ public class Procedures extends MetaDataCollection
 		public String getDesc() { return m_strName; }
 		public int getType() { return m_nType; }
 
-		public Parameters getParameters() { return new Parameters(m_ConnectionFactory, this); }
+		public Parameters getParameters() { return new Parameters(m_DataSource, this); }
 
 		/*******************************************************************
 		*
@@ -100,7 +94,7 @@ public class Procedures extends MetaDataCollection
 		/** Member variable - refernece to the connection pool used to load
 		    child objects.
 		*/
-		private ConnectionFactory m_ConnectionFactory = null;
+		private DataSource m_DataSource = null;
 
 		/** Member variable - references the database catalog that contains
 		    the procedure.

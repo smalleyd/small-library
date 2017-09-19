@@ -10,15 +10,11 @@ repositories {
 }
 
 dependencies {
-	compile 'javaee:javaee-api:5',
-	        'jboss:jboss-common:4.2.2.GA',
-	        'jpox:jpox:1.1.9-1',
-	        'xerces:xercesImpl:2.11.0',
-	        'log4j:log4j:1.2.17',
-	        'commons-codec:commons-codec:1.9',
-	        'net.sf.jasperreports:jasperreports:4.5.1',
-	        'commons-logging:commons-logging:1.2',
-	        'org.springframework:spring-web:4.1.1.RELEASE',
-			'org.apache.ant:ant:1.9.4'
-	runtime 'mysql:mysql-connector-java:5.1.33'
+	compile 'commons-codec:commons-codec:1.9',
+	    'org.apache.commons:commons-dbcp2:2.1.1',
+	    'org.apache.commons:commons-lang3:3.6',
+		'com.fasterxml.jackson.core:jackson-databind:2.9.1',
+		'ch.qos.logback:logback-classic:1.2.3'
+	        
+	runtime 'mysql:mysql-connector-java:5.1.44'
 }

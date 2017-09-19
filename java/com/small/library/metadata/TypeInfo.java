@@ -1,6 +1,9 @@
 package com.small.library.metadata;
 
 import java.sql.*;
+
+import javax.sql.DataSource;
+
 import com.small.library.data.*;
 
 /***************************************************************************************
@@ -15,11 +18,11 @@ import com.small.library.data.*;
 public class TypeInfo extends MetaDataCollection
 {
 	/** Constructs the data collection and supplies a JDBC connection factory.
-		@param pConnectionFactory A reference to a connection factory.
+		@param pDataSource A reference to a connection factory.
 	*/
-	public TypeInfo(ConnectionFactory pConnectionFactory)
+	public TypeInfo(DataSource pDataSource)
 	{
-		super(pConnectionFactory);
+		super(pDataSource);
 	}
 
 	/** Creates a new TypeInfo data record. */

@@ -1,7 +1,9 @@
 package com.small.library.metadata;
 
 import java.sql.*;
-import java.util.*;
+
+import javax.sql.DataSource;
+
 import com.small.library.data.*;
 
 /***************************************************************************************
@@ -16,14 +18,14 @@ import com.small.library.data.*;
 public class Indexes extends MetaDataCollection
 {
 	/** Constructs the data collection and supplies a JDBC connection factory.
-		@param pConnectionFactory A reference to a connection factory.
+		@param pDataSource A reference to a connection factory.
 		@param pParent <I>Table.Record</I> object that contains the
 			foreign keys.
 	*/
-	public Indexes(ConnectionFactory pConnectionFactory,
+	public Indexes(DataSource pDataSource,
 		Tables.Record pParent)
 	{
-		super(pConnectionFactory);
+		super(pDataSource);
 		setParent(pParent);
 	}
 
@@ -78,26 +80,14 @@ public class Indexes extends MetaDataCollection
 	/** Gets the result set used to populate this data collection. */
 	protected ResultSet getResultSet() throws SQLException
 	{
-		// Does the driver implement the retrieving of index information.
-		try
-		{
-			/** NOTE: Using schema name of the table as well as the table
-			    name to get the indexes. DB2 does not return anything
-			    otherwise.
-			*/
-			Tables.Record pParent = getParent();
+		/** NOTE: Using schema name of the table as well as the table
+		    name to get the indexes. DB2 does not return anything
+		    otherwise.
+		*/
+		Tables.Record pParent = getParent();
 
-			return getDatabaseMetaData().getIndexInfo(null, pParent.getSchema(),
-				pParent.getName(), false, true);
-		}
-
-		catch (SQLException pEx)
-		{
-			if (OperationNotSupportedException.isUnsupportedOperation(pEx))
-				throw new OperationNotSupportedException(pEx);
-
-			throw pEx;
-		}
+		return getDatabaseMetaData().getIndexInfo(null, pParent.getSchema(),
+			pParent.getName(), false, true);
 	}
 
 	public DataRecord newRecord() { return new Record(); }
