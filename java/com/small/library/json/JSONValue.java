@@ -38,18 +38,16 @@ public class JSONValue implements Runnable
 		out.println();
 		out.println("import com.fasterxml.jackson.annotation.JsonProperty;");
 		out.println();
-		out.println("/** Value object that represents a .");
+		out.print("/** Value object that represents the "); out.print(conf.caption); out.println(".");
 		out.println(" * ");
 		if (null != conf.author)
 		{
 			out.print(" * @author "); out.println(conf.author);
 		}
-		out.println(" * ");
 		if (null != conf.version)
 		{
 			out.print(" * @version "); out.println(conf.version);
 		}
-		out.println(" * ");
 		out.print(" * @since "); out.println(new Date());
 		out.println(" * ");
 		out.println(" */");
@@ -63,16 +61,24 @@ public class JSONValue implements Runnable
 		});
 		out.println();
 		out.print("\tpublic "); out.print(conf.className); out.println("(");
+		conf.fields.forEach((k, v) -> {
+			out.print("\t\t@JsonProperty(\""); out.print(k); out.print("\") final "); out.print(v); out.print(" "); out.print(k); out.println(",");
+		});
 		out.println("\t)");
 		out.println("\t{");
 		conf.fields.forEach((k, v) -> {
-			out.print("\t\t@JsonProperty(\""); out.print(k); out.print("\") final "); out.print(v); out.print(" "); out.print(k); out.println(",");
+			out.print("\t\tthis."); out.print(k); out.print(" = "); out.print(k); out.println(";");
 		});
 		out.println("\t}");
 		out.println();
 		out.println("\t@Override");
 		out.println("\tpublic String toString()");
 		out.println("\t{");
+		out.println("\t\treturn new StringBuilder(\"{ \")");
+		conf.fields.forEach((k, v) -> {
+			out.print("\t\t\t.append(\", "); out.print(k); out.print(": \").append("); out.print(k); out.println(")");
+		});
+		out.println("\t\t\t.append(\" }\").toString();");
 		out.println("\t}");
 		out.println("}");
 	}
@@ -114,6 +120,11 @@ public class JSONValue implements Runnable
 			if (null == conf.className)
 			{
 				log.warn("Configuration file '{}' is missing the className property.", file.getAbsolutePath());
+				continue;	// Skip this file.
+			}
+			if (null == conf.caption)
+			{
+				log.warn("Configuration file '{}' is missing the caption property.", file.getAbsolutePath());
 				continue;	// Skip this file.
 			}
 			if (MapUtils.isEmpty(conf.fields))

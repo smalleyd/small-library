@@ -1,4 +1,16 @@
 apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+// Add Gradle OneJar Plugin, see https://github.com/rholder/gradle-one-jar
+buildscript {
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.1'
+  }
+}
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
@@ -19,4 +31,11 @@ dependencies {
 		'ch.qos.logback:logback-classic:1.2.3'
 	        
 	runtime 'mysql:mysql-connector-java:5.1.44'
+}
+
+// Builds a single fat jar.
+shadowJar {
+  mergeServiceFiles()
+  exclude 'META-INF/*.DSA'
+  exclude 'META-INF/*.RSA'
 }

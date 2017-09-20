@@ -19,18 +19,21 @@ public class JSONConfig implements Serializable
 
 	public final String packageName;
 	public final String className;
+	public final String caption;
 	public final String author;
 	public final String version;
 	public final Map<String, String> fields;
 
 	public JSONConfig(@JsonProperty("packageName") final String packageName,
 		@JsonProperty("className") final String className,
+		@JsonProperty("caption") final String caption,
 		@JsonProperty("author") final String author,
 		@JsonProperty("version") final String version,
 		@JsonProperty("fields") final Map<String, String> fields)
 	{
 		this.packageName = packageName;
 		this.className = className;
+		this.caption = caption;
 		this.author = author;
 		this.version = version;
 		this.fields = fields;
