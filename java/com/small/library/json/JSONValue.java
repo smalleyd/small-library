@@ -143,7 +143,7 @@ public class JSONValue implements Runnable
 			}
 			if (MapUtils.isEmpty(conf.fields))
 			{
-				log.warn("Configuration file '{}' is has not specified any fields.", file.getAbsolutePath());
+				log.warn("Configuration file '{}' has not specified any fields.", file.getAbsolutePath());
 				continue;	// Skip this file.
 			}
 	
