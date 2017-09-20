@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.Date;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.*;
 
@@ -32,9 +33,19 @@ public class JSONValue implements Runnable
 
 	public void run()
 	{
+		final int size = conf.fields.size();
+		final int[] index = new int[1];
+
 		out.print("package "); out.print(conf.packageName); out.println(";");
 		out.println();
 		out.println("import java.io.Serializable;");
+		if (CollectionUtils.isNotEmpty(conf.imports))
+		{
+			out.println();
+			conf.imports.forEach(i -> {
+				out.print("import "); out.print(i); out.println(";");
+			});
+		}
 		out.println();
 		out.println("import com.fasterxml.jackson.annotation.JsonProperty;");
 		out.println();
@@ -61,10 +72,11 @@ public class JSONValue implements Runnable
 		});
 		out.println();
 		out.print("\tpublic "); out.print(conf.className); out.println("(");
+		index[0] = 0;
 		conf.fields.forEach((k, v) -> {
-			out.print("\t\t@JsonProperty(\""); out.print(k); out.print("\") final "); out.print(v); out.print(" "); out.print(k); out.println(",");
+			out.print("\t\t@JsonProperty(\""); out.print(k); out.print("\") final "); out.print(v); out.print(" "); out.print(k);
+			out.println((size > ++index[0]) ? "," : ")");
 		});
-		out.println("\t)");
 		out.println("\t{");
 		conf.fields.forEach((k, v) -> {
 			out.print("\t\tthis."); out.print(k); out.print(" = "); out.print(k); out.println(";");
@@ -74,9 +86,11 @@ public class JSONValue implements Runnable
 		out.println("\t@Override");
 		out.println("\tpublic String toString()");
 		out.println("\t{");
-		out.println("\t\treturn new StringBuilder(\"{ \")");
+		out.print("\t\treturn new StringBuilder(\"{ ");
+		index[0] = 0;
 		conf.fields.forEach((k, v) -> {
-			out.print("\t\t\t.append(\", "); out.print(k); out.print(": \").append("); out.print(k); out.println(")");
+			if (1 < ++index[0]) out.print("\t\t\t.append(\", ");
+			out.print(k); out.print(": \").append("); out.print(k); out.println(")");
 		});
 		out.println("\t\t\t.append(\" }\").toString();");
 		out.println("\t}");

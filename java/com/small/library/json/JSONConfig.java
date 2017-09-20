@@ -1,6 +1,7 @@
 package com.small.library.json;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,6 +19,7 @@ public class JSONConfig implements Serializable
 	private static final long serialVersionUID = 1L;
 
 	public final String packageName;
+	public final List<String> imports;
 	public final String className;
 	public final String caption;
 	public final String author;
@@ -25,6 +27,7 @@ public class JSONConfig implements Serializable
 	public final Map<String, String> fields;
 
 	public JSONConfig(@JsonProperty("packageName") final String packageName,
+		@JsonProperty("imports") final List<String> imports,
 		@JsonProperty("className") final String className,
 		@JsonProperty("caption") final String caption,
 		@JsonProperty("author") final String author,
@@ -32,6 +35,7 @@ public class JSONConfig implements Serializable
 		@JsonProperty("fields") final Map<String, String> fields)
 	{
 		this.packageName = packageName;
+		this.imports = imports;
 		this.className = className;
 		this.caption = caption;
 		this.author = author;
