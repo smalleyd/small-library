@@ -21,18 +21,18 @@ public class JSONConfig implements Serializable
 	public final String className;
 	public final String author;
 	public final String version;
-	public final Map<String, String> properties;
+	public final Map<String, String> fields;
 
 	public JSONConfig(@JsonProperty("packageName") final String packageName,
 		@JsonProperty("className") final String className,
 		@JsonProperty("author") final String author,
 		@JsonProperty("version") final String version,
-		@JsonProperty("properties") final Map<String, String> properties)
+		@JsonProperty("fields") final Map<String, String> fields)
 	{
 		this.packageName = packageName;
 		this.className = className;
 		this.author = author;
 		this.version = version;
-		this.properties = properties;
+		this.fields = fields;
 	}
 }

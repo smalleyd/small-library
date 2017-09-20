@@ -4,6 +4,7 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 sourceSets.main.java.srcDirs = [ 'java' ]
+sourceSets.main.resources.srcDirs = [ 'res' ]
 
 repositories {
 	mavenCentral()
@@ -11,6 +12,7 @@ repositories {
 
 dependencies {
 	compile 'commons-codec:commons-codec:1.9',
+		'org.apache.commons:commons-collections4:4.1',
 	    'org.apache.commons:commons-dbcp2:2.1.1',
 	    'org.apache.commons:commons-lang3:3.6',
 		'com.fasterxml.jackson.core:jackson-databind:2.9.1',
