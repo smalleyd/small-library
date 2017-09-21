@@ -146,8 +146,12 @@ public class JSONValue implements Runnable
 				log.warn("Configuration file '{}' has not specified any fields.", file.getAbsolutePath());
 				continue;	// Skip this file.
 			}
-	
-			new JSONValue(conf, new PrintStream(new File(output, conf.className + ".java"))).run();
+
+			try (final PrintStream out = new PrintStream(new File(output, conf.className + ".java")))
+			{
+				new JSONValue(conf, out).run();
+				out.flush();
+			}
 		}
 	}
 }
