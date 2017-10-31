@@ -163,6 +163,11 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("public class " + getClassName() + " implements Serializable");
 		writeLine("{");
 		writeLine("private static final long serialVersionUID = 1L;", 1);
+		writeLine();
+		writeLine("public static final String TABLE = \"" + getTable().getName() + "\";", 1);
+		for (ColumnInfo i : m_ColumnInfo)
+			if (i.isString)
+				writeLine("public static final int MAX_LEN_" + i.columnName.toUpperCase() + " = " + i.size + ";", 1);
 	}
 
 	/** Output method - writes the accessor methods. */
