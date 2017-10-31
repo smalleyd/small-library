@@ -318,7 +318,11 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("return new StringBuilder(\"{ " + item.memberVariableName + ": \").append(" + item.memberVariableName + ")", 2);
 
 		for (int i = 1; i < m_ColumnInfo.length; i++)
+		{
 			writeLine(".append(\", " + (item = m_ColumnInfo[i]).memberVariableName + ": \").append(" + item.memberVariableName + ")", 3);
+			if (null != item.importedKeyMemberName)
+				writeLine(".append(\", " + item.importedKeyMemberName + "Name: \").append(" + item.importedKeyMemberName + "Name)", 3);
+		}
 		writeLine(".append(\" }\").toString();", 3);
 		writeLine("}", 1);
 	}
