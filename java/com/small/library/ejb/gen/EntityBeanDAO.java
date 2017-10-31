@@ -276,10 +276,11 @@ public class EntityBeanDAO extends EntityBeanBase
 			String validator = first ? "validator" : "\t";
 			if (i.isString)
 			{
+				final String maxLenName = valueName + ".MAX_LEN_" + i.columnName.toUpperCase();
 				if (i.isNullable)
-					writeLine(validator + ".ensureLength(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ", " + i.size + ")", 2);
+					writeLine(validator + ".ensureLength(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ", " + maxLenName + ")", 2);
 				else
-					writeLine(validator + ".ensureExistsAndLength(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ", " + i.size + ")", 2);
+					writeLine(validator + ".ensureExistsAndLength(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ", " + maxLenName + ")", 2);
 			}
 			else if (!i.isNullable && !i.isPrimitive)
 				writeLine(validator + ".ensureExists(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ")", 2);

@@ -251,11 +251,13 @@ public class EntityBeanDAOTest extends EntityBeanBase
 			}
 			if (i.isString)
 			{
+				final String maxLenName = valueName + ".MAX_LEN_" + i.columnName.toUpperCase();
+
 				writeLine();
 				writeLine("@Test(expected=ValidationException.class)", 1);
 				writeLine("public void add_long" + i.name + "()", 1);
 				writeLine("{", 1);
-				writeLine("dao.add(createValid()." + i.withMethodName + "(StringUtils.repeat(\"A\", " + (i.size + 1) + ")));", 2);
+				writeLine("dao.add(createValid()." + i.withMethodName + "(StringUtils.repeat(\"A\", " + maxLenName + " + 1)));", 2);
 				writeLine("}", 1);
 			}
 			if (i.isImportedKey)
