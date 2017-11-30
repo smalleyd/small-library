@@ -1,6 +1,8 @@
 bin
 build
+.classpath
 .gradle
+.project
 .settings
 .svn/
 **/.svn
