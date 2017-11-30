@@ -1,6 +1,8 @@
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
+version = '2.0'
+
 // Add Gradle OneJar Plugin, see https://github.com/rholder/gradle-one-jar
 buildscript {
   repositories {
@@ -8,7 +10,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.1'
+    classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
   }
 }
 

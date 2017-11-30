@@ -189,7 +189,7 @@ public class RedshiftBatch extends EntityBeanBase
 		writeLine("public static final int BATCH_SIZE = 10000;", 1);
 		writeLine();
 		writeLine("/** Creates the SQL for the specific " + tableName.toUpperCase() + " tables. The update uses a shadow table. */", 1);
-		writeLine("public static String createCopySQL(String entity)", 1);
+		writeLine("public static String createCopySQL(final String entity)", 1);
 		writeLine("{", 1);
 		write("return new StringBuilder(\"COPY \").append(entity).append(\" (" + m_ColumnInfo[0].columnName, 2);
 		for (int i = 1; i < m_ColumnInfo.length; i++)
@@ -294,7 +294,7 @@ public class RedshiftBatch extends EntityBeanBase
 		// Start the section.
 		writeLine();
 		writeLine("/** Writes a single line to the CSV file. */", 1);
-		writeLine("protected void writeLine(" + valueObjectName(getObjectName()) + " value, CSVWriter out) throws IOException", 1);
+		writeLine("protected void writeLine(final " + valueObjectName(getObjectName()) + " value, final CSVWriter out) throws IOException", 1);
 		writeLine("{", 1);
 		writeLine("out", 2);
 		for (ColumnInfo i : m_ColumnInfo)
