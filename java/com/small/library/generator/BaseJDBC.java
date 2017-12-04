@@ -328,9 +328,9 @@ public abstract class BaseJDBC extends Base
 	    behaviour.
 		@param column Column record object.
 	*/
-	public String getColumnObjectName(Columns.Record column)
+	public String getColumnObjectName(final Column column)
 	{
-		return createObjectName(column.getName());
+		return createObjectName(column.name);
 	}
 
 	/******************************************************************************
@@ -351,11 +351,11 @@ public abstract class BaseJDBC extends Base
 	    in <I>Types</I>.
 	    	@param column A table column object.
 	*/
-	public Integer getSQLType(Columns.Record column)
+	public Integer getSQLType(final Column column)
 	{
-		int dataType = column.getDataType();
-		int decimalDigits = column.getDecimalDigits();
-		int size = column.getSize();
+		int dataType = column.dataType;
+		int decimalDigits = column.decimalDigits;
+		int size = column.size;
 
 		if (!(((Types.DECIMAL == dataType) ||
 		       (Types.NUMERIC == dataType)) &&
@@ -374,7 +374,7 @@ public abstract class BaseJDBC extends Base
 	    <I>PreparedStatement</I> "setters".
 		@param column A table column object.
 	*/
-	public String getJdbcMethodSuffix(Columns.Record column)
+	public String getJdbcMethodSuffix(final Column column)
 	{
 		return JDBC_METHOD_SUFFIXES.get(getSQLType(column));
 	}
@@ -383,7 +383,7 @@ public abstract class BaseJDBC extends Base
 	    data type that represents the column.
 		@param column A table column object.
 	*/
-	public String getJavaType(Columns.Record column)
+	public String getJavaType(final Column column)
 	{
 		return JAVA_TYPES.get(getSQLType(column));
 	}
@@ -392,7 +392,7 @@ public abstract class BaseJDBC extends Base
 	    data type that represents the column.
 		@param column A table column object.
 	*/
-	public String getDynamoDbType(Columns.Record column)
+	public String getDynamoDbType(final Column column)
 	{
 		return DYNAMO_DB_TYPES.get(getSQLType(column));
 	}
@@ -401,7 +401,7 @@ public abstract class BaseJDBC extends Base
 	    data type that represents the column.
 		@param column A table column object.
 	*/
-	public String getJDBCType(Columns.Record column)
+	public String getJDBCType(final Column column)
 	{
 		return JDBC_TYPES.get(getSQLType(column));
 	}
@@ -410,43 +410,43 @@ public abstract class BaseJDBC extends Base
 	    in conjunction with the SQL data type.
 		@param column A table column object.
 	*/
-	public boolean doesTypeRequireSize(Columns.Record column)
+	public boolean doesTypeRequireSize(final Column column)
 	{
-		return TYPES_REQUIRE_SIZE.get(column.getDataType());
+		return TYPES_REQUIRE_SIZE.get(column.dataType);
 	}
 
 	/** Accessor method - indicates whether the column requires a scale
 	    (decimal digits) attribute in conjunction with the SQL data type.
 		@param column A table column object.
 	*/
-	public boolean doesTypeRequireScale(Columns.Record column)
+	public boolean doesTypeRequireScale(final Column column)
 	{
-		return TYPES_REQUIRE_SCALE.get(column.getDataType());
+		return TYPES_REQUIRE_SCALE.get(column.dataType);
 	}
 
 	/** Accessor method - gets a <I>String</I> representation of the variable
 	    prefix used by the data type of the column.
 		@param column A table column object.
 	*/
-	public String getVariablePrefix(Columns.Record column)
+	public String getVariablePrefix(final Column column)
 	{
 		return VARIABLE_PREFIXES.get(getSQLType(column));
 	}
 
 	/** Accessor method - gets the boolean attribute of the column. */
-	public boolean isBoolean(Columns.Record column)
+	public boolean isBoolean(final Column column)
 	{
 		return BOOLEAN_TYPES.contains(getSQLType(column));
 	}
 
 	/** Accessor method - gets the character attribute of the column. */
-	public boolean isCharacter(Columns.Record column)
+	public boolean isCharacter(final Column column)
 	{
 		return CHARACTER_ATTRIBUTE.contains(getSQLType(column));
 	}
 
 	/** Accessor method - gets the String attribute of the column. */
-	public boolean isString(Columns.Record column)
+	public boolean isString(final Column column)
 	{
 		return STRING_TYPES.contains(getSQLType(column));
 	}
@@ -454,16 +454,16 @@ public abstract class BaseJDBC extends Base
 	/** Accessor method - gets a column's type definition used in DDL.
 		@param column A table column object.
 	*/
-	public String getTypeDefinition(Columns.Record column)
+	public String getTypeDefinition(final Column column)
 	{
-		String strReturn = column.getTypeName();
+		String strReturn = column.typeName;
 
 		if (doesTypeRequireSize(column))
 		{
-			strReturn+= "(" + column.getSize();
+			strReturn+= "(" + column.size;
 
 			if (doesTypeRequireScale(column))
-				strReturn+= ", " + column.getDecimalDigits();
+				strReturn+= ", " + column.decimalDigits;
 
 			strReturn+= ")";
 		}

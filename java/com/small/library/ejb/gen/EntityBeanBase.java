@@ -108,9 +108,9 @@ public abstract class EntityBeanBase extends BaseTable
 	    Overrides the same method from <I>BaseTable</I>.
 		@param column A table column object.
 	*/
-	public String getColumnObjectName(Columns.Record column)
+	public String getColumnObjectName(final Column column)
 	{
-		String strName = column.getName();
+		String strName = column.name;
 
 		if ("descript".equalsIgnoreCase(strName))
 			return "Name";

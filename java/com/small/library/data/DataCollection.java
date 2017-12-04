@@ -500,7 +500,7 @@ public abstract class DataCollection
 	/** Member variable - reference to the connection factory used by the
 	    data collection.
 	*/
-	private DataSource m_DataSource = null;
+	protected DataSource m_DataSource = null;
 
 	/** Member variable - reference to the connection object being used by the
 	    current data collection operation.

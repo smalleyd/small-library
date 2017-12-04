@@ -277,10 +277,8 @@ public class TablesHtml
 		writeLine("</DIV>");
 	}
 
-	public void run(Columns pColumns) throws SQLException, IOException
+	public void run(final List<Column> columns) throws SQLException, IOException
 	{
-		pColumns.load();
-
 		openTable();
 		openRow();
 		writeDetailHeader("Columns", 7);
@@ -296,26 +294,30 @@ public class TablesHtml
 		writeDetailHeader("Comments");
 		closeRow();
 
-		for (int i = 0; i < pColumns.size(); i++)
-			run((Columns.Record) pColumns.item(i), i);
+		final int[] i = new int[] { 0 };
+		columns.forEach(o -> run(o, i[0]++));
 
 		closeTable();
 	}
 
-	public void run(Columns.Record pColumn, int nIndex) throws SQLException, IOException
+	public void run(final Column pColumn, final int nIndex)
 	{
-		openRow();
-		writeDetail(nIndex + 1);
-		writeDetail(pColumn.getName());
-		writeDetail(pColumn.getTypeName());
-		writeDetail(pColumn.getSize());
-		writeDetail(pColumn.getDecimalDigits());
-		writeDetail(pColumn.isNullable());
-		writeDetail(pColumn.getRemarks());
-		closeRow();
+		try
+		{
+			openRow();
+			writeDetail(nIndex + 1);
+			writeDetail(pColumn.name);
+			writeDetail(pColumn.typeName);
+			writeDetail(pColumn.size);
+			writeDetail(pColumn.decimalDigits);
+			writeDetail(pColumn.nullable);
+			writeDetail(pColumn.remarks);
+			closeRow();
+		}
+		catch (IOException ex) { throw new RuntimeException(ex); }
 	}
 
-	public void run(Indexes pIndexes, PrimaryKeys pPrimaryKeys) throws SQLException, IOException
+	public void run(final Index pIndexes, final List<PrimaryKey> primaryKeys) throws SQLException, IOException
 	{
 		String strUnsupportedException = null;
 
@@ -323,8 +325,6 @@ public class TablesHtml
 		try
 		{
 			pIndexes.load();
-
-			pPrimaryKeys.load();
 		}
 
 		catch (SQLException pEx)
@@ -359,30 +359,30 @@ public class TablesHtml
 		closeRow();
 
 		for (int i = 0; i < pIndexes.size(); i++)
-			run((Indexes.Record) pIndexes.item(i), pPrimaryKeys, i);
+			run((Index.Record) pIndexes.item(i), primaryKeys, i);
 
 		closeTable();
 	}
 
-	public void run(Indexes.Record pIndex, PrimaryKeys pPrimaryKeys, int nIndex) throws SQLException, IOException
+	public void run(final Index.Record pIndex, final List<PrimaryKey> primaryKeys, final int nIndex) throws SQLException, IOException
 	{
 		openRow();
 		writeDetail(nIndex + 1);
 		writeDetail(pIndex.getName());
 		writeDetail(pIndex.isUnique());
 
-		if ((null == pPrimaryKeys) || (0 == pPrimaryKeys.size()) ||
-		    (null == pPrimaryKeys.getName()))
+		if ((null == primaryKeys) || (0 == primaryKeys.size()) ||
+		    (null == primaryKeys.get(0).name))
 			writeDetail(false);
 		else
-			writeDetail(pPrimaryKeys.getName().equals(pIndex.getName()));
+			writeDetail(primaryKeys.get(0).name.equals(pIndex.getName()));
 
 		// The run(Keys.Record) function closes the row.
 		run(pIndex.getKeys());
 		closeRow();
 	}
 
-	public void run(Keys pKeys) throws SQLException, IOException
+	public void run(Key pKeys) throws SQLException, IOException
 	{
 		StringBuffer keysText = new StringBuffer();
 
@@ -391,7 +391,7 @@ public class TablesHtml
 			if (0 < i)
 				keysText.append(", ");
 
-			keysText.append(((Keys.Record) pKeys.item(i)).getName());
+			keysText.append(((Key.Record) pKeys.item(i)).getName());
 		}
 
 		writeDetail(keysText.toString());

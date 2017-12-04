@@ -2,6 +2,8 @@ package com.small.library.generator;
 
 import java.io.*;
 import java.sql.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -85,29 +87,23 @@ public abstract class BaseTable extends BaseJDBC
 	/** Accessor method - gets the table's columns.
 		@throw SQLException during loading of the column information.
 	*/
-	public Columns getColumns()
+	public List<Column> getColumns()
 		throws SQLException
 	{
 		if (null == columns)
-		{
 			columns = table.getColumns();
-			columns.load();
-		}
 
 		return columns;
 	}
 
 	/** Accessor method - gets the table's primary keys. */
-	public PrimaryKeys getPrimaryKeys()
+	public List<PrimaryKey> getPrimaryKeys()
 		throws SQLException
 	{
-		if (null == primaryKey)
-		{
-			primaryKey = table.getPrimaryKeys();
-			primaryKey.load();
-		}
+		if (null == primaryKeys)
+			primaryKeys = table.getPrimaryKeys();
 
-		return primaryKey;
+		return primaryKeys;
 	}
 
 	/** Accessor method - gets the table's imported foreign keys. */
@@ -140,7 +136,7 @@ public abstract class BaseTable extends BaseJDBC
 			objectName = createObjectName(pValue.getName());
 
 		columns = null;
-		primaryKey = null;
+		primaryKeys = null;
 		importKeys = null;
 	}
 
@@ -153,7 +149,7 @@ public abstract class BaseTable extends BaseJDBC
 	/** Helper method - gets a member variable name based on a column.
 		@param column A table column object.
 	*/
-	public String getMemberVariableName(Columns.Record column)
+	public String getMemberVariableName(final Column column)
 	{
 		return fromObjectNameToMemberName(getColumnObjectName(column));
 	}
@@ -172,7 +168,7 @@ public abstract class BaseTable extends BaseJDBC
 	/** Helper method - gets a local variable name based on a column.
 		@param column A table column object.
 	*/
-	public String getLocalVariableName(Columns.Record column)
+	public String getLocalVariableName(final Column column)
 	{
 		return getVariablePrefix(column) + getColumnObjectName(column);
 	}
@@ -204,51 +200,41 @@ public abstract class BaseTable extends BaseJDBC
 	/** Helper method - indicates whether the column is an auto incrementing
 	    column.
 	*/
-	public boolean isColumnAutoIncrementing(Columns.Record value)
+	public boolean isColumnAutoIncrementing(final Column value)
 	{
-		String typeName = value.getTypeName();
-		String remarks = value.getRemarks();
+		String typeName = value.typeName;
+		String remarks = value.remarks;
 
-		return (value.isAutoIncrement() ||
+		return (value.autoIncrement ||
 				(-1 < typeName.indexOf("identity")) ||
 		        (-1 < typeName.indexOf("COUNTER")) ||
 			((null != remarks) && (-1 < remarks.indexOf("auto_increment")))) ? true : false;
 	}
 
 	/** Helper method - is the column part of the primary key.
-		@param pColumn A column record object.
+		@param column A column record object.
 	*/
-	public boolean isPartOfPrimaryKey(Columns.Record column)
+	public boolean isPartOfPrimaryKey(final Column column)
 		throws SQLException
 	{
-		String columnName = column.getName();
-		PrimaryKeys records = getPrimaryKeys();
-
-		for (int i = 0; i < records.size(); i++)
-		{
-			PrimaryKeys.Record record = (PrimaryKeys.Record) records.item(i);
-			if (columnName.equals(record.getName()))
-				return true;
-		}
-
-		return false;
+		return getPrimaryKeys().stream().filter(o -> column.name.equals(o.name)).findFirst().isPresent();
 	}
 
 	/** Helper method - gets the <I>ImportedKey</I> that represents the column.
-		@param pColumn A column record object.
+		@param column A column record object.
 		@return an <I>ImportedKey</I> object or <CODE>null</CODE> if the column
 			is not an imported foreign key.
 	*/
-	public ImportedKeys.Record getImportedKey(Columns.Record pColumn)
+	public ImportedKeys.Record getImportedKey(final Column column)
 		throws SQLException
 	{
-		String columnName = pColumn.getName();
+		String columnName = column.name;
 		ImportedKeys importedKeys = getImportedKeys();
 
 		for (int i = 0; i < importedKeys.size(); i++)
 		{
 			ImportedKeys.Record importedKey = (ImportedKeys.Record) importedKeys.item(i);
-			Keys keys = importedKey.getColumns_FK();
+			Key keys = importedKey.getColumns_FK();
 
 			// If more than one key, will not implement as now.
 			if (1 != keys.size())
@@ -264,11 +250,11 @@ public abstract class BaseTable extends BaseJDBC
 
 	/** Helper method - gets the object version of the column name as an imported key name.
 	    Removes the foreign key suffix of "id", "i", or "c".
-		@param pColumn A column record object.
+		@param column A column record object.
 	*/
-	public String getImportedKeyName(Columns.Record pColumn)
+	public String getImportedKeyName(final Column column)
 	{
-		String name = pColumn.getName();
+		String name = column.name;
 
 		// Find the last word in the name.
 		int index = name.lastIndexOf("_");
@@ -282,59 +268,62 @@ public abstract class BaseTable extends BaseJDBC
 
 	/** Helper method - creates a <I>ColumnInfo</I> object from the column's
 	    meta data
-		@param pColumn A column record object.
+		@param column A column record object.
 	*/
-	public ColumnInfo getColumnInfo(Columns.Record pColumn)
-		throws SQLException
+	public ColumnInfo getColumnInfo(final Column column)
 	{
-		ColumnInfo info = new ColumnInfo();
+		final ColumnInfo info = new ColumnInfo();
 
-		info.columnName = pColumn.getName();
-		info.name = getColumnObjectName(pColumn);
-		info.size = pColumn.getSize();
-		info.decimalDigits = pColumn.getDecimalDigits();
-		info.isNullable = pColumn.isNullable();
-		info.isBoolean = isBoolean(pColumn);
-		info.isCharacter = isCharacter(pColumn);
-		info.isString = isString(pColumn);
-		info.dataType = pColumn.getDataType();
-		info.isPartOfPrimaryKey = isPartOfPrimaryKey(pColumn);
-		info.isAutoIncrementing = isColumnAutoIncrementing(pColumn);
-		info.dataTypeName = pColumn.getTypeName();
-		info.javaType = getJavaType(pColumn);
-		info.dynamoDbType = getDynamoDbType(pColumn);
-		info.isPrimitive = isPrimitive(info.javaType);
-		info.jdbcTypeString = getJDBCType(pColumn);
-		info.variablePrefix = getVariablePrefix(pColumn);
-		info.jdbcMethodSuffix = getJdbcMethodSuffix(pColumn);
-		info.doesTypeRequireSize = doesTypeRequireSize(pColumn);
-		info.doesTypeRequireScale = doesTypeRequireScale(pColumn);
-		info.typeDefinition = getTypeDefinition(pColumn);
-		info.memberVariableName = getMemberVariableName(pColumn);
-		info.localVariableName = getLocalVariableName(pColumn);
-		info.accessorMethodName = getAccessorMethodName(info);
-		info.mutatorMethodName = getMutatorMethodName(info);
-		info.withMethodName = getWithMethodName(info);
-
-		ImportedKeys.Record importedKey = getImportedKey(pColumn);
-
-		info.isImportedKey = ((null == importedKey) ? false : true);
-
-		if (info.isImportedKey)
+		try
 		{
-			info.importedKeyName = getImportedKeyName(pColumn);
-			info.importedKeyMemberName = fromObjectNameToMemberName(
-				info.importedKeyName);
-			info.importedTableName = importedKey.getTable_PK();
-			info.importedObjectName = createObjectName(info.importedTableName);
+			info.columnName = column.name;
+			info.name = getColumnObjectName(column);
+			info.size = column.size;
+			info.decimalDigits = column.decimalDigits;
+			info.isNullable = column.nullable;
+			info.isBoolean = isBoolean(column);
+			info.isCharacter = isCharacter(column);
+			info.isString = isString(column);
+			info.dataType = column.dataType;
+			info.isPartOfPrimaryKey = isPartOfPrimaryKey(column);
+			info.isAutoIncrementing = isColumnAutoIncrementing(column);
+			info.dataTypeName = column.typeName;
+			info.javaType = getJavaType(column);
+			info.dynamoDbType = getDynamoDbType(column);
+			info.isPrimitive = isPrimitive(info.javaType);
+			info.jdbcTypeString = getJDBCType(column);
+			info.variablePrefix = getVariablePrefix(column);
+			info.jdbcMethodSuffix = getJdbcMethodSuffix(column);
+			info.doesTypeRequireSize = doesTypeRequireSize(column);
+			info.doesTypeRequireScale = doesTypeRequireScale(column);
+			info.typeDefinition = getTypeDefinition(column);
+			info.memberVariableName = getMemberVariableName(column);
+			info.localVariableName = getLocalVariableName(column);
+			info.accessorMethodName = getAccessorMethodName(info);
+			info.mutatorMethodName = getMutatorMethodName(info);
+			info.withMethodName = getWithMethodName(info);
+	
+			ImportedKeys.Record importedKey = getImportedKey(column);
+	
+			info.isImportedKey = ((null == importedKey) ? false : true);
+	
+			if (info.isImportedKey)
+			{
+				info.importedKeyName = getImportedKeyName(column);
+				info.importedKeyMemberName = fromObjectNameToMemberName(
+					info.importedKeyName);
+				info.importedTableName = importedKey.getTable_PK();
+				info.importedObjectName = createObjectName(info.importedTableName);
+			}
+	
+			// If is primitive and primary key or if it is nullable or an imported foreign key, make the Java type an object.
+			if (info.isPrimitive && (info.isPartOfPrimaryKey || info.isNullable || info.isImportedKey))
+			{
+				info.isPrimitive = false;
+				info.javaType = fromPrimitiveToObject(info.javaType);
+			}
 		}
-
-		// If is primitive and primary key or if it is nullable or an imported foreign key, make the Java type an object.
-		if (info.isPrimitive && (info.isPartOfPrimaryKey || info.isNullable || info.isImportedKey))
-		{
-			info.isPrimitive = false;
-			info.javaType = fromPrimitiveToObject(info.javaType);
-		}
+		catch (final SQLException ex) { throw new RuntimeException(ex); }
 
 		return info;
 	}
@@ -352,15 +341,10 @@ public abstract class BaseTable extends BaseJDBC
 	    columns' meta data.
 		@param columns An array column record objects.
 	*/
-	public ColumnInfo[] getColumnInfo(Columns columns)
+	public ColumnInfo[] getColumnInfo(List<Column> columns)
 		throws SQLException
 	{
-		ColumnInfo[] info = new ColumnInfo[columns.size()];
-
-		for (int i = 0; i < columns.size(); i++)
-			info[i] = getColumnInfo((Columns.Record) columns.item(i));
-
-		return info;
+		return columns.stream().map(o -> getColumnInfo(o)).collect(Collectors.toList()).toArray(new ColumnInfo[columns.size()]);
 	}
 
 	/******************************************************************************
@@ -471,10 +455,10 @@ public abstract class BaseTable extends BaseJDBC
 	private String objectName = null;
 
 	/** Member variable - reference to the table's columns. */
-	private Columns columns = null;
+	private List<Column> columns = null;
 
 	/** Member variable - reference to the table's primary key. */
-	private PrimaryKeys primaryKey = null;
+	private List<PrimaryKey> primaryKeys = null;
 
 	/** Member variable - reference to the table's imported foreign keys. */
 	private ImportedKeys importKeys = null;

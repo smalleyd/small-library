@@ -1,6 +1,7 @@
 package com.small.library.metadata;
 
 import java.sql.*;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -225,13 +226,13 @@ public class Tables extends MetaDataCollection
 		public boolean isUnknown() { return m_bUnknown; }
 
 		/** Accessor methods - gets a Columns object associated with this table. */
-		public Columns getColumns() { return new Columns(m_DataSource, this); }
+		public List<Column> getColumns() throws SQLException { return new DBMetadata(m_DataSource).getColumns(m_strSchema, m_strName); }
 
 		/** Accessor methods - gets an Indexes object associated with this table. */
-		public Indexes getIndexes() { return new Indexes(m_DataSource, this); }
+		public Index getIndexes() { return new Index(m_DataSource, this); }
 
 		/** Accessor methods - gets a Primary Keys object associated with this table. */
-		public PrimaryKeys getPrimaryKeys() { return new PrimaryKeys(m_DataSource, this); }
+		public List<PrimaryKey> getPrimaryKeys() throws SQLException { return new DBMetadata(m_DataSource).getPrimaryKeys(m_strSchema, m_strName); }
 
 		/** Accessor methods - gets a Imported Keys object associated with this table. */
 		public ImportedKeys getImportedKeys() { return new ImportedKeys(m_DataSource, this); }

@@ -39,8 +39,8 @@ public abstract class ForeignKey extends MetaDataRecord
 	public String getColumn_FK() { return m_strColumn_FK; }
 
 	// Key column collections.
-	public Keys getColumns_PK() { return m_Columns_PK; }
-	public Keys getColumns_FK() { return m_Columns_FK; }
+	public Key getColumns_PK() { return m_Columns_PK; }
+	public Key getColumns_FK() { return m_Columns_FK; }
 
 	public boolean equals(Object pValue)
 	{
@@ -60,6 +60,6 @@ public abstract class ForeignKey extends MetaDataRecord
 	private short m_nDeleteRule = DatabaseMetaData.importedKeyNoAction;
 	private short m_nDeferrability = DatabaseMetaData.importedKeyInitiallyDeferred;
 
-	private Keys m_Columns_PK = new Keys();
-	private Keys m_Columns_FK = new Keys();
+	private Key m_Columns_PK = new Key();
+	private Key m_Columns_FK = new Key();
 }

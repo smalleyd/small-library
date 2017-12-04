@@ -2,6 +2,7 @@ package com.small.library.doc;
 
 import java.io.*;
 import java.sql.*;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -21,23 +22,17 @@ import com.small.library.metadata.*;
 
 public class ProceduresHtml
 {
-	/******************************************************************************
-	*
-	*	Constructors
-	*
-	*****************************************************************************/
-
-	/** Constructor - constructs an empty object. */
-	public ProceduresHtml() { this(null, null); }
+	private final DBMetadata metadata;
+	private final PrintWriter writer;
 
 	/** Constructor - constructs a populated object.
-		@param pDataSource The database connection's connection factory.
-		@param pWriter HTML document's output stream.
+		@param dataSource The database connection's connection factory.
+		@param writer HTML document's output stream.
 	*/
-	public ProceduresHtml(DataSource pDataSource, PrintWriter pWriter)
+	public ProceduresHtml(DataSource dataSource, PrintWriter writer)
 	{
-		m_DataSource = pDataSource;
-		m_Writer = pWriter;
+		metadata = new DBMetadata(dataSource);
+		this.writer = writer;
 	}
 
 	/******************************************************************************
@@ -46,9 +41,9 @@ public class ProceduresHtml
 	*
 	*****************************************************************************/
 
-	public void write(String strValue) throws IOException { m_Writer.print(strValue); }
-	public void writeLine() throws IOException { m_Writer.println(); }
-	public void writeLine(String strValue) throws IOException { m_Writer.println(strValue); }
+	public void write(String strValue) throws IOException { writer.print(strValue); }
+	public void writeLine() throws IOException { writer.println(); }
+	public void writeLine(String strValue) throws IOException { writer.println(strValue); }
 	public void writeBreak() throws IOException { write("<BR>"); }
 
 	public void writeDetail(String strValue) throws IOException
@@ -122,33 +117,16 @@ public class ProceduresHtml
 	public void run()
 		throws SQLException, IOException
 	{
-		Procedures pProcedures = new Procedures(m_DataSource);
-
-		pProcedures.load(true);
+		final List<Procedure> procedures = metadata.getProcedures();
 
 		writeHeader();
-		writeContents(pProcedures);
-		run(pProcedures);
+		writeContents(procedures);
+		run(procedures);
 		writeFooter();
 	}
 
 	public void writeHeader() throws SQLException, IOException
 	{
-		// Get a title for the document.
-		String strCatalog = null;
-		Connection pConnection = m_DataSource.getConnection();
-
-		try
-		{
-			strCatalog = pConnection.getCatalog();
-		}
-
-		finally
-		{
-			if (null != pConnection)
-				pConnection.close();
-		}
-
 		writeLine("<HTML>");
 		writeLine("<HEAD>");
 		writeLine("<TITLE>Database Structure Document</TITLE>");
@@ -168,10 +146,10 @@ public class ProceduresHtml
 		writeLine();		
 		writeLine("</HEAD>");
 		writeLine("<BODY LINK=\"Blue\" ALINK=\"Blue\" VLINK=\"Blue\">");
-		writeLine("<H1>" + strCatalog + "</H1>");
+		writeLine("<H1>" + metadata.getCatalog() + "</H1>");
 	}
 
-	public void writeContents(Procedures pProcedures) throws SQLException, IOException
+	public void writeContents(final List<Procedure> procedures) throws SQLException, IOException
 	{
 		writeLine(createName("Contents", "<H2>Contents</H2>"));
 
@@ -183,41 +161,39 @@ public class ProceduresHtml
 		writeDetailHeader("Comments");
 		closeRow();
 
-		for (int i = 0; i < pProcedures.size(); i++)
+		int i = 0;
+		for (final Procedure o : procedures)
 		{
-			Procedures.Record pProcedure = (Procedures.Record) pProcedures.item(i);
-
 			openRow();
-			writeDetail(i + 1);
-			writeDetail(createLink("#" + pProcedure.getName(), pProcedure.getName()));
-			writeDetail(pProcedure.getRemarks());
+			writeDetail(i++ + 1);
+			writeDetail(createLink("#" + o.name, o.name));
+			writeDetail(o.remarks);
 			closeRow();
 		}
 
 		closeTable();
 	}
 
-	public void run(Procedures pProcedures) throws SQLException, IOException
+	public void run(final List<Procedure> procedures) throws SQLException, IOException
 	{
-		for (int i = 0; i < pProcedures.size(); i++)
-			run((Procedures.Record) pProcedures.item(i), i);
+		int i = 0;
+		for (final Procedure o : procedures)
+			run(o, i++);
 	}
 
-	public void run(Procedures.Record pProcedure, int nIndex) throws SQLException, IOException
+	public void run(final Procedure procedure, final int index) throws SQLException, IOException
 	{
 		writeLine("<DIV STYLE=\"page-break-before:always\">");
-		writeLine(createName(pProcedure.getName(), "<H2>" + pProcedure.getName() + "</H2>"));
-		run(pProcedure.getParameters());
+		writeLine(createName(procedure.name, "<H2>" + procedure.name + "</H2>"));
+		runParams(metadata.getParameters(procedure));
 
 		writeBreak();
 		writeLine(createLink("#Contents", "Goto Contents"));
 		writeLine("</DIV>");
 	}
 
-	public void run(Parameters pParameters) throws SQLException, IOException
+	public void runParams(List<Parameter> parameters) throws SQLException, IOException
 	{
-		pParameters.load();
-
 		openTable();
 		openRow();
 		writeDetailHeader("Parameters", 7);
@@ -233,22 +209,23 @@ public class ProceduresHtml
 		writeDetailHeader("Comments");
 		closeRow();
 
-		for (int i = 0; i < pParameters.size(); i++)
-			run((Parameters.Record) pParameters.item(i), i);
+		int i = 0;
+		for (final Parameter o : parameters)
+			run(o, i++);
 
 		closeTable();
 	}
 
-	public void run(Parameters.Record pParameter, int nIndex) throws SQLException, IOException
+	public void run(final Parameter parameter, final int index) throws SQLException, IOException
 	{
 		openRow();
-		writeDetail(nIndex + 1);
-		writeDetail(pParameter.getName());
-		writeDetail(pParameter.getTypeName());
-		writeDetail(pParameter.getLength());
-		writeDetail(pParameter.getScale());
-		writeDetail(pParameter.isNullable());
-		writeDetail(pParameter.getRemarks());
+		writeDetail(index + 1);
+		writeDetail(parameter.name);
+		writeDetail(parameter.typeName);
+		writeDetail(parameter.length);
+		writeDetail(parameter.scale);
+		writeDetail(parameter.nullable);
+		writeDetail(parameter.remarks);
 		closeRow();
 	}
 
@@ -260,39 +237,11 @@ public class ProceduresHtml
 
 	/******************************************************************************
 	*
-	*	Accessor methods
-	*
-	*****************************************************************************/
-
-	public DataSource getDataSource() { return m_DataSource; }
-	public PrintWriter getWriter() { return m_Writer; }
-
-	/******************************************************************************
-	*
-	*	Mutator methods
-	*
-	*****************************************************************************/
-
-	public void setDataSource(DataSource pNewValue) { m_DataSource = pNewValue; }
-	public void setWriter(OutputStream pNewValue) { setWriter(new PrintWriter(pNewValue)); }
-	public void setWriter(PrintWriter pNewValue) { m_Writer = pNewValue; }
-
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	*****************************************************************************/
-
-	private DataSource m_DataSource = null;
-	private PrintWriter m_Writer = null;
-
-	/******************************************************************************
-	*
 	*	Class entry point
 	*
 	*****************************************************************************/
 
-	public static void main(String strArgs[])
+	public static void main(final String... strArgs)
 	{
 		try
 		{
@@ -315,13 +264,13 @@ public class ProceduresHtml
 			else
 				strUrl = "jdbc:odbc:" + strUrl;
 
-			DataSource pDataSource = DataCollection.createDataSource(strDriver,
+			DataSource dataSource = DataCollection.createDataSource(strDriver,
 				strUrl, strUserName, strPassword);
-			PrintWriter pWriter = new PrintWriter(new FileWriter(strFile));
+			PrintWriter writer = new PrintWriter(new FileWriter(strFile));
 
-			(new ProceduresHtml(pDataSource, pWriter)).run();
+			(new ProceduresHtml(dataSource, writer)).run();
 
-			pWriter.close();
+			writer.close();
 		}
 
 		catch (IllegalArgumentException pEx)

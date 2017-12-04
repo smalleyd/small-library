@@ -2,6 +2,7 @@ package com.small.library.doc;
 
 import java.io.*;
 import java.sql.*;
+import java.util.List;
 
 import com.small.library.generator.*;
 import com.small.library.metadata.*;
@@ -55,7 +56,9 @@ public class TablesDDL extends BaseTable
 		String schemaName = table.getSchema();
 		String tableName = table.getName();
 		ColumnInfo[] columns = null;
-		PrimaryKeys primaryKeys = table.getPrimaryKeys();
+		final List<PrimaryKey> primaryKeys;
+		try { primaryKeys = table.getPrimaryKeys(); }
+		catch (final SQLException ex) { throw new RuntimeException(ex); }
 
 		if (null != schemaName)
 			tableName = schemaName + "." + tableName;
@@ -63,7 +66,6 @@ public class TablesDDL extends BaseTable
 		try
 		{
 			columns = getColumnInfo();
-			primaryKeys.load();
 		}
 		catch (SQLException ex) { throw new GeneratorException(ex); }
 
@@ -89,10 +91,11 @@ public class TablesDDL extends BaseTable
 		{
 			write("\t");
 
-			if (null != primaryKeys.getName())
+			final String pkName = primaryKeys.get(0).name;
+			if (null != pkName)
 			{
 				write("CONSTRAINT ");
-				write(primaryKeys.getName());
+				write(pkName);
 				write(" ");
 			}
 
@@ -102,7 +105,7 @@ public class TablesDDL extends BaseTable
 			{
 				if (0 < i)
 					write(", ");
-				write(((PrimaryKeys.Record) primaryKeys.item(i)).getName());
+				write((primaryKeys.get(i)).key);
 			}
 
 			writeLine(")");
@@ -151,7 +154,7 @@ public class TablesDDL extends BaseTable
 	}
 
 	/** Helper method - outputs a list of Keys. */
-	protected void outputKeys(Keys keys) throws IOException
+	protected void outputKeys(Key keys) throws IOException
 	{
 		int size = keys.size();
 
@@ -160,7 +163,7 @@ public class TablesDDL extends BaseTable
 
 		for (int i = 0; i < size; i++)
 		{
-			Keys.Record key = (Keys.Record) keys.item(i);
+			Key.Record key = (Key.Record) keys.item(i);
 
 			if (0 < i)
 				write(", ");
