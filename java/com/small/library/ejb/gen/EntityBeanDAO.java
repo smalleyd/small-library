@@ -20,20 +20,7 @@ import com.small.library.metadata.*;
 
 public class EntityBeanDAO extends EntityBeanBase
 {
-	/******************************************************************************
-	*
-	*	Constants
-	*
-	*****************************************************************************/
-
-	/** Constant - class name suffix. */
 	public static final String CLASS_NAME_SUFFIX = "DAO";
-
-	/******************************************************************************
-	*
-	*	Static members
-	*
-	*****************************************************************************/
 
 	/** Helper method - gets the full class/interface name of the EJB
 	    class from the entity name.
@@ -44,15 +31,6 @@ public class EntityBeanDAO extends EntityBeanBase
 		return name + CLASS_NAME_SUFFIX;
 	}
 
-	/******************************************************************************
-	*
-	*	Constructors/Destructor
-	*
-	*****************************************************************************/
-
-	/** Constructor - constructs an empty object. */
-	public EntityBeanDAO() { super(); }
-
 	/** Constructor - constructs a populated object.
 		@param writer The output stream.
 		@param author Name of the author.
@@ -62,6 +40,11 @@ public class EntityBeanDAO extends EntityBeanBase
 		String author, Table table)
 	{
 		super(writer, author, table);
+	}
+
+	public EntityBeanDAO(final String author, final String packageName, final String version)
+	{
+		this(null, author, null, packageName, version);
 	}
 
 	/** Constructor - constructs a populated object.
@@ -77,13 +60,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		super(writer, author, table, packageName, version);
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: Base
-	*
-	*****************************************************************************/
-
-	/** Action method - generates the Entity Bean primary key class. */
+	@Override
 	public void generate() throws GeneratorException, IOException
 	{
 		populateColumnInfo();
@@ -95,12 +72,6 @@ public class EntityBeanDAO extends EntityBeanBase
 
 		writeFooter();
 	}
-
-	/******************************************************************************
-	*
-	*	Required methods: BaseTable
-	*
-	*****************************************************************************/
 
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
@@ -116,18 +87,6 @@ public class EntityBeanDAO extends EntityBeanBase
 	{
 		return EntityBeanValueObject.getClassName(getObjectName());
 	}
-
-	/******************************************************************************
-	*
-	*	Helper methods
-	*
-	*****************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Output methods
-	*
-	*****************************************************************************/
 
 	/** Output method - writes the file header. */
 	private void writeHeader() throws IOException
@@ -184,10 +143,10 @@ public class EntityBeanDAO extends EntityBeanBase
 			writeLine(">");
 		writeLine("{");
 		writeLine("private static final String SELECT = \"SELECT OBJECT(o) FROM " + objectName + " o\";", 1);
-		writeLine("private static final String COUNT = \"SELECT COUNT(o." + m_ColumnInfo[0].memberVariableName + ") FROM " + objectName + " o\";", 1);
+		writeLine("private static final String COUNT = \"SELECT COUNT(o." + columnInfo[0].memberVariableName + ") FROM " + objectName + " o\";", 1);
 		writeLine("private static final OrderByBuilder ORDER = new OrderByBuilder('o', ", 1);
-		int size = m_ColumnInfo.length;
-		for (ColumnInfo i : m_ColumnInfo)
+		int size = columnInfo.length;
+		for (ColumnInfo i : columnInfo)
 		{
 			write("\"" + i.memberVariableName + "\", ", 2);
 			if (i.isAutoIncrementing || i.isBoolean || i.isRange())
@@ -268,7 +227,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine();
 		boolean first = true;
 		writeLine("// Throw exception after field existence checks and before FK checks.", 2);
-		for (ColumnInfo i : m_ColumnInfo)
+		for (ColumnInfo i : columnInfo)
 		{
 			if (i.isAutoIncrementing)
 				continue;
@@ -292,7 +251,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("// Validation foreign keys.", 2);
 		writeLine("Session session = currentSession();", 2);
 		List<String> cmrVars = new LinkedList<>();
-		for (ColumnInfo i : m_ColumnInfo)
+		for (ColumnInfo i : columnInfo)
 		{
 			if (!i.isImportedKey)
 				continue;
@@ -431,8 +390,8 @@ public class EntityBeanDAO extends EntityBeanBase
 			writeLine("throws ValidationException", 2);
 		writeLine("{", 1);
 			writeLine("return new QueryBuilder<" + name + ">(currentSession(), select, " + name + ".class)", 2);
-			int size = m_ColumnInfo.length;
-			for (ColumnInfo info : m_ColumnInfo)
+			int size = columnInfo.length;
+			for (ColumnInfo info : columnInfo)
 			{
 				if (info.isString)
 					write(".addContains(\"" + info.memberVariableName + "\", \"o." + info.memberVariableName + " LIKE :" + info.memberVariableName + "\", filter." + info.memberVariableName + ")", 3);
@@ -457,8 +416,8 @@ public class EntityBeanDAO extends EntityBeanBase
 			writeLine("throws ValidationException", 2);
 		writeLine("{", 1);
 			writeLine("return new NativeQueryBuilder<>(currentSession(), select, entityClass, FROM_ALIAS, groupBy)", 2);
-			size = m_ColumnInfo.length;
-			for (ColumnInfo info : m_ColumnInfo)
+			size = columnInfo.length;
+			for (ColumnInfo info : columnInfo)
 			{
 				if (info.isString)
 					write(".addContains(\"" + info.memberVariableName + "\", \"o." + info.columnName + " LIKE :" + info.memberVariableName + "\", filter." + info.memberVariableName + ")", 3);
@@ -484,7 +443,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("{", 1);
 			writeLine("Criteria criteria = criteria();", 2);
 			writeLine();
-			for (ColumnInfo info : m_ColumnInfo)
+			for (ColumnInfo info : columnInfo)
 			{
 				if (info.isString)
 				{
@@ -516,11 +475,11 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("private " + valueName + " toValue(final " + name + " record)", 1);
 		writeLine("{", 1);
 			writeLine("" + valueName + " value = new " + valueName + "(", 2);
-		int i = 0, last = m_ColumnInfo.length - 1;
-		for (ColumnInfo info : m_ColumnInfo)
+		int i = 0, last = columnInfo.length - 1;
+		for (ColumnInfo info : columnInfo)
 			writeLine("record." + info.accessorMethodName + "()" + ((i++ < last) ? "," : ");"), 3);
 		writeLine();
-		for (ColumnInfo info : m_ColumnInfo)
+		for (ColumnInfo info : columnInfo)
 		{
 			if (!info.isImportedKey)
 				continue;
@@ -540,7 +499,7 @@ public class EntityBeanDAO extends EntityBeanBase
 			writeLine("return new " + name + "(", 2);
 		i = 0;
 		int cmrs = 1;
-		for (ColumnInfo info : m_ColumnInfo)
+		for (ColumnInfo info : columnInfo)
 		{
 			if (!info.isPartOfPrimaryKey)
 			{
@@ -557,7 +516,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("public " + name + " toEntity(final " + valueName + " value, final " + name + " record, final Object[] cmrs)", 1);
 		writeLine("{", 1);
 		cmrs = 1;
-		for (ColumnInfo info : m_ColumnInfo)
+		for (ColumnInfo info : columnInfo)
 		{
 			if (info.isPartOfPrimaryKey)
 				continue;
@@ -578,7 +537,7 @@ public class EntityBeanDAO extends EntityBeanBase
 
 		// First do the primary keys.
 		i = -1;
-		for (ColumnInfo info : m_ColumnInfo)
+		for (ColumnInfo info : columnInfo)
 		{
 			if (info.isPartOfPrimaryKey)
 			{
@@ -594,7 +553,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		write(")");
 
 		// Do remainder of non-null columns.
-		for (ColumnInfo info : m_ColumnInfo)
+		for (ColumnInfo info : columnInfo)
 		{
 			if (info.isPartOfPrimaryKey || info.isNullable)
 				continue;
@@ -605,7 +564,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(";");
 
 		// Do remainder of nullable columns.
-		for (ColumnInfo info : m_ColumnInfo)
+		for (ColumnInfo info : columnInfo)
 		{
 			if (!info.isNullable)
 				continue;
@@ -626,12 +585,12 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("{", 1);
 		writeLine("return new " + valueName + "(", 2);
 		i = 0;
-		for (ColumnInfo info : m_ColumnInfo)
+		for (ColumnInfo info : columnInfo)
 		{
 			if (!info.isNullable)
-				writeLine("item.get" + info.dynamoDbType + "(\"" + info.columnName + "\")" + ((++i < m_ColumnInfo.length) ? "," : ");"), 3);
+				writeLine("item.get" + info.dynamoDbType + "(\"" + info.columnName + "\")" + ((++i < columnInfo.length) ? "," : ");"), 3);
 			else
-				writeLine("item.isPresent(\"" + info.columnName + "\") ? item.get" + info.dynamoDbType + "(\"" + info.columnName + "\") : null" + ((++i < m_ColumnInfo.length) ? "," : ");"), 3);
+				writeLine("item.isPresent(\"" + info.columnName + "\") ? item.get" + info.dynamoDbType + "(\"" + info.columnName + "\") : null" + ((++i < columnInfo.length) ? "," : ");"), 3);
 		}
 
 		writeLine("}", 1);
@@ -643,26 +602,8 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("}");
 	}
 
-	/******************************************************************************
-	*
-	*	Accessor methods
-	*
-	******************************************************************************/
-
 	/** Accessor method - gets the Class Name of the resource. */
 	public String getClassName() { return getClassName(getObjectName()); }
-
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	******************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Class entry point
-	*
-	*****************************************************************************/
 
 	/** Command line entry point.
 		@param args1 Output directory.
@@ -677,7 +618,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		@param args8 application version number
 		@param args9 table name filter
 	*/
-	public static void main(String args[])
+	public static void main(final String... args)
 	{
 		try
 		{
@@ -686,30 +627,28 @@ public class EntityBeanDAO extends EntityBeanBase
 				throw new IllegalArgumentException("Please supply at least 3 arguments.");
 
 			// Local variables
-			File fileOutputDir = extractOutputDirectory(args, 0);
-			String author = extractAuthor(args, 5);
-			String packageName = extractArgument(args, 6, null);
-			String version = extractArgument(args, 7, null);
+			final File dir = extractOutputDirectory(args, 0);
+			final String author = extractAuthor(args, 5);
+			final String packageName = extractArgument(args, 6, null);
+			final String version = extractArgument(args, 7, null);
 
 			// Create and load the tables object.
-			List<Table> tables = extractTables(args, 1, 8);
+			final List<Table> tables = extractTables(args, 1, 8);
 
 			// Create the SQL Repository Item Descriptor generator.
-			EntityBeanDAO pGenerator =
-				new EntityBeanDAO((PrintWriter) null, author,
-				(Table) null, packageName, version);
+			final EntityBeanDAO generator = new EntityBeanDAO((PrintWriter) null, author, (Table) null, packageName, version);
 
-			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, tables, fileOutputDir);
+			// Call the BaseTable method to handle the outputting.
+			generateTableResources(generator, tables, dir);
 		}
 
-		catch (IllegalArgumentException pEx)
+		catch (final IllegalArgumentException ex)
 		{
-			String strMessage = pEx.getMessage();
+			final String message = ex.getMessage();
 
-			if (null != strMessage)
+			if (null != message)
 			{
-				System.out.println(strMessage);
+				System.out.println(message);
 				System.out.println();
 			}
 
@@ -723,6 +662,6 @@ public class EntityBeanDAO extends EntityBeanBase
 			System.out.println("\t[Schema Name Pattern]");
 		}
 
-		catch (Exception pEx) { pEx.printStackTrace(); }
+		catch (final Exception ex) { ex.printStackTrace(); }
 	}
 }

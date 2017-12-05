@@ -239,19 +239,18 @@ public abstract class Base
 	*****************************************************************************/
 
 	/** Helper method - extracts the argument from the command line
-	    arguments specified by nArgument. If the argument does not exist or
+	    arguments specified by argument. If the argument does not exist or
 	    is blank, the default is returned
-		@param strArgs An array of command line arguments.
-		@param nArgument Index in the array that indicates the argument.
-		@param strDefault Default argument.
+		@param args An array of command line arguments.
+		@param argument Index in the array that indicates the argument.
+		@param defaultValue Default argument.
 	*/
-	protected static String extractArgument(String[] strArgs,
-		int nArgument, String strDefault)
+	public static String extractArgument(String[] args, int argument, String defaultValue)
 	{
-		if ((strArgs.length > nArgument) && (0 < strArgs[nArgument].length()))
-			return strArgs[nArgument];
+		if ((args.length > argument) && (0 < args[argument].length()))
+			return args[argument];
 
-		return strDefault;
+		return defaultValue;
 	}
 
 	/** Helper method - extracts the a file from the command line
@@ -260,25 +259,25 @@ public abstract class Base
 	    exist, <CODE>null</CODE> is returned. It does not validate
 	    the existence of the file, because most times the file is
 	    being created.
-		@param strArgs An array of command line arguments.
-		@param nArgument Index in the array that indicates the output file.
-		@param strName Name of the file used in exceptions thrown.
+		@param args An array of command line arguments.
+		@param argument Index in the array that indicates the output file.
+		@param name Name of the file used in exceptions thrown.
 		@return a <I>File</I> object.
 		@throws IllegalArgumentException thrown when the file does not
 			exist or is not in fact a file.
 	*/
-	protected static File extractFile(String[] strArgs,
-		int nArgument, String strName) throws IllegalArgumentException
+	public static File extractFile(String[] args,
+		int argument, String name) throws IllegalArgumentException
 	{
 		// Does the value exist?
-		if ((strArgs.length <= nArgument) || (0 == strArgs[nArgument].length()))
+		if ((args.length <= argument) || (0 == args[argument].length()))
 			return null;
 
 		// Local variables
-		File file = new File(strArgs[nArgument]);
+		File file = new File(args[argument]);
 
 		if (file.isDirectory())
-			throw new IllegalArgumentException("The " + strName + " file supplied is not a file.");
+			throw new IllegalArgumentException("The " + name + " file supplied is not a file.");
 
 		return file;
 	}
@@ -287,29 +286,29 @@ public abstract class Base
 	    arguments. Before returning the output directory, it is validated
 	    to be sure that it exists and is a directory. If the argument does not
 	    exist, <CODE>null</CODE> is returned.
-		@param strArgs An array of command line arguments.
-		@param nArgument Index in the array that indicates the output directory.
-		@param strName Name of the directory used in exceptions thrown.
+		@param args An array of command line arguments.
+		@param argument Index in the array that indicates the output directory.
+		@param name Name of the directory used in exceptions thrown.
 		@return a <I>File</I> object.
 		@throws IllegalArgumentException thrown when the directory does not
 			exist or is not in fact a directory.
 	*/
-	protected static File extractDirectory(String[] strArgs,
-		int nArgument, String strName) throws IllegalArgumentException
+	protected static File extractDirectory(String[] args,
+		int argument, String name) throws IllegalArgumentException
 	{
 		// Does the value exist?
-		if ((strArgs.length <= nArgument) || (0 == strArgs[nArgument].length()))
+		if ((args.length <= argument) || (0 == args[argument].length()))
 			return null;
 
 		// Local variables
-		File fileDir = new File(strArgs[nArgument]);
+		File fileDir = new File(args[argument]);
 
 		// Make sure the directory exists.
 		if (!fileDir.exists())
-			throw new IllegalArgumentException("The " + strName + " directory does not exist.");
+			throw new IllegalArgumentException("The " + name + " directory does not exist.");
 
 		if (!fileDir.isDirectory())
-			throw new IllegalArgumentException("The " + strName + " directory supplied is not a directory.");
+			throw new IllegalArgumentException("The " + name + " directory supplied is not a directory.");
 
 		return fileDir;
 	}
@@ -318,43 +317,43 @@ public abstract class Base
 	    arguments. Before returning the output directory, it is validated
 	    to be sure that it exists and is a directory. If the argument does not
 	    exist, <CODE>null</CODE> is returned.
-		@param strArgs An array of command line arguments.
-		@param nArgument Index in the array that indicates the output directory.
+		@param args An array of command line arguments.
+		@param argument Index in the array that indicates the output directory.
 		@return a <I>File</I> object.
 		@throws IllegalArgumentException thrown when the directory does not
 			exist or is not in fact a directory.
 	*/
-	protected static File extractOutputDirectory(String[] strArgs,
-		int nArgument) throws IllegalArgumentException
+	protected static File extractOutputDirectory(String[] args,
+		int argument) throws IllegalArgumentException
 	{
-		return extractDirectory(strArgs, nArgument, "output");
+		return extractDirectory(args, argument, "output");
 	}
 
 	/** Helper method - gets a Data Source object based on the command line
 	    arguments.
-		@param strArgs An array of command line arguments.
-		@param nFirstArgument Index in the array that indicates the first
+		@param args An array of command line arguments.
+		@param firstArgument Index in the array that indicates the first
 			data source argument. The argument order should be
 			URL, User ID, Password, & Driver.
 	*/
-	protected static DataSource extractDataSource(String[] strArgs,
-		int nFirstArgument) throws IllegalArgumentException
+	public static DataSource extractDataSource(String[] args,
+		int firstArgument) throws IllegalArgumentException
 	{
-		if (strArgs.length < nFirstArgument + 2)
+		if (args.length < firstArgument + 2)
 			throw new IllegalArgumentException("Missing JDBC_URL or User_ID argument.");
 
-		String strUrl = strArgs[nFirstArgument];
-		String strUserName = strArgs[++nFirstArgument];
-		String strPassword = extractArgument(strArgs, ++nFirstArgument, null);
+		String url = args[firstArgument];
+		String strUserName = args[++firstArgument];
+		String strPassword = extractArgument(args, ++firstArgument, null);
 		String strDriver = "sun.jdbc.odbc.JdbcOdbcDriver";
 
-		if ((++nFirstArgument < strArgs.length) && (0 < strArgs[nFirstArgument].length()))
-			strDriver = strArgs[nFirstArgument];
+		if ((++firstArgument < args.length) && (0 < args[firstArgument].length()))
+			strDriver = args[firstArgument];
 		else
-			strUrl = "jdbc:odbc:" + strUrl;
+			url = "jdbc:odbc:" + url;
 
 		// Create the data source.
-		return createDataSource(strDriver, strUrl, strUserName, strPassword);
+		return createDataSource(strDriver, url, strUserName, strPassword);
 	}
 
 	/** Helper method - creates JDBC DataSource object. */
@@ -371,12 +370,12 @@ public abstract class Base
 
 	/** Helper method - extracts the author name from the command line
 	    arguments. If it is not found, the default is returned.
-		@param strArgs An array of command line arguments.
-		@param nArgument Index in the array that indicates the author.
+		@param args An array of command line arguments.
+		@param argument Index in the array that indicates the author.
 	*/
-	protected static String extractAuthor(String[] strArgs,
-		int nArgument)
+	protected static String extractAuthor(String[] args,
+		int argument)
 	{
-		return extractArgument(strArgs, nArgument, AUTHOR_DEFAULT);
+		return extractArgument(args, argument, AUTHOR_DEFAULT);
 	}
 }

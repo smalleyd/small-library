@@ -20,20 +20,8 @@ import com.small.library.metadata.*;
 
 public class EntityBeanValueObject extends EntityBeanBase
 {
-	/******************************************************************************
-	*
-	*	Constants
-	*
-	*****************************************************************************/
-
 	/** Constant - class name suffix. */
 	public static final String CLASS_NAME_SUFFIX = "Value";
-
-	/******************************************************************************
-	*
-	*	Static members
-	*
-	*****************************************************************************/
 
 	/** Helper method - gets the full class/interface name of the EJB
 	    class from the entity name.
@@ -44,46 +32,36 @@ public class EntityBeanValueObject extends EntityBeanBase
 		return strEntityName + CLASS_NAME_SUFFIX;
 	}
 
-	/******************************************************************************
-	*
-	*	Constructors/Destructor
-	*
-	*****************************************************************************/
-
-	/** Constructor - constructs an empty object. */
-	public EntityBeanValueObject() { super(); }
-
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
+		@param writer The output stream.
+		@param author Name of the author.
 		@param table A table record object to base the output on.
 	*/
-	public EntityBeanValueObject(PrintWriter pWriter,
-		String strAuthor, Table table)
+	public EntityBeanValueObject(PrintWriter writer,
+		String author, Table table)
 	{
-		super(pWriter, strAuthor, table);
+		super(writer, author, table);
+	}
+
+	public EntityBeanValueObject(final String author, final String packageName, final String version)
+	{
+		this(null, author, null, packageName, version);
 	}
 
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
+		@param writer The output stream.
+		@param author Name of the author.
 		@param table A table record object to base the output on.
-		@param strPackageName Package name of the wrapper class.
+		@param packageName Package name of the wrapper class.
 		@param version Represents the application version number.
 	*/
-	public EntityBeanValueObject(PrintWriter pWriter,
-		String strAuthor, Table table, String strPackageName, String version)
+	public EntityBeanValueObject(PrintWriter writer,
+		String author, Table table, String packageName, String version)
 	{
-		super(pWriter, strAuthor, table, strPackageName, version);
+		super(writer, author, table, packageName, version);
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: Base
-	*
-	*****************************************************************************/
-
-	/** Action method - generates the Entity Bean primary key class. */
+	@Override
 	public void generate() throws GeneratorException, IOException
 	{
 		populateColumnInfo();
@@ -101,12 +79,6 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeFooter();
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: BaseTable
-	*
-	*****************************************************************************/
-
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
@@ -116,26 +88,14 @@ public class EntityBeanValueObject extends EntityBeanBase
 		return getClassName(createObjectName(table.name)) + ".java";
 	}
 
-	/******************************************************************************
-	*
-	*	Helper methods
-	*
-	*****************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Output methods
-	*
-	*****************************************************************************/
-
 	/** Output method - writes the file header. */
 	private void writeHeader() throws IOException
 	{
-		String strPackageName = getPackageName();
+		final String packageName = getPackageName();
 
-		if (null != strPackageName)
+		if (null != packageName)
 		{
-			writeLine("package " + strPackageName + ";");
+			writeLine("package " + packageName + ";");
 			writeLine();
 		}
 
@@ -166,7 +126,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("private static final long serialVersionUID = 1L;", 1);
 		writeLine();
 		writeLine("public static final String TABLE = \"" + getTable().name + "\";", 1);
-		for (ColumnInfo i : m_ColumnInfo)
+		for (final ColumnInfo i : columnInfo)
 			if (i.isString)
 				writeLine("public static final int MAX_LEN_" + i.columnName.toUpperCase() + " = " + i.size + ";", 1);
 	}
@@ -177,7 +137,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine();
 		writeLine("// Members", 1);
 
-		for (ColumnInfo i : m_ColumnInfo)
+		for (final ColumnInfo i : columnInfo)
 		{
 			// write("\tpublic " + i.javaType + " " + i.accessorMethodName + "()");
 			// 	writeLine(" { return " + i.memberVariableName + "; }");
@@ -200,7 +160,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("// Mutators", 1);
 
 		final String className = getClassName();
-		for (ColumnInfo i : m_ColumnInfo)
+		for (ColumnInfo i : columnInfo)
 		{
 			write("public " + className + " " + i.withMethodName + "(final " + i.javaType + " newValue)", 1);
 			writeLine(" { " + i.memberVariableName + " = newValue; return this; }");
@@ -215,10 +175,8 @@ public class EntityBeanValueObject extends EntityBeanBase
 	private void writeImportedKeysAccessorMethods() throws IOException
 	{
 		// Write accessors.
-		for (int i = 0; i < m_ColumnInfo.length; i++)
+		for (final ColumnInfo columnInfo : columnInfo)
 		{
-			ColumnInfo columnInfo = m_ColumnInfo[i];
-
 			if (!columnInfo.isImportedKey)
 				continue;
 
@@ -245,11 +203,12 @@ public class EntityBeanValueObject extends EntityBeanBase
 		// Write constructor with all possible values.
 		writeLine();
 		write("\tpublic " + getClassName() + "(");
-		for (int i = 0, last = m_ColumnInfo.length - 1; i < m_ColumnInfo.length; i++)
-		{
-			ColumnInfo item = m_ColumnInfo[i];
 
-			if (0 < i)
+		int i = 0;
+		final int last = columnInfo.length;
+		for (ColumnInfo item : columnInfo)
+		{
+			if (1 < ++i)
 				write("\t\t");
 
 			write("final " + item.javaType + " " + item.memberVariableName);
@@ -262,12 +221,9 @@ public class EntityBeanValueObject extends EntityBeanBase
 
 		// Write body.
 		writeLine("\t{");
-		for (int i = 0; i < m_ColumnInfo.length; i++)
-		{
-			ColumnInfo item = m_ColumnInfo[i];
+		for (final ColumnInfo item : columnInfo)
 			writeLine("\t\tthis." + item.memberVariableName + " = " +
 				item.memberVariableName + ";");
-		}
 		writeLine("\t}");			
 	}
 
@@ -279,7 +235,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("/** Helper method - trims all string fields and converts empty strings to NULL. */", 1);
 		writeLine("public void clean()", 1);
 		writeLine("{", 1);
-		for (ColumnInfo i : m_ColumnInfo)
+		for (ColumnInfo i : columnInfo)
 		{
 			if (!i.isString)
 				continue;
@@ -303,29 +259,29 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("return false;", 3);
 		writeLine();
 		writeLine("final " + clazz + " v = (" + clazz + ") o;", 2);
-		ColumnInfo item = m_ColumnInfo[0];
+		ColumnInfo item = columnInfo[0];
 		writeLine("return Objects.equals(" + item.memberVariableName + ", v." + item.memberVariableName + ") &&", 2);
-		final int last = m_ColumnInfo.length - 1;
-		for (int i = 1; i < m_ColumnInfo.length; i++)
+		final int last = columnInfo.length - 1;
+		for (int i = 1; i < columnInfo.length; i++)
 		{
 			final String term = (last > i) ? " &&" : ";";
-			writeLine("Objects.equals(" + (item = m_ColumnInfo[i]).memberVariableName + ", v." + item.memberVariableName + ")" + term, 3);
+			writeLine("Objects.equals(" + (item = columnInfo[i]).memberVariableName + ", v." + item.memberVariableName + ")" + term, 3);
 			if (null != item.importedKeyMemberName)
 				writeLine("Objects.equals(" + item.importedKeyMemberName + "Name, v." + item.importedKeyMemberName + "Name)" + term, 3);
 		}
 		writeLine("}", 1);
 		
 		// Write the toString method. */
-		item = m_ColumnInfo[0];
+		item = columnInfo[0];
 		writeLine();
 		writeLine("@Override", 1);
 		writeLine("public String toString()", 1);
 		writeLine("{", 1);
 		writeLine("return new StringBuilder(\"{ " + item.memberVariableName + ": \").append(" + item.memberVariableName + ")", 2);
 
-		for (int i = 1; i < m_ColumnInfo.length; i++)
+		for (int i = 1; i < columnInfo.length; i++)
 		{
-			writeLine(".append(\", " + (item = m_ColumnInfo[i]).memberVariableName + ": \").append(" + item.memberVariableName + ")", 3);
+			writeLine(".append(\", " + (item = columnInfo[i]).memberVariableName + ": \").append(" + item.memberVariableName + ")", 3);
 			if (null != item.importedKeyMemberName)
 				writeLine(".append(\", " + item.importedKeyMemberName + "Name: \").append(" + item.importedKeyMemberName + "Name)", 3);
 		}
@@ -339,26 +295,8 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("}");
 	}
 
-	/******************************************************************************
-	*
-	*	Accessor methods
-	*
-	******************************************************************************/
-
 	/** Accessor method - gets the Class Name of the resource. */
 	public String getClassName() { return getClassName(getObjectName()); }
-
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	******************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Class entry point
-	*
-	*****************************************************************************/
 
 	/** Command line entry point.
 		@param args1 Output directory.
@@ -373,7 +311,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 		@param args8 application version number
 		@param args9 table name filter
 	*/
-	public static void main(String args[])
+	public static void main(final String... args)
 	{
 		try
 		{
@@ -382,30 +320,25 @@ public class EntityBeanValueObject extends EntityBeanBase
 				throw new IllegalArgumentException("Please supply at least 3 arguments.");
 
 			// Local variables
-			File fileOutputDir = extractOutputDirectory(args, 0);
-			String strAuthor = extractAuthor(args, 5);
-			String strPackageName = extractArgument(args, 6, null);
-			String version = extractArgument(args, 7, null);
+			final File dir = extractOutputDirectory(args, 0);
+			final String author = extractAuthor(args, 5);
+			final String packageName = extractArgument(args, 6, null);
+			final String version = extractArgument(args, 7, VERSION_DEFAULT);
 
 			// Create and load the tables object.
-			List<Table> tables = extractTables(args, 1, 8);
+			final List<Table> tables = extractTables(args, 1, 8);
 
-			// Create the SQL Repository Item Descriptor generator.
-			EntityBeanValueObject pGenerator =
-				new EntityBeanValueObject((PrintWriter) null, strAuthor,
-				(Table) null, strPackageName, version);
-
-			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, tables, fileOutputDir);
+			// Call the BaseTable method to handle the outputting.
+			generateTableResources(new EntityBeanValueObject(author, packageName, version), tables, dir);
 		}
 
-		catch (IllegalArgumentException pEx)
+		catch (final IllegalArgumentException ex)
 		{
-			String strMessage = pEx.getMessage();
+			final String message = ex.getMessage();
 
-			if (null != strMessage)
+			if (null != message)
 			{
-				System.out.println(strMessage);
+				System.out.println(message);
 				System.out.println();
 			}
 
@@ -419,6 +352,6 @@ public class EntityBeanValueObject extends EntityBeanBase
 			System.out.println("\t[Schema Name Pattern]");
 		}
 
-		catch (Exception pEx) { pEx.printStackTrace(); }
+		catch (final Exception ex) { ex.printStackTrace(); }
 	}
 }

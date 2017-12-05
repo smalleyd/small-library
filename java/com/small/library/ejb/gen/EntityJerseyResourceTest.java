@@ -19,20 +19,7 @@ import com.small.library.metadata.*;
 
 public class EntityJerseyResourceTest extends EntityBeanBase
 {
-	/******************************************************************************
-	*
-	*	Constants
-	*
-	*****************************************************************************/
-
-	/** Constant - class name suffix. */
 	public static final String CLASS_NAME_SUFFIX = "ResourceTest";
-
-	/******************************************************************************
-	*
-	*	Static members
-	*
-	*****************************************************************************/
 
 	/** Helper method - gets the full class/interface name of the EJB
 	    class from the entity name.
@@ -43,15 +30,6 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		return name + CLASS_NAME_SUFFIX;
 	}
 
-	/******************************************************************************
-	*
-	*	Constructors/Destructor
-	*
-	*****************************************************************************/
-
-	/** Constructor - constructs an empty object. */
-	public EntityJerseyResourceTest() { super(); }
-
 	/** Constructor - constructs a populated object.
 		@param writer The output stream.
 		@param author Name of the author.
@@ -61,6 +39,11 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		String author, Table table)
 	{
 		super(writer, author, table);
+	}
+
+	public EntityJerseyResourceTest(final String author, final String packageName, final String version)
+	{
+		this(null, author, null, packageName, version);
 	}
 
 	/** Constructor - constructs a populated object.
@@ -76,13 +59,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		super(writer, author, table, packageName, version);
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: Base
-	*
-	*****************************************************************************/
-
-	/** Action method - generates the Entity Bean primary key class. */
+	@Override
 	public void generate() throws GeneratorException, IOException
 	{
 		populateColumnInfo();
@@ -94,12 +71,6 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 
 		writeFooter();
 	}
-
-	/******************************************************************************
-	*
-	*	Required methods: BaseTable
-	*
-	*****************************************************************************/
 
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
@@ -116,24 +87,12 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		return EntityBeanValueObject.getClassName(getObjectName());
 	}
 
-	/******************************************************************************
-	*
-	*	Helper methods
-	*
-	*****************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Output methods
-	*
-	*****************************************************************************/
-
 	/** Output method - writes the file header. */
 	private void writeHeader() throws IOException
 	{
-		String packageName = getPackageName();
-		String domainPackageName = getDomainPackageName();
-		String basePackageName = getBasePackageName();
+		final String packageName = getPackageName();
+		final String domainPackageName = getDomainPackageName();
+		final String basePackageName = getBasePackageName();
 
 		if (null != packageName)
 		{
@@ -141,7 +100,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 			writeLine();
 		}
 
-		String name = getObjectName();
+		final String name = getObjectName();
 		writeLine("import java.util.*;");
 		writeLine();
 		writeLine("import javax.ws.rs.client.*;");
@@ -180,13 +139,13 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 	/** Output method - writes the class declaration. */
 	private void writeClassDeclaration() throws IOException
 	{
-		String name = getClassName();
-		String objectName = getObjectName();
-		String daoName = EntityBeanDAO.getClassName(objectName);
-		String mapping = fromObjectNameToMemberName(objectName) + "s";
-		String filterName = EntityBeanFilter.getClassName(objectName);
-		String valueName = EntityBeanValueObject.getClassName(objectName);
-		String resourceName = EntityJerseyResource.getClassName(objectName);
+		final String name = getClassName();
+		final String objectName = getObjectName();
+		final String daoName = EntityBeanDAO.getClassName(objectName);
+		final String mapping = fromObjectNameToMemberName(objectName) + "s";
+		final String filterName = EntityBeanFilter.getClassName(objectName);
+		final String valueName = EntityBeanValueObject.getClassName(objectName);
+		final String resourceName = EntityJerseyResource.getClassName(objectName);
 
 		writeLine();
 		writeLine("@FixMethodOrder(MethodSorters.NAME_ASCENDING)	// Ensure that the methods are executed in order listed.");
@@ -226,15 +185,15 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 	/** Output method - writes the accessor methods. */
 	private void writeMethods() throws IOException
 	{
-		String name = getObjectName();
-		String pkTypeName = getPkJavaType();
-		String filterName = EntityBeanFilter.getClassName(name);
-		String valueName = EntityBeanValueObject.getClassName(name);
-		String to_s = "String".equals(pkTypeName) ? "" : ".toString()";
+		final String name = getObjectName();
+		final String pkTypeName = getPkJavaType();
+		final String filterName = EntityBeanFilter.getClassName(name);
+		final String valueName = EntityBeanValueObject.getClassName(name);
+		final String to_s = "String".equals(pkTypeName) ? "" : ".toString()";
 
 		// For testing non-existence, use a value to add to the primary key.
 		String invalidId = "\"INVALID\"";
-		for (ColumnInfo i : m_ColumnInfo)
+		for (final ColumnInfo i : columnInfo)
 		{
 			if (i.isPartOfPrimaryKey)
 			{
@@ -333,7 +292,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void search()", 1);
 		writeLine("{", 1);
-		for (ColumnInfo i : m_ColumnInfo)
+		for (ColumnInfo i : columnInfo)
 		{
 			writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 1L);", 2);
 			if (i.isRange())
@@ -437,7 +396,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("private void check(final " + valueName + " expected, final " + valueName + " value)", 1);
 		writeLine("{", 1);
 		writeLine("final String assertId = \"ID (\" + expected.id + \"): \";", 2);
-		for (ColumnInfo i : m_ColumnInfo)
+		for (ColumnInfo i : columnInfo)
 		{
 			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", value." + i.memberVariableName + ");", 2);
 			if (i.isImportedKey)
@@ -452,26 +411,8 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}");
 	}
 
-	/******************************************************************************
-	*
-	*	Accessor methods
-	*
-	******************************************************************************/
-
 	/** Accessor method - gets the Class Name of the resource. */
 	public String getClassName() { return getClassName(getObjectName()); }
-
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	******************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Class entry point
-	*
-	*****************************************************************************/
 
 	/** Command line entry point.
 		@param args1 Output directory.
@@ -486,7 +427,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		@param args8 application version number
 		@param args9 table name filter
 	*/
-	public static void main(String args[])
+	public static void main(final String... args)
 	{
 		try
 		{
@@ -495,30 +436,25 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 				throw new IllegalArgumentException("Please supply at least 3 arguments.");
 
 			// Local variables
-			File fileOutputDir = extractOutputDirectory(args, 0);
-			String strAuthor = extractAuthor(args, 5);
-			String strPackageName = extractArgument(args, 6, null);
-			String version = extractArgument(args, 7, null);
+			final File dir = extractOutputDirectory(args, 0);
+			final String author = extractAuthor(args, 5);
+			final String packageName = extractArgument(args, 6, null);
+			final String version = extractArgument(args, 7, null);
 
 			// Create and load the tables object.
-			List<Table> tables = extractTables(args, 1, 8);
+			final List<Table> tables = extractTables(args, 1, 8);
 
-			// Create the SQL Repository Item Descriptor generator.
-			EntityJerseyResourceTest pGenerator =
-				new EntityJerseyResourceTest((PrintWriter) null, strAuthor,
-				(Table) null, strPackageName, version);
-
-			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, tables, fileOutputDir);
+			// Call the BaseTable method to handle the outputting.
+			generateTableResources(new EntityJerseyResourceTest(author, packageName, version), tables, dir);
 		}
 
-		catch (IllegalArgumentException pEx)
+		catch (final IllegalArgumentException ex)
 		{
-			String strMessage = pEx.getMessage();
+			final String message = ex.getMessage();
 
-			if (null != strMessage)
+			if (null != message)
 			{
-				System.out.println(strMessage);
+				System.out.println(message);
 				System.out.println();
 			}
 
@@ -533,6 +469,6 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 			System.out.println("\t[Schema Name Pattern]");
 		}
 
-		catch (Exception pEx) { pEx.printStackTrace(); }
+		catch (final Exception ex) { ex.printStackTrace(); }
 	}
 }

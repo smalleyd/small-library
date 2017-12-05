@@ -20,23 +20,15 @@ import com.small.library.metadata.*;
 
 public abstract class EntityBeanBase extends BaseTable
 {
-	/******************************************************************************
-	*
-	*	Constants
-	*
-	*****************************************************************************/
-
-	/** Constant - base EJB package name. */
 	public static final String EJB_PACKAGE_NAME = "javax.ejb";
+	public static final String VERSION_DEFAULT = "1.0.1";
 
-	/******************************************************************************
-	*
-	*	Constructors/Destructor
-	*
-	*****************************************************************************/
-
-	/** Constructor - constructs an empty object. */
-	public EntityBeanBase() { super(); }
+	private final String packageName;
+	private final String domainPackageName;
+	private final String basePackageName;
+	public final String appName;
+	private final String version;
+	protected ColumnInfo[] columnInfo = null;
 
 	/** Constructor - constructs a populated object.
 		@param writer The output stream.
@@ -58,29 +50,7 @@ public abstract class EntityBeanBase extends BaseTable
 	public EntityBeanBase(PrintWriter writer,
 		String author, Table table, String packageName)
 	{
-		super(writer, author, table);
-
-		if (null != (this.packageName = packageName))
-		{
-			// Get the domain portion of the package name.
-			final int len = packageName.length() - 1;
-			int i = packageName.indexOf('.');
-			if ((0 > i) || (len <= i))
-				return;
-			i = packageName.indexOf('.', i + 1);
-			domainPackageName = (0 > i) ? packageName.substring(0) : packageName.substring(0, i);
-
-			// Get the base/application portion of the package name.
-			if ((0 > i) || (len <= i))
-				return;
-			int domainIndex = i;
-			i = packageName.indexOf('.', i + 1);
-			basePackageName = (0 > i) ? packageName.substring(0) : packageName.substring(0, i);
-
-			appName = basePackageName.substring(domainIndex + 1, domainIndex + 2).toUpperCase();
-			if (basePackageName.length() >= domainIndex + 3)
-				appName+= basePackageName.substring(domainIndex + 2);
-		}
+		this(writer, author, table, packageName, null);
 	}
 
 	/** Constructor - constructs a populated object.
@@ -93,16 +63,41 @@ public abstract class EntityBeanBase extends BaseTable
 	public EntityBeanBase(PrintWriter writer,
 		String author, Table table, String packageName, String version)
 	{
-		this(writer, author, table, packageName);
+		super(writer, author, table);
 
 		this.version = version;
-	}
 
-	/*****************************************************************************
-	*
-	*	Helper method
-	*
-	*****************************************************************************/
+		if (null != (this.packageName = packageName))
+		{
+			// Get the domain portion of the package name.
+			final int len = packageName.length() - 1;
+			int i = packageName.indexOf('.');
+			if ((0 > i) || (len <= i))
+			{
+				domainPackageName = basePackageName = appName = null;
+				return;
+			}
+			i = packageName.indexOf('.', i + 1);
+			domainPackageName = (0 > i) ? packageName.substring(0) : packageName.substring(0, i);
+
+			// Get the base/application portion of the package name.
+			if ((0 > i) || (len <= i))
+			{
+				basePackageName = appName = null;
+				return;
+			}
+			int domainIndex = i;
+			i = packageName.indexOf('.', i + 1);
+			basePackageName = (0 > i) ? packageName.substring(0) : packageName.substring(0, i);
+
+			String appName_ = basePackageName.substring(domainIndex + 1, domainIndex + 2).toUpperCase();
+			if (basePackageName.length() >= domainIndex + 3)
+				appName_+= basePackageName.substring(domainIndex + 2);
+			appName = appName_;
+		}
+		else
+			domainPackageName = basePackageName = appName = null;
+	}
 
 	/** Helper method - gets a column's object version of the column name.
 	    Overrides the same method from <I>BaseTable</I>.
@@ -110,29 +105,21 @@ public abstract class EntityBeanBase extends BaseTable
 	*/
 	public String getColumnObjectName(final Column column)
 	{
-		String strName = column.name;
-
-		if ("descript".equalsIgnoreCase(strName))
+		if ("descript".equalsIgnoreCase(column.name))
 			return "Name";
 
 		return super.getColumnObjectName(column);
 	}
 
 	/** Helper method - populates the <CODE>protected</CODE> <I>ColumnInfo</I>
-	    member variable (m_ColumnInfo).
+	    member variable (columnInfo).
 	*/
 	protected void populateColumnInfo()
 		throws GeneratorException
 	{
-		try { m_ColumnInfo = getColumnInfo(); }
-		catch (SQLException pEx) { throw new GeneratorException(pEx); }
+		try { columnInfo = getColumnInfo(); }
+		catch (SQLException ex) { throw new GeneratorException(ex); }
 	}
-
-	/******************************************************************************
-	*
-	*	Accessor methods
-	*
-	*****************************************************************************/
 
 	/** Accessor method - gets the package name of the wrapper class. */
 	public String getPackageName() { return packageName; }
@@ -152,55 +139,10 @@ public abstract class EntityBeanBase extends BaseTable
 	/** Helper method - gets the Java type of the primary key column. */
 	public String getPkJavaType()
 	{
-		for (ColumnInfo i : m_ColumnInfo)
+		for (ColumnInfo i : columnInfo)
 			if (i.isPartOfPrimaryKey)
 				return i.javaType;
 
 		return JAVA_OBJECT_TYPE_LONG;
 	}
-
-	/******************************************************************************
-	*
-	*	Mutator methods
-	*
-	*****************************************************************************/
-
-	/** Mutator method - sets the package name of the wrapper class. */
-	public void setPackageName(String newValue) { packageName = newValue; }
-
-	/** Mutator method - sets domain name portion of the package name. */
-	public void setDomainPackageName(String newValue) { domainPackageName = newValue; }
-
-	/** Mutator method - sets the base/application portion of the package name. */
-	public void setBasePackageName(String newValue) { basePackageName = newValue; }
-
-	/** Mutator method - sets the application name derived from the full package name. */
-	public void setAppName(String newValue) { appName = newValue; }
-
-	/** Mutator method - sets the version number of the resource. */
-	public void setVersion(String newValue) { version = newValue; }
-
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	*****************************************************************************/
-
-	/** Member variable - reference to the package name of the wrapper class. */
-	private String packageName = null;
-
-	/** Member variable - represents the domain name portion of the package name. */
-	private String domainPackageName = null;
-
-	/** Member variable - represents the base/application portion of the package name. */
-	private String basePackageName = null;
-
-	/** Member variables - represents the application name derived from the full package name. */
-	public String appName = null;
-
-	/** Member variable - represents the version of the resource. */
-	private String version = null;
-
-	/** Member variable - array of column information objects. */
-	protected ColumnInfo[] m_ColumnInfo = null;
 }

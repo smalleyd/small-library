@@ -1,5 +1,7 @@
 package com.small.library.doc;
 
+import static com.small.library.generator.Base.*;
+
 import java.io.*;
 import java.sql.*;
 import java.text.NumberFormat;
@@ -10,7 +12,6 @@ import javax.sql.DataSource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.small.library.generator.Base;
 import com.small.library.metadata.*;
 
 /***************************************************************************************
@@ -25,34 +26,23 @@ import com.small.library.metadata.*;
 
 public class TablesHtml
 {
-	/******************************************************************************
-	*
-	*	Constructors
-	*
-	*****************************************************************************/
-
-	/** Constructor - constructs an empty object. */
-	public TablesHtml() { this(null, null, null); }
+	private final DataSource connectionFactory;
+	private final PrintWriter out;
+	private final String schemaNamePattern;
 
 	/** Constructor - constructs a populated object.
-		@param pDataSource The database connection's connection factory.
-		@param pWriter HTML document's output stream.
+		@param dataSource The database connection's connection factory.
+		@param writer HTML document's output stream.
 		@param strSchemaName Schema Name pattern to filter the tables list by.
 			Use <CODE>null</CODE> for no filter.
 	*/
-	public TablesHtml(DataSource pDataSource, PrintWriter pWriter,
-		String strSchemaNamePattern)
+	public TablesHtml(DataSource dataSource, PrintWriter writer,
+		String schemaNamePattern)
 	{
-		connectionFactory = pDataSource;
-		out = pWriter;
-		schemaNamePattern = strSchemaNamePattern;
+		connectionFactory = dataSource;
+		out = writer;
+		this.schemaNamePattern = schemaNamePattern;
 	}
-
-	/******************************************************************************
-	*
-	*	HTML handling methods
-	*
-	*****************************************************************************/
 
 	public void write(String strValue) throws IOException { out.print(strValue); }
 	public void writeLine() throws IOException { out.println(); }
@@ -115,17 +105,11 @@ public class TablesHtml
 	public void openRow() throws IOException { writeLine("<TR>"); }
 	public void closeRow() throws IOException { writeLine("</TR>"); }
 
-	public String createLink(String strUrl, String strValue)
-	{ return "<A HREF=\"" + strUrl + "\">" + strValue + "</A>"; }
+	public String createLink(String url, String strValue)
+	{ return "<A HREF=\"" + url + "\">" + strValue + "</A>"; }
 
-	public String createName(String strName, String strValue)
-	{ return "<A NAME=\"" + strName + "\">" + strValue + "</A>"; }
-
-	/******************************************************************************
-	*
-	*	Action methods
-	*
-	*****************************************************************************/
+	public String createName(String name, String strValue)
+	{ return "<A NAME=\"" + name + "\">" + strValue + "</A>"; }
 
 	public void run()
 		throws SQLException, IOException
@@ -445,79 +429,15 @@ public class TablesHtml
 		writeLine("</HTML>");
 	}
 
-	/******************************************************************************
-	*
-	*	Accessor methods
-	*
-	*****************************************************************************/
-
-	public DataSource getDataSource() { return connectionFactory; }
-	public PrintWriter getWriter() { return out; }
-
-	/******************************************************************************
-	*
-	*	Mutator methods
-	*
-	*****************************************************************************/
-
-	public void setDataSource(DataSource pNewValue) { connectionFactory = pNewValue; }
-	public void setWriter(OutputStream pNewValue) { setWriter(new PrintWriter(pNewValue)); }
-	public void setWriter(PrintWriter pNewValue) { out = pNewValue; }
-
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	*****************************************************************************/
-
-	private DataSource connectionFactory = null;
-	private PrintWriter out = null;
-	private String schemaNamePattern = null;
-
-	/******************************************************************************
-	*
-	*	Class entry point
-	*
-	*****************************************************************************/
-
 	public static void main(final String... args)
 	{
-		try
+		try (final PrintWriter writer = new PrintWriter(new FileWriter(extractFile(args, 0, "output"))))
 		{
-			// Have enough arguments been supplied?
-			if (3 > args.length)
-				throw new IllegalArgumentException();
-
-			// Local variables
-			String file = args[0];
-			String strUrl = args[1];
-			String strUserName = args[2];
-			String strPassword = null;
-			String strDriver = "sun.jdbc.odbc.JdbcOdbcDriver";
-			String strSchemaNamePattern = null;
-
-			if (3 < args.length)
-				strPassword = args[3];
-
-			if (4 < args.length)
-				strDriver = args[4];
-			else
-				strUrl = "jdbc:odbc:" + strUrl;
-
-			if (5 < args.length)
-				strSchemaNamePattern = args[5];
-
-			DataSource pDataSource = Base.createDataSource(strDriver,
-				strUrl, strUserName, strPassword);
-			PrintWriter pWriter = new PrintWriter(new FileWriter(file));
-
-			(new TablesHtml(pDataSource, pWriter,
-				strSchemaNamePattern)).run();
-
-			pWriter.close();
+			(new TablesHtml(extractDataSource(args, 1), writer,
+				extractArgument(args, 5, null))).run();
 		}
 
-		catch (IllegalArgumentException pEx)
+		catch (final IllegalArgumentException ex)
 		{
 			System.out.println("Usage: java " + TablesHtml.class.getName() + " HTML_File");
 			System.out.println("\tJDBC_Url");
@@ -527,6 +447,6 @@ public class TablesHtml
 			System.out.println("\t[Schema Name Pattern]");
 		}
 
-		catch (Exception pEx) { pEx.printStackTrace(); }
+		catch (final Exception ex) { ex.printStackTrace(); }
 	}
 }

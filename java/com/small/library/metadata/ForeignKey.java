@@ -39,6 +39,8 @@ public class ForeignKey implements Serializable
 		name = rs.getString(12);
 		pkName = rs.getString(13);
 		deferrability = rs.getShort(14);
+
+		addKey(rs);
 	}
 
 	public void addKey(final ResultSet rs) throws SQLException

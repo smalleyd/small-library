@@ -12,7 +12,7 @@ import com.small.library.metadata.*;
 *	are generated from metadata of the tables that they represent. The metadata
 *	is retrieves from the JDBC <I>DatabaseMetadata</I> interface.
 *
-*	The classes are annonated fully.
+*	The classes are annotated fully.
 *
 *	@author David Small
 *	@version 1.1.0.0
@@ -22,32 +22,10 @@ import com.small.library.metadata.*;
 
 public class EntityBeanCMP3 extends EntityBeanBase
 {
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	*****************************************************************************/
-
-	/** Member variable - version JavaDoc value. */
 	public String version = null;
 
-	/******************************************************************************
-	*
-	*	Constants
-	*
-	*****************************************************************************/
-
-	/** Constant - class name suffix. */
 	public static final String CLASS_NAME_SUFFIX = "";
-
-	/** Constant - default JavaDoc version stamp. */
 	public static final String VERSION_DEFAULT = "1.0.1";
-
-	/******************************************************************************
-	*
-	*	Static members
-	*
-	*****************************************************************************/
 
 	/** Helper method - gets the full class/interface name of the EJB
 	    class from the entity name.
@@ -58,60 +36,50 @@ public class EntityBeanCMP3 extends EntityBeanBase
 		return name + CLASS_NAME_SUFFIX;
 	}
 
-	/******************************************************************************
-	*
-	*	Constructors/Destructor
-	*
-	*****************************************************************************/
-
-	/** Constructor - constructs an empty object. */
-	public EntityBeanCMP3() { super(); }
-
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
+		@param writer The output stream.
+		@param author Name of the author.
 		@param table A table record object to base the output on.
 	*/
-	public EntityBeanCMP3(PrintWriter pWriter,
-		String strAuthor, Table table)
+	public EntityBeanCMP3(PrintWriter writer,
+		String author, Table table)
 	{
-		super(pWriter, strAuthor, table);
+		super(writer, author, table);
 	}
 
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
+		@param writer The output stream.
+		@param author Name of the author.
 		@param table A table record object to base the output on.
-		@param strPackageName Package name of the wrapper class.
+		@param packageName Package name of the wrapper class.
 	*/
-	public EntityBeanCMP3(PrintWriter pWriter,
-		String strAuthor, Table table, String strPackageName)
+	public EntityBeanCMP3(PrintWriter writer,
+		String author, Table table, String packageName)
 	{
-		super(pWriter, strAuthor, table, strPackageName);
+		super(writer, author, table, packageName);
+	}
+
+	public EntityBeanCMP3(final String author, final String packageName, final String version)
+	{
+		this(null, author, null, packageName, version);
 	}
 
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
+		@param writer The output stream.
+		@param author Name of the author.
 		@param table A table record object to base the output on.
-		@param strPackageName Package name of the wrapper class.
+		@param packageName Package name of the wrapper class.
 	*/
-	public EntityBeanCMP3(PrintWriter pWriter,
-		String strAuthor, Table table, String strPackageName,
+	public EntityBeanCMP3(PrintWriter writer,
+		String author, Table table, String packageName,
 		String version)
 	{
-		super(pWriter, strAuthor, table, strPackageName);
+		super(writer, author, table, packageName);
 
 		this.version = version;
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: Base
-	*
-	*****************************************************************************/
-
-	/** Action method - generates the Entity Bean primary key class. */
+	@Override
 	public void generate() throws GeneratorException, IOException
 	{
 		populateColumnInfo();
@@ -128,12 +96,6 @@ public class EntityBeanCMP3 extends EntityBeanBase
 		writeFooter();
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: BaseTable
-	*
-	*****************************************************************************/
-
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
@@ -143,26 +105,14 @@ public class EntityBeanCMP3 extends EntityBeanBase
 		return getClassName() + ".java";
 	}
 
-	/******************************************************************************
-	*
-	*	Helper methods
-	*
-	*****************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Output methods
-	*
-	*****************************************************************************/
-
 	/** Output method - writes the file header. */
 	private void writeHeader() throws IOException
 	{
-		String strPackageName = getPackageName();
+		String packageName = getPackageName();
 
-		if (null != strPackageName)
+		if (null != packageName)
 		{
-			writeLine("package " + strPackageName + ";");
+			writeLine("package " + packageName + ";");
 			writeLine();
 		}
 
@@ -214,15 +164,15 @@ public class EntityBeanCMP3 extends EntityBeanBase
 		writeLine("\t**************************************************************************/");
 
 		// Any columns available?
-		if (0 >= m_ColumnInfo.length)
+		if (0 >= columnInfo.length)
 			return;
 
 		// Write member variables.
-		for (int i = 0; i < m_ColumnInfo.length; i++)
+		for (int i = 0; i < columnInfo.length; i++)
 		{
 			writeLine();
-			writeLine("\t/** Member variable - represents the \"" + m_ColumnInfo[i].columnName + "\" field. */");
-			writeLine("\tpublic " + m_ColumnInfo[i].javaType + " " + m_ColumnInfo[i].memberVariableName + ";");
+			writeLine("\t/** Member variable - represents the \"" + columnInfo[i].columnName + "\" field. */");
+			writeLine("\tpublic " + columnInfo[i].javaType + " " + columnInfo[i].memberVariableName + ";");
 		}
 	}
 
@@ -247,9 +197,9 @@ public class EntityBeanCMP3 extends EntityBeanBase
 		writeLine("\t/** Populator.");
 
 		// Create the parameter comments.
-		for (int i = 0; i < m_ColumnInfo.length; i++)
+		for (int i = 0; i < columnInfo.length; i++)
 		{
-			ColumnInfo item = m_ColumnInfo[i];
+			ColumnInfo item = columnInfo[i];
 			writeLine("\t\t@param " + item.memberVariableName + " represents the \"" +
 				item.columnName + "\" field.");
 		}
@@ -258,9 +208,9 @@ public class EntityBeanCMP3 extends EntityBeanBase
 
 		// Constructor signature.
 		write("\tpublic " + getClassName() + "(");
-		for (int i = 0, last = m_ColumnInfo.length - 1; i < m_ColumnInfo.length; i++)
+		for (int i = 0, last = columnInfo.length - 1; i < columnInfo.length; i++)
 		{
-			ColumnInfo item = m_ColumnInfo[i];
+			ColumnInfo item = columnInfo[i];
 
 			if (0 < i)
 				write("\t\t");
@@ -275,9 +225,9 @@ public class EntityBeanCMP3 extends EntityBeanBase
 
 		// Write body.
 		writeLine("\t{");
-		for (int i = 0; i < m_ColumnInfo.length; i++)
+		for (int i = 0; i < columnInfo.length; i++)
 		{
-			ColumnInfo item = m_ColumnInfo[i];
+			ColumnInfo item = columnInfo[i];
 			writeLine("\t\tthis." + item.memberVariableName + " = " +
 				item.memberVariableName + ";");
 		}
@@ -296,13 +246,13 @@ public class EntityBeanCMP3 extends EntityBeanBase
 		writeLine("\t**************************************************************************/");
 
 		// Any columns available?
-		if (0 >= m_ColumnInfo.length)
+		if (0 >= columnInfo.length)
 			return;
 
 		// Write accessors.
-		for (int i = 0; i < m_ColumnInfo.length; i++)
+		for (int i = 0; i < columnInfo.length; i++)
 		{
-			ColumnInfo item = m_ColumnInfo[i];
+			ColumnInfo item = columnInfo[i];
 			String nullable = Boolean.toString(item.isNullable);
 
 			writeLine();
@@ -339,17 +289,17 @@ public class EntityBeanCMP3 extends EntityBeanBase
 		writeLine("\t**************************************************************************/");
 
 		// Any columns available?
-		if (0 >= m_ColumnInfo.length)
+		if (0 >= columnInfo.length)
 			return;
 
 		// Write mutators.
-		for (int i = 0; i < m_ColumnInfo.length; i++)
+		for (int i = 0; i < columnInfo.length; i++)
 		{
 			writeLine();
 			writeLine("\t/** Mutator method - sets the property that represents the \"" +
-				m_ColumnInfo[i].columnName + "\" field. */");
-			write("\tpublic void " + m_ColumnInfo[i].mutatorMethodName + "(" + m_ColumnInfo[i].javaType + " newValue)");
-				writeLine(" { " + m_ColumnInfo[i].memberVariableName + " = newValue; }");
+				columnInfo[i].columnName + "\" field. */");
+			write("\tpublic void " + columnInfo[i].mutatorMethodName + "(" + columnInfo[i].javaType + " newValue)");
+				writeLine(" { " + columnInfo[i].memberVariableName + " = newValue; }");
 		}
 	}
 
@@ -365,16 +315,14 @@ public class EntityBeanCMP3 extends EntityBeanBase
 		writeLine("**************************************************************************/", 1);
 
 		// Write accessors.
-		for (int i = 0; i < m_ColumnInfo.length; i++)
+		for (final ColumnInfo info : columnInfo)
 		{
-			ColumnInfo columnInfo = m_ColumnInfo[i];
-
-			if (!columnInfo.isImportedKey)
+			if (!info.isImportedKey)
 				continue;
 
-			String name = columnInfo.importedKeyName;
-			String memberName = columnInfo.importedKeyMemberName;
-			String objectName = columnInfo.importedObjectName;
+			String name = info.importedKeyName;
+			String memberName = info.importedKeyMemberName;
+			String objectName = info.importedObjectName;
 
 			writeLine();
 			writeLine("/** CMR member - the " + name + " property as a \"" + objectName + "\" entity. */", 1);
@@ -382,8 +330,8 @@ public class EntityBeanCMP3 extends EntityBeanBase
 			writeLine();
 			writeLine("/** CMR accessor - gets the " + name + " property as a " + objectName + "\" entity. */", 1);
 			writeLine("@ManyToOne(cascade={}, fetch=FetchType.LAZY)", 1);
-			writeLine("@JoinColumn(name=\"" + columnInfo.columnName + "\", " +
-				"nullable=" + Boolean.toString(columnInfo.isNullable) +
+			writeLine("@JoinColumn(name=\"" + info.columnName + "\", " +
+				"nullable=" + Boolean.toString(info.isNullable) +
 				", updatable=false, insertable=false)", 1);
 			write("public " + objectName + " get" + name + "()", 1);
 			writeLine(" { return " + memberName + "; }");
@@ -400,26 +348,8 @@ public class EntityBeanCMP3 extends EntityBeanBase
 		writeLine("}");
 	}
 
-	/******************************************************************************
-	*
-	*	Accessor methods
-	*
-	******************************************************************************/
-
 	/** Accessor method - gets the Class Name of the resource. */
 	public String getClassName() { return getClassName(getObjectName()); }
-
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	******************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Class entry point
-	*
-	*****************************************************************************/
 
 	/** Command line entry point.
 		@param args1 Output directory.
@@ -434,7 +364,7 @@ public class EntityBeanCMP3 extends EntityBeanBase
 		@param args8 application version number
 		@param args9 table name filter
 	*/
-	public static void main(String args[])
+	public static void main(final String... args)
 	{
 		try
 		{
@@ -443,30 +373,25 @@ public class EntityBeanCMP3 extends EntityBeanBase
 				throw new IllegalArgumentException("Please supply at least 3 arguments.");
 
 			// Local variables
-			File fileOutputDir = extractOutputDirectory(args, 0);
-			String strAuthor = extractAuthor(args, 5);
-			String strPackageName = extractArgument(args, 6, null);
-			String version = extractArgument(args, 7, VERSION_DEFAULT);
+			final File dir = extractOutputDirectory(args, 0);
+			final String author = extractAuthor(args, 5);
+			final String packageName = extractArgument(args, 6, null);
+			final String version = extractArgument(args, 7, VERSION_DEFAULT);
 
 			// Create and load the tables object.
 			final List<Table> tables = extractTables(args, 1, 8);
 
-			// Create the SQL Repository Item Descriptor generator.
-			EntityBeanCMP3 pGenerator =
-				new EntityBeanCMP3((PrintWriter) null, strAuthor,
-				(Table) null, strPackageName, version);
-
-			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, tables, fileOutputDir);
+			// Call the BaseTable method to handle the outputting.
+			generateTableResources(new EntityBeanCMP3(author, packageName, version), tables, dir);
 		}
 
-		catch (IllegalArgumentException pEx)
+		catch (final IllegalArgumentException ex)
 		{
-			String strMessage = pEx.getMessage();
+			final String message = ex.getMessage();
 
-			if (null != strMessage)
+			if (null != message)
 			{
-				System.out.println(strMessage);
+				System.out.println(message);
 				System.out.println();
 			}
 
@@ -480,6 +405,6 @@ public class EntityBeanCMP3 extends EntityBeanBase
 			System.out.println("\t[Schema Name Pattern]");
 		}
 
-		catch (Exception pEx) { pEx.printStackTrace(); }
+		catch (final Exception ex) { ex.printStackTrace(); }
 	}
 }

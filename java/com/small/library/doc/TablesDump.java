@@ -25,53 +25,38 @@ import com.small.library.metadata.*;
 
 public class TablesDump extends BaseTable
 {
-	/******************************************************************************
-	*
-	*	Constants
-	*
-	*****************************************************************************/
-
-	/** Constant - simple date format - only for DB2. */
 	public static final DateFormat db2TimestampFormat = new SimpleDateFormat(
 		"yyyy-MM-dd-HH.mm.ss.S");
 
-	/** Constant - simple date format - only for DB2. */
 	public static final DateFormat db2DateFormat = new SimpleDateFormat(
 		"yyyy-MM-dd");
 
-	/******************************************************************************
-	*
-	*	Constructors/Destructor
-	*
-	*****************************************************************************/
+	private final DataSource dataSource;
+	private final String insertSchema;
 
-	/** Constructor - constructs an empty object. */
-	public TablesDump() { super(); }
+	public TablesDump(final PrintWriter writer, final DataSource dataSource, final String insertSchema)
+	{
+		this(writer, null, dataSource, insertSchema);
+	}
 
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param pTable A table record object to base the output on.
+		@param writer The output stream.
+		@param table A table record object to base the output on.
 		@param dataSource Data Source.
 		@param insertSchema Optional schema name used on the insert scripts.
 			If not provided, will use the schema of the selected table.
 			If that is not provided, will not include a schema on the
 			insert scripts.
 	*/
-	public TablesDump(PrintWriter pWriter, Table pTable, DataSource dataSource,
-		String insertSchema)
+	public TablesDump(final PrintWriter writer, final Table table, final DataSource dataSource,
+		final String insertSchema)
 	{
-		super(pWriter, null, pTable);
+		super(writer, null, table);
 		this.dataSource = dataSource;
 		this.insertSchema = insertSchema;
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: Base
-	*
-	*****************************************************************************/
-
-	/** Action method - generates the table dump data. */
+	@Override
 	public void generate() throws GeneratorException, IOException
 	{
 		// Get table and column information.
@@ -174,37 +159,13 @@ public class TablesDump extends BaseTable
 		catch (SQLException ex) { throw new GeneratorException(ex); }
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: BaseTable
-	*
-	*****************************************************************************/
-
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
-	public String getOutputFileName(Table pTable)
+	public String getOutputFileName(Table table)
 	{
 		return null;
 	}
-
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	*****************************************************************************/
-
-	/** Member variable - data source. */
-	private DataSource dataSource = null;
-
-	/** Member variable - insert schema. */
-	private String insertSchema = null;
-
-	/******************************************************************************
-	*
-	*	Class entry point
-	*
-	*****************************************************************************/
 
 	/** Command line entry point.
 		@param strArg1 Output file name.
@@ -216,33 +177,24 @@ public class TablesDump extends BaseTable
 		@param strArg6 optional database schema name of the tables to query.
 		@param strArg7 optional database schema name of the tables to insert.
 	*/
-	public static void main(String strArgs[])
+	public static void main(final String... args)
 	{
-		try
+		try (final PrintWriter writer = new PrintWriter(new FileWriter(extractFile(args, 0, "output"))))
 		{
 			// Have enough arguments been supplied?
-			if (3 > strArgs.length)
+			if (3 > args.length)
 				throw new IllegalArgumentException("Please supply at least 3 arguments.");
 
 			// Get the optional insert schema name.
 			String insertSchema = null;
-			if (6 < strArgs.length)
-				insertSchema = strArgs[6];
-
-			// Local variables
-			File fileOutput = extractFile(strArgs, 0, "output");
+			if (6 < args.length)
+				insertSchema = args[6];
 
 			// Create and load the tables object.
-			List<Table> tables = extractTables(strArgs, 1, 5);
-
-			// Get the output writer.
-			PrintWriter writer = new PrintWriter(new FileWriter(fileOutput));
+			final List<Table> tables = extractTables(args, 1, 5);
 
 			// Create the Deployment Descriptor generator.
-			TablesDump pGenerator =
-				new TablesDump(writer,
-				(Table) null, extractDataSource(strArgs, 1),
-				insertSchema);
+			final TablesDump generator = new TablesDump(writer, extractDataSource(args, 1), insertSchema);
 
 			// Buld the body of the deployment descriptor.
 			boolean first = true;
@@ -253,23 +205,20 @@ public class TablesDump extends BaseTable
 				else
 					writer.println();
 
-				pGenerator.setTable(o);
-				pGenerator.generate();
+				generator.setTable(o);
+				generator.generate();
 
 				writer.flush();
 			}
-
-			// Close the writer.
-			writer.close();
 		}
 
-		catch (IllegalArgumentException pEx)
+		catch (final IllegalArgumentException ex)
 		{
-			String strMessage = pEx.getMessage();
+			final String message = ex.getMessage();
 
-			if (null != strMessage)
+			if (null != message)
 			{
-				System.out.println(strMessage);
+				System.out.println(message);
 				System.out.println();
 			}
 
@@ -281,6 +230,6 @@ public class TablesDump extends BaseTable
 			System.out.println("\t[Schema Name Pattern]");
 		}
 
-		catch (Exception pEx) { pEx.printStackTrace(); }
+		catch (final Exception ex) { ex.printStackTrace(); }
 	}
 }

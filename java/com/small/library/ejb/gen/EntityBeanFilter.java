@@ -20,20 +20,7 @@ import com.small.library.metadata.*;
 
 public class EntityBeanFilter extends EntityBeanBase
 {
-	/******************************************************************************
-	*
-	*	Constants
-	*
-	*****************************************************************************/
-
-	/** Constant - class name suffix. */
 	public static final String CLASS_NAME_SUFFIX = "Filter";
-
-	/******************************************************************************
-	*
-	*	Static members
-	*
-	*****************************************************************************/
 
 	/** Helper method - gets the full class/interface name of the EJB
 	    class from the entity name.
@@ -44,46 +31,36 @@ public class EntityBeanFilter extends EntityBeanBase
 		return strEntityName + CLASS_NAME_SUFFIX;
 	}
 
-	/******************************************************************************
-	*
-	*	Constructors/Destructor
-	*
-	*****************************************************************************/
-
-	/** Constructor - constructs an empty object. */
-	public EntityBeanFilter() { super(); }
-
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
+		@param writer The output stream.
+		@param author Name of the author.
 		@param table A table record object to base the output on.
 	*/
-	public EntityBeanFilter(PrintWriter pWriter,
-		String strAuthor, Table table)
+	public EntityBeanFilter(PrintWriter writer,
+		String author, Table table)
 	{
-		super(pWriter, strAuthor, table);
+		super(writer, author, table);
+	}
+
+	public EntityBeanFilter(final String author, final String packageName, final String version)
+	{
+		this(null, author, null, packageName, version);
 	}
 
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
+		@param writer The output stream.
+		@param author Name of the author.
 		@param table A table record object to base the output on.
-		@param strPackageName Package name of the wrapper class.
+		@param packageName Package name of the wrapper class.
 		@param version application version number.
 	*/
-	public EntityBeanFilter(PrintWriter pWriter,
-		String strAuthor, Table table, String strPackageName, String version)
+	public EntityBeanFilter(PrintWriter writer,
+		String author, Table table, String packageName, String version)
 	{
-		super(pWriter, strAuthor, table, strPackageName, version);
+		super(writer, author, table, packageName, version);
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: Base
-	*
-	*****************************************************************************/
-
-	/** Action method - generates the Entity Bean primary key class. */
+	@Override
 	public void generate() throws GeneratorException, IOException
 	{
 		populateColumnInfo();
@@ -100,42 +77,24 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeFooter();
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: BaseTable
-	*
-	*****************************************************************************/
-
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
-	public String getOutputFileName(Table table)
+	public String getOutputFileName(final Table table)
 	{
 		// Name should NOT have a suffix.
 		return getClassName(createObjectName(table.name)) + ".java";
 	}
 
-	/******************************************************************************
-	*
-	*	Helper methods
-	*
-	*****************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Output methods
-	*
-	*****************************************************************************/
-
 	/** Output method - writes the file header. */
 	private void writeHeader() throws IOException
 	{
-		String strPackageName = getPackageName();
-		String domainPackageName = getDomainPackageName();
+		final String packageName = getPackageName();
+		final String domainPackageName = getDomainPackageName();
 
-		if (null != strPackageName)
+		if (null != packageName)
 		{
-			writeLine("package " + strPackageName + ";");
+			writeLine("package " + packageName + ";");
 			writeLine();
 		}
 
@@ -171,14 +130,14 @@ public class EntityBeanFilter extends EntityBeanBase
 	private void writeMembers() throws IOException
 	{
 		// Any columns available?
-		if (0 >= m_ColumnInfo.length)
+		if (0 >= columnInfo.length)
 			return;
 
 		writeLine();
 		writeLine("// Members", 1);
 
 		// Write member variables.
-		for (ColumnInfo i : m_ColumnInfo)
+		for (final ColumnInfo i : columnInfo)
 		{
 			writeMember(i);
 
@@ -192,13 +151,13 @@ public class EntityBeanFilter extends EntityBeanBase
 	}
 
 	/** Helper method: write the methods. */
-	private void writeMember(ColumnInfo i) throws IOException
+	private void writeMember(final ColumnInfo i) throws IOException
 	{
 		writeMember(i, "", null);
 	}
 
 	/** Helper method: write the methods. */
-	private void writeMember(ColumnInfo i, String suffix, String commentSuffix) throws IOException
+	private void writeMember(final ColumnInfo i, final String suffix, final String commentSuffix) throws IOException
 	{
 		/* writeLine();
 		write("/** Filter option that represents the \"" + i.columnName + "\" field");
@@ -226,14 +185,14 @@ public class EntityBeanFilter extends EntityBeanBase
 	private void writeMutators() throws IOException
 	{
 		// Any columns available?
-		if (0 >= m_ColumnInfo.length)
+		if (0 >= columnInfo.length)
 			return;
 
 		writeLine();
 		writeLine("// Mutators", 1);
 
 		// Write member variables.
-		for (ColumnInfo i : m_ColumnInfo)
+		for (final ColumnInfo i : columnInfo)
 		{
 			writeMutator(i);
 
@@ -247,13 +206,13 @@ public class EntityBeanFilter extends EntityBeanBase
 	}
 
 	/** Helper method: write the methods. */
-	private void writeMutator(ColumnInfo i) throws IOException
+	private void writeMutator(final ColumnInfo i) throws IOException
 	{
 		writeMutator(i, "", null);
 	}
 
 	/** Helper method: write the methods. */
-	private void writeMutator(ColumnInfo i, String suffix, String commentSuffix) throws IOException
+	private void writeMutator(final ColumnInfo i, final String suffix, final String commentSuffix) throws IOException
 	{
 		// Primitives should be nullable for the filter.
 		String type = i.javaType;
@@ -312,7 +271,7 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine("\t/** Populator.");
 
 		// Create the parameter comments.
-		for (ColumnInfo i : m_ColumnInfo)
+		for (final ColumnInfo i : columnInfo)
 		{
 			writeLine("\t\t@param " + i.memberVariableName + " represents the \"" + i.columnName + "\" field.");
 
@@ -328,9 +287,9 @@ public class EntityBeanFilter extends EntityBeanBase
 
 		// Constructor signature.
 		write("\tpublic " + getClassName() + "(");
-		for (int i = 0, last = m_ColumnInfo.length - 1; i < m_ColumnInfo.length; i++)
+		for (int i = 0, last = columnInfo.length - 1; i < columnInfo.length; i++)
 		{
-			ColumnInfo item = m_ColumnInfo[i];
+			final ColumnInfo item = columnInfo[i];
 
 			if (0 < i)
 				write("\t\t");
@@ -357,7 +316,7 @@ public class EntityBeanFilter extends EntityBeanBase
 
 		// Write body.
 		writeLine("{", 1);
-		for (ColumnInfo i : m_ColumnInfo)
+		for (final ColumnInfo i : columnInfo)
 		{
 			writeLine("this." + i.memberVariableName + " = " + i.memberVariableName + ";", 2);
 
@@ -387,7 +346,7 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine("/** Helper method - trims all string fields and converts empty strings to NULL. */", 1);
 		writeLine("public " + getClassName() + " clean()", 1);
 		writeLine("{", 1);
-		for (ColumnInfo i : m_ColumnInfo)
+		for (final ColumnInfo i : columnInfo)
 		{
 			if (!i.isString)
 				continue;
@@ -411,7 +370,7 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine("**************************************************************************/", 1);
 
 		// Write the toString method. */
-		ColumnInfo item = m_ColumnInfo[0];
+		ColumnInfo item = columnInfo[0];
 		writeLine();
 		writeLine("@Override", 1);
 		writeLine("public String toString()", 1);
@@ -425,15 +384,15 @@ public class EntityBeanFilter extends EntityBeanBase
 			writeLine(".append(\", " + item.memberVariableName + "To: \").append(" + item.memberVariableName + "To)", 3);
 		}
 
-		for (int i = 1; i < m_ColumnInfo.length; i++)
+		for (int i = 1; i < columnInfo.length; i++)
 		{
-			writeLine(".append(\", " + (item = m_ColumnInfo[i]).memberVariableName + ": \").append(" + item.memberVariableName + ")", 3);
+			writeLine(".append(\", " + (item = columnInfo[i]).memberVariableName + ": \").append(" + item.memberVariableName + ")", 3);
 
 			// Integer and date fields filter by range so need an additional "lower boundary" property and an "upper boundary" property.
 			if (item.isRange())
 			{
-				writeLine(".append(\", " + (item = m_ColumnInfo[i]).memberVariableName + "From: \").append(" + item.memberVariableName + "From)", 3);
-				writeLine(".append(\", " + (item = m_ColumnInfo[i]).memberVariableName + "To: \").append(" + item.memberVariableName + "To)", 3);
+				writeLine(".append(\", " + (item = columnInfo[i]).memberVariableName + "From: \").append(" + item.memberVariableName + "From)", 3);
+				writeLine(".append(\", " + (item = columnInfo[i]).memberVariableName + "To: \").append(" + item.memberVariableName + "To)", 3);
 			}
 		}
 		writeLine(".append(\" }\").toString();", 3);
@@ -446,26 +405,8 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine("}");
 	}
 
-	/******************************************************************************
-	*
-	*	Accessor methods
-	*
-	******************************************************************************/
-
 	/** Accessor method - gets the Class Name of the resource. */
 	public String getClassName() { return getClassName(getObjectName()); }
-
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	******************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Class entry point
-	*
-	*****************************************************************************/
 
 	/** Command line entry point.
 		@param args1 Output directory.
@@ -480,7 +421,7 @@ public class EntityBeanFilter extends EntityBeanBase
 		@param args8 application version number
 		@param args9 table name filter
 	*/
-	public static void main(String args[])
+	public static void main(final String... args)
 	{
 		try
 		{
@@ -489,30 +430,25 @@ public class EntityBeanFilter extends EntityBeanBase
 				throw new IllegalArgumentException("Please supply at least 3 arguments.");
 
 			// Local variables
-			File fileOutputDir = extractOutputDirectory(args, 0);
-			String strAuthor = extractAuthor(args, 5);
-			String strPackageName = extractArgument(args, 6, null);
-			String version = extractArgument(args, 7, null);
+			final File dir = extractOutputDirectory(args, 0);
+			final String author = extractAuthor(args, 5);
+			final String packageName = extractArgument(args, 6, null);
+			final String version = extractArgument(args, 7, null);
 
 			// Create and load the tables object.
 			final List<Table> tables = extractTables(args, 1, 8);
 
-			// Create the SQL Repository Item Descriptor generator.
-			EntityBeanFilter pGenerator =
-				new EntityBeanFilter((PrintWriter) null, strAuthor,
-				(Table) null, strPackageName, version);
-
-			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, tables, fileOutputDir);
+			// Call the BaseTable method to handle the outputting.
+			generateTableResources(new EntityBeanFilter(author, packageName, version), tables, dir);
 		}
 
-		catch (IllegalArgumentException pEx)
+		catch (final IllegalArgumentException ex)
 		{
-			String strMessage = pEx.getMessage();
+			final String message = ex.getMessage();
 
-			if (null != strMessage)
+			if (null != message)
 			{
-				System.out.println(strMessage);
+				System.out.println(message);
 				System.out.println();
 			}
 
@@ -526,6 +462,6 @@ public class EntityBeanFilter extends EntityBeanBase
 			System.out.println("\t[Schema Name Pattern]");
 		}
 
-		catch (Exception pEx) { pEx.printStackTrace(); }
+		catch (final Exception ex) { ex.printStackTrace(); }
 	}
 }

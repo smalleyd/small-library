@@ -54,7 +54,7 @@ public class TableRow extends TagElement
 	}
 
 	/** Mutator method - adds a <I>TableCell</I> object to the collection.
-		@param pTableCell New <I>TableCell</I> object to add to
+		@param tableCell New <I>TableCell</I> object to add to
 			the collection.
 	*/
 	public void add(TableCell cell) { cells.add(cell); }

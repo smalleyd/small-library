@@ -18,20 +18,7 @@ import com.small.library.metadata.*;
 
 public class RedshiftBatchTest extends EntityBeanBase
 {
-	/******************************************************************************
-	*
-	*	Constants
-	*
-	*****************************************************************************/
-
-	/** Constant - class name suffix. */
 	public static final String CLASS_NAME_SUFFIX = "BatchTest";
-
-	/******************************************************************************
-	*
-	*	Static members
-	*
-	*****************************************************************************/
 
 	/** Helper method - gets the full class/interface name of the EJB
 	    class from the entity name.
@@ -42,15 +29,6 @@ public class RedshiftBatchTest extends EntityBeanBase
 		return name + CLASS_NAME_SUFFIX;
 	}
 
-	/******************************************************************************
-	*
-	*	Constructors/Destructor
-	*
-	*****************************************************************************/
-
-	/** Constructor - constructs an empty object. */
-	public RedshiftBatchTest() { super(); }
-
 	/** Constructor - constructs a populated object.
 		@param writer The output stream.
 		@param author Name of the author.
@@ -60,6 +38,11 @@ public class RedshiftBatchTest extends EntityBeanBase
 		String author, Table table)
 	{
 		super(writer, author, table);
+	}
+
+	public RedshiftBatchTest(final String author, final String packageName, final String version)
+	{
+		this(null, author, null, packageName, version);
 	}
 
 	/** Constructor - constructs a populated object.
@@ -75,13 +58,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		super(writer, author, table, packageName, version);
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: Base
-	*
-	*****************************************************************************/
-
-	/** Action method - generates the Entity Bean primary key class. */
+	@Override
 	public void generate() throws GeneratorException, IOException
 	{
 		populateColumnInfo();
@@ -94,38 +71,20 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeFooter();
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: BaseTable
-	*
-	*****************************************************************************/
-
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
-	public String getOutputFileName(Table pTable)
+	public String getOutputFileName(final Table table)
 	{
 		// Name should NOT have a suffix.
 		return getClassName() + ".java";
 	}
 
 	/** Helper method - gets the value object name. */
-	public String valueObjectName(String name)
+	public String valueObjectName(final String name)
 	{
 		return EntityBeanValueObject.getClassName(name);
 	}
-
-	/******************************************************************************
-	*
-	*	Helper methods
-	*
-	*****************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Output methods
-	*
-	*****************************************************************************/
 
 	/** Output method - writes the file header. */
 	private void writeHeader() throws IOException
@@ -177,7 +136,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("@FixMethodOrder(MethodSorters.NAME_ASCENDING)	// Ensure that the methods are executed in order listed.");
 		writeLine("public class " + getClassName());
 		writeLine("{");
-		writeLine("private static final " + m_ColumnInfo[0].javaType + " ID = 1L;", 1);
+		writeLine("private static final " + columnInfo[0].javaType + " ID = 1L;", 1);
 		writeLine("private static " + getAppName() + "BatchConfig conf;", 1);
 		writeLine("private static " + batchName + " batch;", 1);
 		writeLine("private static AWSManager aws;", 1);
@@ -196,9 +155,9 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("{", 1);
 		writeLine("conf = AnalyticsBatchConfigTest.load(\"test.json\");", 2);
 		writeLine();
-		writeLine("batch = new " + batchName + "();", 2);
 		writeLine("RULE.manage(aws = conf.awsManager());", 2);
 		writeLine("conf.destDbi(dest = RULE.manageForDBI(conf.dest, \"dest\"));", 2);
+		writeLine("batch = new " + batchName + "(conf);", 2);
 		writeLine("insertQueueUrl = conf.aws.insertQueueUrl(batch.getEntityName());", 2);
 		writeLine("updateQueueUrl = conf.aws.updateQueueUrl(batch.getEntityName());", 2);
 		writeLine();
@@ -206,20 +165,20 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine();
 		writeLine("/* TODO: placeholder for the INSERT object.", 2);
 		write("INSERT = new " + valueName + "(ID", 2);
-		for (int i = 1; i < m_ColumnInfo.length; i++)
+		for (int i = 1; i < columnInfo.length; i++)
 		{
 			writeLine(",");
-			write(m_ColumnInfo[i].columnName, 3);
+			write(columnInfo[i].columnName, 3);
 		}
 		writeLine(");");
 		writeLine("*/", 2);
 		writeLine();
 		writeLine("/* TODO: placeholder for the UPDATE object.", 2);
 		write("UPDATE = new " + valueName + "(ID", 2);
-		for (int i = 1; i < m_ColumnInfo.length; i++)
+		for (int i = 1; i < columnInfo.length; i++)
 		{
 			writeLine(",");
-			write(m_ColumnInfo[i].columnName, 3);
+			write(columnInfo[i].columnName, 3);
 		}
 		writeLine(");");
 		writeLine("*/", 2);
@@ -258,13 +217,13 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void process()", 1);
 		writeLine("{", 1);
-		writeLine("batch.run(conf);", 2);
+		writeLine("batch.run();", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void reindex()", 1);
 		writeLine("{", 1);
-		writeLine("batch.maintain(conf);", 2);
+		writeLine("batch.maintain();", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("@Test", 1);
@@ -276,11 +235,11 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("Assert.assertEquals(\"Check size\", 1, records.size());", 3);
 		writeLine("final Map<String, Object> rs = records.get(0);", 3);
 		writeLine();
-		write("check(UPDATE, new " + valueName + "((" + m_ColumnInfo[0].javaType + ") rs.get(\"" + m_ColumnInfo[0].columnName + "\")", 3);
-		for (int i = 1; i < m_ColumnInfo.length; i++)
+		write("check(UPDATE, new " + valueName + "((" + columnInfo[0].javaType + ") rs.get(\"" + columnInfo[0].columnName + "\")", 3);
+		for (int i = 1; i < columnInfo.length; i++)
 		{
 			writeLine(",");
-			ColumnInfo col = m_ColumnInfo[i];
+			ColumnInfo col = columnInfo[i];
 			write("(" + col.javaType + ") rs.get(\"" + col.columnName + "\")", 4);
 		}
 		writeLine("));");
@@ -291,7 +250,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("private void check(final " + valueName + " expected, final " + valueName + " value)", 1);
 		writeLine("{", 1);
 		writeLine("final String assertId = \"ID (\" + expected.id + \"): \";", 2);
-		for (ColumnInfo i : m_ColumnInfo)
+		for (ColumnInfo i : columnInfo)
 		{
 			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", value." + i.memberVariableName + ");", 2);
 			if (i.isImportedKey)
@@ -306,26 +265,8 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("}");
 	}
 
-	/******************************************************************************
-	*
-	*	Accessor methods
-	*
-	******************************************************************************/
-
 	/** Accessor method - gets the Class Name of the resource. */
 	public String getClassName() { return getClassName(getObjectName()); }
-
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	******************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Class entry point
-	*
-	*****************************************************************************/
 
 	/** Command line entry point.
 		@param args1 Output directory.
@@ -340,7 +281,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		@param args8 application version number
 		@param args9 table name filter
 	*/
-	public static void main(String args[])
+	public static void main(final String... args)
 	{
 		try
 		{
@@ -349,30 +290,25 @@ public class RedshiftBatchTest extends EntityBeanBase
 				throw new IllegalArgumentException("Please supply at least 3 arguments.");
 
 			// Local variables
-			File fileOutputDir = extractOutputDirectory(args, 0);
-			String strAuthor = extractAuthor(args, 5);
-			String strPackageName = extractArgument(args, 6, null);
-			String version = extractArgument(args, 7, null);
+			final File dir = extractOutputDirectory(args, 0);
+			final String author = extractAuthor(args, 5);
+			final String packageName = extractArgument(args, 6, null);
+			final String version = extractArgument(args, 7, null);
 
 			// Create and load the tables object.
-			List<Table> tables = extractTables(args, 1, 8);
+			final List<Table> tables = extractTables(args, 1, 8);
 
-			// Create the SQL Repository Item Descriptor generator.
-			RedshiftBatchTest pGenerator =
-				new RedshiftBatchTest((PrintWriter) null, strAuthor,
-				(Table) null, strPackageName, version);
-
-			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, tables, fileOutputDir);
+			// Call the BaseTable method to handle the outputting.
+			generateTableResources(new RedshiftBatchTest(author, packageName, version), tables, dir);
 		}
 
-		catch (IllegalArgumentException pEx)
+		catch (final IllegalArgumentException ex)
 		{
-			String strMessage = pEx.getMessage();
+			final String message = ex.getMessage();
 
-			if (null != strMessage)
+			if (null != message)
 			{
-				System.out.println(strMessage);
+				System.out.println(message);
 				System.out.println();
 			}
 
@@ -387,6 +323,6 @@ public class RedshiftBatchTest extends EntityBeanBase
 			System.out.println("\t[Schema Name Pattern]");
 		}
 
-		catch (Exception pEx) { pEx.printStackTrace(); }
+		catch (final Exception ex) { ex.printStackTrace(); }
 	}
 }

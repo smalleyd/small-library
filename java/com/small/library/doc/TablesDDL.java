@@ -21,37 +21,21 @@ import com.small.library.metadata.*;
 
 public class TablesDDL extends BaseTable
 {
-	/******************************************************************************
-	*
-	*	Constants
-	*
-	*****************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Constructors/Destructor
-	*
-	*****************************************************************************/
-
-	/** Constructor - constructs an empty object. */
-	public TablesDDL() { super(); }
+	public TablesDDL(final PrintWriter writer)
+	{
+		this(writer, null);
+	}
 
 	/** Constructor - constructs a populated object.
 		@param writer The output stream.
 		@param table A table record object to base the output on.
 	*/
-	public TablesDDL(PrintWriter writer, Table table)
+	public TablesDDL(final PrintWriter writer, final Table table)
 	{
 		super(writer, null, table);
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: Base
-	*
-	*****************************************************************************/
-
-	/** Action method - generates the table's create SQL.  */
+	@Override
 	public void generate() throws GeneratorException, IOException
 	{
 		Table table = getTable();
@@ -158,12 +142,6 @@ public class TablesDDL extends BaseTable
 		return StringUtils.join(keys, ", ");
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: BaseTable
-	*
-	*****************************************************************************/
-
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
@@ -171,12 +149,6 @@ public class TablesDDL extends BaseTable
 	{
 		return null;
 	}
-
-	/******************************************************************************
-	*
-	*	Class entry point
-	*
-	*****************************************************************************/
 
 	/** Command line entry point.
 		@param strArg1 Output file name.
@@ -187,27 +159,18 @@ public class TablesDDL extends BaseTable
 			bridge if a drive is not supplied.
 		@param strArg6 optional database schema name.
 	*/
-	public static void main(String... args)
+	public static void main(final String... args)
 	{
-		try
+		try (final PrintWriter writer = new PrintWriter(new FileWriter(extractFile(args, 0, "output"))))
 		{
 			// Have enough arguments been supplied?
 			if (3 > args.length)
 				throw new IllegalArgumentException("Please supply at least 3 arguments.");
 
-			// Local variables
-			File fileOutput = extractFile(args, 0, "output");
-
-			// Create and load the tables object.
-			List<Table> tables = extractTables(args, 1, 5);
-
-			// Get the output writer.
-			PrintWriter writer = new PrintWriter(new FileWriter(fileOutput));
+			final List<Table> tables = extractTables(args, 1, 5);
 
 			// Create the Deployment Descriptor generator.
-			TablesDDL pGenerator =
-				new TablesDDL(writer,
-				(Table) null);
+			final TablesDDL generator = new TablesDDL(writer);
 
 			// Generate the table create SQL.
 			boolean first = true;
@@ -218,8 +181,8 @@ public class TablesDDL extends BaseTable
 				else
 					writer.println();
 
-				pGenerator.setTable(o);
-				pGenerator.generate();
+				generator.setTable(o);
+				generator.generate();
 
 				writer.flush();
 			}
@@ -235,23 +198,20 @@ public class TablesDDL extends BaseTable
 				else
 					writer.println();
 
-				pGenerator.setTable(o);
-				pGenerator.generateForeignKeys();
+				generator.setTable(o);
+				generator.generateForeignKeys();
 
 				writer.flush();
 			}
-
-			// Close the writer.
-			writer.close();
 		}
 
-		catch (IllegalArgumentException pEx)
+		catch (final IllegalArgumentException ex)
 		{
-			String strMessage = pEx.getMessage();
+			final String message = ex.getMessage();
 
-			if (null != strMessage)
+			if (null != message)
 			{
-				System.out.println(strMessage);
+				System.out.println(message);
 				System.out.println();
 			}
 
@@ -263,6 +223,6 @@ public class TablesDDL extends BaseTable
 			System.out.println("\t[Schema Name Pattern]");
 		}
 
-		catch (Exception pEx) { pEx.printStackTrace(); }
+		catch (final Exception ex) { ex.printStackTrace(); }
 	}
 }

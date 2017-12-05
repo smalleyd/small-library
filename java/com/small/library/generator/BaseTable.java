@@ -26,11 +26,11 @@ public abstract class BaseTable extends BaseJDBC
 	public static final String PREFIX_MUTATOR_METHOD = "set";
 	public static final String PREFIX_WITH_METHOD = "with";
 
-	/******************************************************************************
-	*
-	*	Constructors
-	*
-	*****************************************************************************/
+	private Table table = null;
+	private String objectName = null;
+	private List<Column> columns = null;
+	private List<PrimaryKey> primaryKeys = null;
+	private List<ForeignKey> importKeys = null;
 
 	/** Constructor - constructs an empty object. */
 	public BaseTable() { this(null, AUTHOR_DEFAULT, null); }
@@ -47,23 +47,11 @@ public abstract class BaseTable extends BaseJDBC
 		setTable(table);
 	}
 
-	/******************************************************************************
-	*
-	*	Abstract methods
-	*
-	*****************************************************************************/
-
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
 	public abstract String getOutputFileName(Table table)
 		throws GeneratorException;
-
-	/******************************************************************************
-	*
-	*	Accessor methods
-	*
-	*****************************************************************************/
 
 	/** Accessor method - gets the table object. */
 	public Table getTable()	{ return table; }
@@ -102,12 +90,6 @@ public abstract class BaseTable extends BaseJDBC
 		return importKeys;
 	}
 
-	/******************************************************************************
-	*
-	*	Mutator methods
-	*
-	*****************************************************************************/
-
 	/** Mutator method - sets the table object. */
 	public void setTable(Table value)
 	{
@@ -122,12 +104,6 @@ public abstract class BaseTable extends BaseJDBC
 		primaryKeys = null;
 		importKeys = null;
 	}
-
-	/******************************************************************************
-	*
-	*	Helper methods
-	*
-	*****************************************************************************/
 
 	/** Helper method - gets a member variable name based on a column.
 		@param column A table column object.
@@ -323,14 +299,14 @@ public abstract class BaseTable extends BaseJDBC
 	/** Helper method - generates resource based on a <I>BaseTable</I>
 	    generator object and a collection of table record objects. Used by
 	    class entry methods (i.e. main).
-		@param pGenerator <I>BaseTable</I> class used to generate a
+		@param generator <I>BaseTable</I> class used to generate a
 			table resource.
 		@param tables Collection of table record objects used to generate
 			the resources.
-		@param fileOutputDirectory Directory to output the generated resources.
+		@param directory Directory to output the generated resources.
 	*/
-	public static void generateTableResources(BaseTable pGenerator,
-		List<Table> tables, File fileOutputDirectory)
+	public static void generateTableResources(BaseTable generator,
+		List<Table> tables, File directory)
 			throws GeneratorException, IOException
 	{
 		// Loop through the tables and generate.
@@ -338,13 +314,13 @@ public abstract class BaseTable extends BaseJDBC
 		{
 			// Set the table immediately so that the generator can
 			// use the table object to generate the name.
-			pGenerator.setTable(table);
+			generator.setTable(table);
 
-			File fileOutput = new File(fileOutputDirectory, pGenerator.getOutputFileName(table));
+			File fileOutput = new File(directory, generator.getOutputFileName(table));
 			PrintWriter writer = new PrintWriter(new FileWriter(fileOutput));
 
-			pGenerator.setWriter(writer);
-			pGenerator.generate();
+			generator.setWriter(writer);
+			generator.generate();
 
 			writer.close();
 		}
@@ -353,16 +329,16 @@ public abstract class BaseTable extends BaseJDBC
 	/** Helper method - gets a <I>Tables</I> object based on the command line
 	    arguments.
 		@param args An array of command line arguments.
-		@param nFirstArgument Index in the array that indicates the first
+		@param firstArgument Index in the array that indicates the first
 			data source argument. The argument order should be
 			URL, User ID, Password, & Driver.
 		@param tableNamePatternArg Table Name Pattern.
 	*/
 	protected static List<Table> extractTables(final String[] args,
-		final int nFirstArgument, final String tableNamePattern)
+		final int firstArgument, final String tableNamePattern)
 			throws IllegalArgumentException, SQLException
 	{
-		final DBMetadata metadata = new DBMetadata(extractDataSource(args, nFirstArgument));
+		final DBMetadata metadata = new DBMetadata(extractDataSource(args, firstArgument));
 
 		if (StringUtils.isEmpty(tableNamePattern))
 			return metadata.getTables();
@@ -373,56 +349,33 @@ public abstract class BaseTable extends BaseJDBC
 	/** Helper method - gets a <I>Tables</I> object based on the command line
 	    arguments.
 		@param args An array of command line arguments.
-		@param nFirstArgument Index in the array that indicates the first
+		@param firstArgument Index in the array that indicates the first
 			data source argument. The argument order should be
 			URL, User ID, Password, & Driver.
 		@param tableNamePatternArg Index in the array that indicates the
 			Table Name Pattern argument.
 	*/
 	protected static List<Table> extractTables(String[] args,
-		int nFirstArgument, int tableNamePatternArg)
+		int firstArgument, int tableNamePatternArg)
 			throws IllegalArgumentException,
 				SQLException
 	{
-		return extractTables(args, nFirstArgument,
+		return extractTables(args, firstArgument,
 			extractArgument(args, tableNamePatternArg, null));
 	}
 
 	/** Helper method - gets a <I>Tables</I> object based on the command line
 	    arguments.
 		@param args An array of command line arguments.
-		@param nFirstArgument Index in the array that indicates the first
+		@param firstArgument Index in the array that indicates the first
 			data source argument. The argument order should be
 			URL, User ID, Password, & Driver.
 	*/
 	protected static List<Table> extractTables(String[] args,
-		int nFirstArgument)
+		int firstArgument)
 			throws IllegalArgumentException,
 				SQLException
 	{
-		return extractTables(args, nFirstArgument, (String) null);
+		return extractTables(args, firstArgument, (String) null);
 	}
-
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	*****************************************************************************/
-
-	/** Member variable - reference to the table record object that the
-	    output is based on.
-	*/
-	private Table table = null;
-
-	/** Member variable - object name representation of the table name. */
-	private String objectName = null;
-
-	/** Member variable - reference to the table's columns. */
-	private List<Column> columns = null;
-
-	/** Member variable - reference to the table's primary key. */
-	private List<PrimaryKey> primaryKeys = null;
-
-	/** Member variable - reference to the table's imported foreign keys. */
-	private List<ForeignKey> importKeys = null;
 }

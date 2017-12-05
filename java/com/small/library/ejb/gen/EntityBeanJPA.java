@@ -12,7 +12,7 @@ import com.small.library.metadata.*;
 *	are generated from metadata of the tables that they represent. The metadata
 *	is retrieves from the JDBC <I>DatabaseMetadata</I> interface.
 *
-*	The classes are annonated fully.
+*	The classes are annotated fully.
 *
 *	@author David Small
 *	@version 1.1.0.0
@@ -22,32 +22,7 @@ import com.small.library.metadata.*;
 
 public class EntityBeanJPA extends EntityBeanBase
 {
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	*****************************************************************************/
-
-	/** Member variable - version JavaDoc value. */
-	public String version = null;
-
-	/******************************************************************************
-	*
-	*	Constants
-	*
-	*****************************************************************************/
-
-	/** Constant - class name suffix. */
 	public static final String CLASS_NAME_SUFFIX = "";
-
-	/** Constant - default JavaDoc version stamp. */
-	public static final String VERSION_DEFAULT = "1.0.1";
-
-	/******************************************************************************
-	*
-	*	Static members
-	*
-	*****************************************************************************/
 
 	/** Helper method - gets the full class/interface name of the EJB
 	    class from the entity name.
@@ -58,58 +33,46 @@ public class EntityBeanJPA extends EntityBeanBase
 		return name + CLASS_NAME_SUFFIX;
 	}
 
-	/******************************************************************************
-	*
-	*	Constructors/Destructor
-	*
-	*****************************************************************************/
-
-	/** Constructor - constructs an empty object. */
-	public EntityBeanJPA() { super(); }
-
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
+		@param writer The output stream.
+		@param author Name of the author.
 		@param table A table record object to base the output on.
 	*/
-	public EntityBeanJPA(PrintWriter pWriter,
-		String strAuthor, Table table)
+	public EntityBeanJPA(PrintWriter writer,
+		String author, Table table)
 	{
-		super(pWriter, strAuthor, table);
+		super(writer, author, table);
 	}
 
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
+		@param writer The output stream.
+		@param author Name of the author.
 		@param table A table record object to base the output on.
-		@param strPackageName Package name of the wrapper class.
+		@param packageName Package name of the wrapper class.
 	*/
-	public EntityBeanJPA(PrintWriter pWriter,
-		String strAuthor, Table table, String strPackageName)
+	public EntityBeanJPA(PrintWriter writer,
+		String author, Table table, String packageName)
 	{
-		super(pWriter, strAuthor, table, strPackageName);
+		super(writer, author, table, packageName);
+	}
+
+	public EntityBeanJPA(final String author, final String packageName, final String version)
+	{
+		this(null, author, null, packageName, version);
 	}
 
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
+		@param writer The output stream.
+		@param author Name of the author.
 		@param table A table record object to base the output on.
-		@param strPackageName Package name of the wrapper class.
+		@param packageName Package name of the wrapper class.
 	*/
-	public EntityBeanJPA(PrintWriter pWriter,
-		String strAuthor, Table table, String strPackageName,
+	public EntityBeanJPA(PrintWriter writer,
+		String author, Table table, String packageName,
 		String version)
 	{
-		super(pWriter, strAuthor, table, strPackageName);
-
-		this.version = version;
+		super(writer, author, table, packageName, version);
 	}
-
-	/******************************************************************************
-	*
-	*	Required methods: Base
-	*
-	*****************************************************************************/
 
 	/** Action method - generates the Entity Bean primary key class. */
 	public void generate() throws GeneratorException, IOException
@@ -126,12 +89,6 @@ public class EntityBeanJPA extends EntityBeanBase
 		writeFooter();
 	}
 
-	/******************************************************************************
-	*
-	*	Required methods: BaseTable
-	*
-	*****************************************************************************/
-
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
@@ -141,26 +98,14 @@ public class EntityBeanJPA extends EntityBeanBase
 		return getClassName() + ".java";
 	}
 
-	/******************************************************************************
-	*
-	*	Helper methods
-	*
-	*****************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Output methods
-	*
-	*****************************************************************************/
-
 	/** Output method - writes the file header. */
 	private void writeHeader() throws IOException
 	{
-		String strPackageName = getPackageName();
+		String packageName = getPackageName();
 
-		if (null != strPackageName)
+		if (null != packageName)
 		{
-			writeLine("package " + strPackageName + ";");
+			writeLine("package " + packageName + ";");
 			writeLine();
 		}
 
@@ -179,7 +124,7 @@ public class EntityBeanJPA extends EntityBeanBase
 		writeLine("*\tEntity Bean CMP class that represents the " + getTable().name + " table.");
 		writeLine("*");
 		writeLine("*\t@author " + getAuthor());
-		writeLine("*\t@version " + version);
+		writeLine("*\t@version " + getVersion());
 		writeLine("*\t@since " + getDateString());
 		writeLine("*");
 		writeLine("**********************************************************************************/");
@@ -196,21 +141,20 @@ public class EntityBeanJPA extends EntityBeanBase
 		writeLine("@Cache(usage=CacheConcurrencyStrategy.READ_WRITE, region=\"" + getTable().name + "\")");
 		writeLine("public class " + getClassName() + " implements Serializable");
 		writeLine("{");
-		writeLine("\tpublic final static long serialVersionUID = 1L;");
+		writeLine("\tprivate final static long serialVersionUID = 1L;");
 	}
 
 	/** Output method - writes the accessor methods. */
 	private void writeAccessorMethods() throws IOException
 	{
 		// Any columns available?
-		if (0 >= m_ColumnInfo.length)
+		if (0 >= columnInfo.length)
 			return;
 
 		// Write accessors.
-		for (int i = 0; i < m_ColumnInfo.length; i++)
+		for (final ColumnInfo item : columnInfo)
 		{
-			ColumnInfo item = m_ColumnInfo[i];
-			String nullable = Boolean.toString(item.isNullable);
+			final String nullable = Boolean.toString(item.isNullable);
 
 			writeLine();
 			write("\t@Column(name=\"" + item.columnName + "\", ");
@@ -239,21 +183,19 @@ public class EntityBeanJPA extends EntityBeanBase
 	private void writeImportedKeysAccessorMethods() throws IOException
 	{
 		// Write accessors.
-		for (int i = 0; i < m_ColumnInfo.length; i++)
+		for (final ColumnInfo info : columnInfo)
 		{
-			ColumnInfo columnInfo = m_ColumnInfo[i];
-
-			if (!columnInfo.isImportedKey)
+			if (!info.isImportedKey)
 				continue;
 
-			String name = columnInfo.importedKeyName;
-			String memberName = columnInfo.importedKeyMemberName;
-			String objectName = columnInfo.importedObjectName;
+			final String name = info.importedKeyName;
+			final String memberName = info.importedKeyMemberName;
+			final String objectName = info.importedObjectName;
 
 			writeLine();
 			writeLine("@ManyToOne(cascade={}, fetch=FetchType.LAZY)", 1);
-			writeLine("@JoinColumn(name=\"" + columnInfo.columnName + "\", " +
-				"nullable=" + Boolean.toString(columnInfo.isNullable) +
+			writeLine("@JoinColumn(name=\"" + info.columnName + "\", " +
+				"nullable=" + Boolean.toString(info.isNullable) +
 				", updatable=false, insertable=false)", 1);
 			write("public " + objectName + " get" + name + "()", 1);
 			writeLine(" { return " + memberName + "; }");
@@ -275,9 +217,9 @@ public class EntityBeanJPA extends EntityBeanBase
 
 		// Constructor signature.
 		write("\tpublic " + getClassName() + "(");
-		for (int i = 0, last = m_ColumnInfo.length - 1; i < m_ColumnInfo.length; i++)
+		for (int i = 0, last = columnInfo.length - 1; i < columnInfo.length; i++)
 		{
-			ColumnInfo item = m_ColumnInfo[i];
+			ColumnInfo item = columnInfo[i];
 
 			if (0 < i)
 				write("\t\t");
@@ -292,12 +234,8 @@ public class EntityBeanJPA extends EntityBeanBase
 
 		// Write body.
 		writeLine("\t{");
-		for (int i = 0; i < m_ColumnInfo.length; i++)
-		{
-			ColumnInfo item = m_ColumnInfo[i];
-			writeLine("\t\tthis." + item.memberVariableName + " = " +
-				item.memberVariableName + ";");
-		}
+		for (final ColumnInfo item : columnInfo)
+			writeLine("\t\tthis." + item.memberVariableName + " = " + item.memberVariableName + ";");
 		writeLine("\t}");			
 	}
 
@@ -307,26 +245,8 @@ public class EntityBeanJPA extends EntityBeanBase
 		writeLine("}");
 	}
 
-	/******************************************************************************
-	*
-	*	Accessor methods
-	*
-	******************************************************************************/
-
 	/** Accessor method - gets the Class Name of the resource. */
 	public String getClassName() { return getClassName(getObjectName()); }
-
-	/******************************************************************************
-	*
-	*	Member variables
-	*
-	******************************************************************************/
-
-	/******************************************************************************
-	*
-	*	Class entry point
-	*
-	*****************************************************************************/
 
 	/** Command line entry point.
 		@param args1 Output directory.
@@ -341,7 +261,7 @@ public class EntityBeanJPA extends EntityBeanBase
 		@param args8 application version number
 		@param args9 table name filter
 	*/
-	public static void main(String args[])
+	public static void main(final String... args)
 	{
 		try
 		{
@@ -350,30 +270,25 @@ public class EntityBeanJPA extends EntityBeanBase
 				throw new IllegalArgumentException("Please supply at least 3 arguments.");
 
 			// Local variables
-			File fileOutputDir = extractOutputDirectory(args, 0);
-			String strAuthor = extractAuthor(args, 5);
-			String strPackageName = extractArgument(args, 6, null);
-			String version = extractArgument(args, 7, VERSION_DEFAULT);
+			final File dir = extractOutputDirectory(args, 0);
+			final String author = extractAuthor(args, 5);
+			final String packageName = extractArgument(args, 6, null);
+			final String version = extractArgument(args, 7, VERSION_DEFAULT);
 
 			// Create and load the tables object.
-			List<Table> tables = extractTables(args, 1, 8);
+			final List<Table> tables = extractTables(args, 1, 8);
 
-			// Create the SQL Repository Item Descriptor generator.
-			EntityBeanJPA pGenerator =
-				new EntityBeanJPA((PrintWriter) null, strAuthor,
-				(Table) null, strPackageName, version);
-
-			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, tables, fileOutputDir);
+			// Call the BaseTable method to handle the outputting.
+			generateTableResources(new EntityBeanJPA(author, packageName, version), tables, dir);
 		}
 
-		catch (IllegalArgumentException pEx)
+		catch (final IllegalArgumentException ex)
 		{
-			String strMessage = pEx.getMessage();
+			final String message = ex.getMessage();
 
-			if (null != strMessage)
+			if (null != message)
 			{
-				System.out.println(strMessage);
+				System.out.println(message);
 				System.out.println();
 			}
 
@@ -387,6 +302,6 @@ public class EntityBeanJPA extends EntityBeanBase
 			System.out.println("\t[Schema Name Pattern]");
 		}
 
-		catch (Exception pEx) { pEx.printStackTrace(); }
+		catch (final Exception ex) { ex.printStackTrace(); }
 	}
 }

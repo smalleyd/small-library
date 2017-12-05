@@ -1,11 +1,12 @@
 package com.small.library.doc;
 
+import static com.small.library.generator.Base.*;
+
 import java.io.*;
 import java.sql.*;
 
 import javax.sql.DataSource;
 
-import com.small.library.generator.Base;
 import com.small.library.html.*;
 
 /***********************************************************************************
@@ -20,357 +21,254 @@ import com.small.library.html.*;
 
 public class DatabaseHtml
 {
-	/***************************************************************************
-	*
-	*	Constructors
-	*
-	***************************************************************************/
-
-	/** Constructor - constructs an empty object. */
-	public DatabaseHtml() { this(null, null); }
+	private final DataSource dataSource;
+	private final PrintWriter writer;
+	private final Table table;
 
 	/** Constructor - constructs a populated object.
-		@param pDataSource The database connection's connection factory.
-		@param pWriter HTML document's output stream.
+		@param dataSource The database connection's connection factory.
+		@param writer HTML document's output stream.
 	*/
-	public DatabaseHtml(DataSource pDataSource,
-		PrintWriter pWriter)
+	public DatabaseHtml(final DataSource dataSource, final PrintWriter writer)
 	{
-		m_DataSource = pDataSource;
-		m_Writer = pWriter;
-		m_Table = new Table("DatabaseMetaData",
+		this.dataSource = dataSource;
+		this.writer = writer;
+		table = new Table("DatabaseMetaData",
 			1, 3, 0,
 			null, null, null, null);
 	}
-
-	/***************************************************************************
-	*
-	*	Action methods
-	*
-	***************************************************************************/
 
 	/** Action method - writes the connection's metadata to an HTML
 	    document. */
 	public void run()
 		throws SQLException, IOException
 	{
-		Connection pConnection = m_DataSource.getConnection();
-		DatabaseMetaData pMetaData = pConnection.getMetaData();
-		TableRows pRows = createTableRows(pMetaData);
-
-		startDoc(pMetaData);
-
-		m_Table.create(m_Writer, pRows);
-
-		endDoc(pMetaData);
-
-		m_Writer.flush();
-		pConnection.close();
+		try (final Connection pConnection = dataSource.getConnection())
+		{
+			DatabaseMetaData metadata = pConnection.getMetaData();
+			TableRows rows = createTableRows(metadata);
+	
+			startDoc(metadata);
+	
+			table.create(writer, rows);
+	
+			endDoc(metadata);
+	
+			writer.flush();
+		}
 	}
 
 	/** Action method - starts the HTML document. */
-	private void startDoc(DatabaseMetaData pMetaData)
+	private void startDoc(final DatabaseMetaData metadata)
 		throws SQLException, IOException
 	{
-		String strTitle = pMetaData.getDatabaseProductName() + " " +
-			pMetaData.getDatabaseProductVersion() + " [" +
-			pMetaData.getDriverName() + "]";
+		String strTitle = metadata.getDatabaseProductName() + " " +
+			metadata.getDatabaseProductVersion() + " [" +
+			metadata.getDriverName() + "]";
 
-		m_Writer.println("<HTML>");
-		m_Writer.println("<HEAD><TITLE>" + strTitle + "</TITLE></HEAD>");
-		m_Writer.println("<BODY>");
-		m_Writer.println("<H1>" + strTitle + "</H1>");
+		writer.println("<HTML>");
+		writer.println("<HEAD><TITLE>" + strTitle + "</TITLE></HEAD>");
+		writer.println("<BODY>");
+		writer.println("<H1>" + strTitle + "</H1>");
 	}
 
 	/** Action method - ends the HTML document. */
-	private void endDoc(DatabaseMetaData pMetaData)
+	private void endDoc(DatabaseMetaData metadata)
 		throws SQLException, IOException
 	{
-		m_Writer.println("</BODY></HTML>");
+		writer.println("</BODY></HTML>");
 	}
 
 	/** Action method - creates and populates the table rows that will make
 	    up the body of the database meta data documentation.
 	*/
-	private TableRows createTableRows(DatabaseMetaData pMetaData)
+	private TableRows createTableRows(final DatabaseMetaData metadata)
 		throws SQLException
 	{
-		TableRows pRows = new TableRows();
+		final TableRows rows = new TableRows();
 
-		pRows.add(new TableRow(new TableCell[] {
+		rows.add(new TableRow(new TableCell[] {
 			new TableHeader("Meta Data Name"),
 			new TableHeader("Meta Data Value") }));
 
-		pRows.add(new TableRow(createCellData("allTablesAreSelectable", pMetaData.allTablesAreSelectable())));
-		pRows.add(new TableRow(createCellData("dataDefinitionCausesTransactionCommit", pMetaData.dataDefinitionCausesTransactionCommit())));
-		pRows.add(new TableRow(createCellData("dataDefinitionIgnoredInTransactions", pMetaData.dataDefinitionIgnoredInTransactions())));
-		// pRows.add(new TableRow(createCellData("deletesAreDetected", pMetaData.deletesAreDetected())));
-		pRows.add(new TableRow(createCellData("doesMaxRowSizeIncludeBlobs", pMetaData.doesMaxRowSizeIncludeBlobs())));
-		// pRows.add(new TableRow(createCellData("getAttributes", pMetaData.getAttributes())));
-		// pRows.add(new TableRow(createCellData("getBestRowIdentifier", pMetaData.getBestRowIdentifier())));
-		pRows.add(new TableRow(createCellData("getCatalogSeparator", pMetaData.getCatalogSeparator())));
-		pRows.add(new TableRow(createCellData("getCatalogTerm", pMetaData.getCatalogTerm())));
-		// pRows.add(new TableRow(createCellData("getDatabaseMajorVersion", pMetaData.getDatabaseMajorVersion())));
-		// pRows.add(new TableRow(createCellData("getDatabaseMinorVersion", pMetaData.getDatabaseMinorVersion())));
-		pRows.add(new TableRow(createCellData("getDatabaseProductName", pMetaData.getDatabaseProductName())));
-		pRows.add(new TableRow(createCellData("getDatabaseProductVersion", pMetaData.getDatabaseProductVersion())));
-		pRows.add(new TableRow(createCellData("getDefaultTransactionIsolation", pMetaData.getDefaultTransactionIsolation())));
-		pRows.add(new TableRow(createCellData("getDriverMajorVersion", pMetaData.getDriverMajorVersion())));
-		pRows.add(new TableRow(createCellData("getDriverMinorVersion", pMetaData.getDriverMinorVersion())));
-		pRows.add(new TableRow(createCellData("getDriverName", pMetaData.getDriverName())));
-		pRows.add(new TableRow(createCellData("getDriverVersion", pMetaData.getDriverVersion())));
-		pRows.add(new TableRow(createCellData("getExtraNameCharacters", pMetaData.getExtraNameCharacters())));
-		pRows.add(new TableRow(createCellData("getIdentifierQuoteString", pMetaData.getIdentifierQuoteString())));
-		pRows.add(new TableRow(createCellData("getJDBCMajorVersion", pMetaData.getJDBCMajorVersion())));
-		pRows.add(new TableRow(createCellData("getJDBCMinorVersion", pMetaData.getJDBCMinorVersion())));
-		pRows.add(new TableRow(createCellData("getMaxBinaryLiteralLength", pMetaData.getMaxBinaryLiteralLength())));
-		pRows.add(new TableRow(createCellData("getMaxCatalogNameLength", pMetaData.getMaxCatalogNameLength())));
-		pRows.add(new TableRow(createCellData("getMaxCharLiteralLength", pMetaData.getMaxCharLiteralLength())));
-		pRows.add(new TableRow(createCellData("getMaxColumnNameLength", pMetaData.getMaxColumnNameLength())));
-		pRows.add(new TableRow(createCellData("getMaxColumnsInGroupBy", pMetaData.getMaxColumnsInGroupBy())));
-		pRows.add(new TableRow(createCellData("getMaxColumnsInIndex", pMetaData.getMaxColumnsInIndex())));
-		pRows.add(new TableRow(createCellData("getMaxColumnsInOrderBy", pMetaData.getMaxColumnsInOrderBy())));
-		pRows.add(new TableRow(createCellData("getMaxColumnsInSelect", pMetaData.getMaxColumnsInSelect())));
-		pRows.add(new TableRow(createCellData("getMaxColumnsInTable", pMetaData.getMaxColumnsInTable())));
-		pRows.add(new TableRow(createCellData("getMaxConnections", pMetaData.getMaxConnections())));
-		pRows.add(new TableRow(createCellData("getMaxCursorNameLength", pMetaData.getMaxCursorNameLength())));
-		pRows.add(new TableRow(createCellData("getMaxIndexLength", pMetaData.getMaxIndexLength())));
-		pRows.add(new TableRow(createCellData("getMaxProcedureNameLength", pMetaData.getMaxProcedureNameLength())));
-		pRows.add(new TableRow(createCellData("getMaxRowSize", pMetaData.getMaxRowSize())));
-		pRows.add(new TableRow(createCellData("getMaxSchemaNameLength", pMetaData.getMaxSchemaNameLength())));
-		pRows.add(new TableRow(createCellData("getMaxStatementLength", pMetaData.getMaxStatementLength())));
-		pRows.add(new TableRow(createCellData("getMaxStatements", pMetaData.getMaxStatements())));
-		pRows.add(new TableRow(createCellData("getMaxTableNameLength", pMetaData.getMaxTableNameLength())));
-		pRows.add(new TableRow(createCellData("getMaxTablesInSelect", pMetaData.getMaxTablesInSelect())));
-		pRows.add(new TableRow(createCellData("getMaxUserNameLength", pMetaData.getMaxUserNameLength())));
-		pRows.add(new TableRow(createCellData("getNumericFunctions", pMetaData.getNumericFunctions())));
-		pRows.add(new TableRow(createCellData("getProcedureTerm", pMetaData.getProcedureTerm())));
-		// pRows.add(new TableRow(createCellData("getResultSetHoldability", pMetaData.getResultSetHoldability())));
-		pRows.add(new TableRow(createCellData("getSQLKeywords", pMetaData.getSQLKeywords())));
-		pRows.add(new TableRow(createCellData("getSQLStateType", pMetaData.getSQLStateType())));
-		pRows.add(new TableRow(createCellData("getSchemaTerm", pMetaData.getSchemaTerm())));
-		pRows.add(new TableRow(createCellData("getSearchStringEscape", pMetaData.getSearchStringEscape())));
-		pRows.add(new TableRow(createCellData("getStringFunctions", pMetaData.getStringFunctions())));
-		pRows.add(new TableRow(createCellData("getSystemFunctions", pMetaData.getSystemFunctions())));
-		pRows.add(new TableRow(createCellData("getTimeDateFunctions", pMetaData.getTimeDateFunctions())));
-		pRows.add(new TableRow(createCellData("getURL", pMetaData.getURL())));
-		pRows.add(new TableRow(createCellData("getUserName", pMetaData.getUserName())));
-		// pRows.add(new TableRow(createCellData("insertsAreDetected", pMetaData.insertsAreDetected())));
-		pRows.add(new TableRow(createCellData("isCatalogAtStart", pMetaData.isCatalogAtStart())));
-		pRows.add(new TableRow(createCellData("isReadOnly", pMetaData.isReadOnly())));
-		// pRows.add(new TableRow(createCellData("locatorsUpdateCopy", pMetaData.locatorsUpdateCopy())));
-		pRows.add(new TableRow(createCellData("nullPlusNonNullIsNull", pMetaData.nullPlusNonNullIsNull())));
-		pRows.add(new TableRow(createCellData("nullsAreSortedAtEnd", pMetaData.nullsAreSortedAtEnd())));
-		pRows.add(new TableRow(createCellData("nullsAreSortedAtStart", pMetaData.nullsAreSortedAtStart())));
-		pRows.add(new TableRow(createCellData("nullsAreSortedHigh", pMetaData.nullsAreSortedHigh())));
-		pRows.add(new TableRow(createCellData("nullsAreSortedLow", pMetaData.nullsAreSortedLow())));
-		// pRows.add(new TableRow(createCellData("othersDeletesAreVisible", pMetaData.othersDeletesAreVisible())));
-		// pRows.add(new TableRow(createCellData("othersInsertsAreVisible", pMetaData.othersInsertsAreVisible())));
-		// pRows.add(new TableRow(createCellData("othersUpdatesAreVisible", pMetaData.othersUpdatesAreVisible())));
-		// pRows.add(new TableRow(createCellData("ownDeletesAreVisible", pMetaData.ownDeletesAreVisible())));
-		// pRows.add(new TableRow(createCellData("ownInsertsAreVisible", pMetaData.ownInsertsAreVisible())));
-		// pRows.add(new TableRow(createCellData("ownUpdatesAreVisible", pMetaData.ownUpdatesAreVisible())));
-		pRows.add(new TableRow(createCellData("storesLowerCaseIdentifiers", pMetaData.storesLowerCaseIdentifiers())));
-		pRows.add(new TableRow(createCellData("storesLowerCaseQuotedIdentifiers", pMetaData.storesLowerCaseQuotedIdentifiers())));
-		pRows.add(new TableRow(createCellData("storesMixedCaseIdentifiers", pMetaData.storesMixedCaseIdentifiers())));
-		pRows.add(new TableRow(createCellData("storesMixedCaseQuotedIdentifiers", pMetaData.storesMixedCaseQuotedIdentifiers())));
-		pRows.add(new TableRow(createCellData("storesUpperCaseIdentifiers", pMetaData.storesUpperCaseIdentifiers())));
-		pRows.add(new TableRow(createCellData("storesUpperCaseQuotedIdentifiers", pMetaData.storesUpperCaseQuotedIdentifiers())));
-		pRows.add(new TableRow(createCellData("supportsANSI92EntryLevelSQL", pMetaData.supportsANSI92EntryLevelSQL())));
-		pRows.add(new TableRow(createCellData("supportsANSI92FullSQL", pMetaData.supportsANSI92FullSQL())));
-		pRows.add(new TableRow(createCellData("supportsANSI92IntermediateSQL", pMetaData.supportsANSI92IntermediateSQL())));
-		pRows.add(new TableRow(createCellData("supportsAlterTableWithAddColumn", pMetaData.supportsAlterTableWithAddColumn())));
-		pRows.add(new TableRow(createCellData("supportsAlterTableWithDropColumn", pMetaData.supportsAlterTableWithDropColumn())));
-		pRows.add(new TableRow(createCellData("supportsBatchUpdates", pMetaData.supportsBatchUpdates())));
-		pRows.add(new TableRow(createCellData("supportsCatalogsInDataManipulation", pMetaData.supportsCatalogsInDataManipulation())));
-		pRows.add(new TableRow(createCellData("supportsCatalogsInIndexDefinitions", pMetaData.supportsCatalogsInIndexDefinitions())));
-		pRows.add(new TableRow(createCellData("supportsCatalogsInPrivilegeDefinitions", pMetaData.supportsCatalogsInPrivilegeDefinitions())));
-		pRows.add(new TableRow(createCellData("supportsCatalogsInProcedureCalls", pMetaData.supportsCatalogsInProcedureCalls())));
-		pRows.add(new TableRow(createCellData("supportsCatalogsInTableDefinitions", pMetaData.supportsCatalogsInTableDefinitions())));
-		pRows.add(new TableRow(createCellData("supportsColumnAliasing", pMetaData.supportsColumnAliasing())));
-		pRows.add(new TableRow(createCellData("supportsConvert", pMetaData.supportsConvert())));
-		pRows.add(new TableRow(createCellData("supportsCoreSQLGrammar", pMetaData.supportsCoreSQLGrammar())));
-		pRows.add(new TableRow(createCellData("supportsCorrelatedSubqueries", pMetaData.supportsCorrelatedSubqueries())));
-		pRows.add(new TableRow(createCellData("supportsDataDefinitionAndDataManipulationTransactions", pMetaData.supportsDataDefinitionAndDataManipulationTransactions())));
-		pRows.add(new TableRow(createCellData("supportsDataManipulationTransactionsOnly", pMetaData.supportsDataManipulationTransactionsOnly())));
-		pRows.add(new TableRow(createCellData("supportsDifferentTableCorrelationNames", pMetaData.supportsDifferentTableCorrelationNames())));
-		pRows.add(new TableRow(createCellData("supportsExpressionsInOrderBy", pMetaData.supportsExpressionsInOrderBy())));
-		pRows.add(new TableRow(createCellData("supportsExtendedSQLGrammar", pMetaData.supportsExtendedSQLGrammar())));
-		pRows.add(new TableRow(createCellData("supportsFullOuterJoins", pMetaData.supportsFullOuterJoins())));
-		pRows.add(new TableRow(createCellData("supportsGetGeneratedKeys", pMetaData.supportsGetGeneratedKeys())));
-		pRows.add(new TableRow(createCellData("supportsGroupBy", pMetaData.supportsGroupBy())));
-		pRows.add(new TableRow(createCellData("supportsGroupByBeyondSelect", pMetaData.supportsGroupByBeyondSelect())));
-		pRows.add(new TableRow(createCellData("supportsGroupByUnrelated", pMetaData.supportsGroupByUnrelated())));
-		pRows.add(new TableRow(createCellData("supportsIntegrityEnhancementFacility", pMetaData.supportsIntegrityEnhancementFacility())));
-		pRows.add(new TableRow(createCellData("supportsLikeEscapeClause", pMetaData.supportsLikeEscapeClause())));
-		pRows.add(new TableRow(createCellData("supportsLimitedOuterJoins", pMetaData.supportsLimitedOuterJoins())));
-		pRows.add(new TableRow(createCellData("supportsMinimumSQLGrammar", pMetaData.supportsMinimumSQLGrammar())));
-		pRows.add(new TableRow(createCellData("supportsMixedCaseIdentifiers", pMetaData.supportsMixedCaseIdentifiers())));
-		pRows.add(new TableRow(createCellData("supportsMixedCaseQuotedIdentifiers", pMetaData.supportsMixedCaseQuotedIdentifiers())));
-		pRows.add(new TableRow(createCellData("supportsMultipleOpenResults", pMetaData.supportsMultipleOpenResults())));
-		pRows.add(new TableRow(createCellData("supportsMultipleResultSets", pMetaData.supportsMultipleResultSets())));
-		pRows.add(new TableRow(createCellData("supportsMultipleTransactions", pMetaData.supportsMultipleTransactions())));
-		pRows.add(new TableRow(createCellData("supportsNamedParameters", pMetaData.supportsNamedParameters())));
-		pRows.add(new TableRow(createCellData("supportsNonNullableColumns", pMetaData.supportsNonNullableColumns())));
-		pRows.add(new TableRow(createCellData("supportsOpenCursorsAcrossCommit", pMetaData.supportsOpenCursorsAcrossCommit())));
-		pRows.add(new TableRow(createCellData("supportsOpenCursorsAcrossRollback", pMetaData.supportsOpenCursorsAcrossRollback())));
-		pRows.add(new TableRow(createCellData("supportsOpenStatementsAcrossCommit", pMetaData.supportsOpenStatementsAcrossCommit())));
-		pRows.add(new TableRow(createCellData("supportsOpenStatementsAcrossRollback", pMetaData.supportsOpenStatementsAcrossRollback())));
-		pRows.add(new TableRow(createCellData("supportsOrderByUnrelated", pMetaData.supportsOrderByUnrelated())));
-		pRows.add(new TableRow(createCellData("supportsOuterJoins", pMetaData.supportsOuterJoins())));
-		pRows.add(new TableRow(createCellData("supportsPositionedDelete", pMetaData.supportsPositionedDelete())));
-		pRows.add(new TableRow(createCellData("supportsPositionedUpdate", pMetaData.supportsPositionedUpdate())));
-		// pRows.add(new TableRow(createCellData("supportsResultSetConcurrency", pMetaData.supportsResultSetConcurrency())));
-		// pRows.add(new TableRow(createCellData("supportsResultSetHoldability", pMetaData.supportsResultSetHoldability())));
-		// pRows.add(new TableRow(createCellData("supportsResultSetType", pMetaData.supportsResultSetType())));
-		pRows.add(new TableRow(createCellData("supportsSavepoints", pMetaData.supportsSavepoints())));
-		pRows.add(new TableRow(createCellData("supportsSchemasInDataManipulation", pMetaData.supportsSchemasInDataManipulation())));
-		pRows.add(new TableRow(createCellData("supportsSchemasInIndexDefinitions", pMetaData.supportsSchemasInIndexDefinitions())));
-		pRows.add(new TableRow(createCellData("supportsSchemasInPrivilegeDefinitions", pMetaData.supportsSchemasInPrivilegeDefinitions())));
-		pRows.add(new TableRow(createCellData("supportsSchemasInProcedureCalls", pMetaData.supportsSchemasInProcedureCalls())));
-		pRows.add(new TableRow(createCellData("supportsSchemasInTableDefinitions", pMetaData.supportsSchemasInTableDefinitions())));
-		pRows.add(new TableRow(createCellData("supportsSelectForUpdate", pMetaData.supportsSelectForUpdate())));
-		// pRows.add(new TableRow(createCellData("supportsStatementPooling", pMetaData.supportsStatementPooling())));
-		pRows.add(new TableRow(createCellData("supportsStoredProcedures", pMetaData.supportsStoredProcedures())));
-		pRows.add(new TableRow(createCellData("supportsSubqueriesInComparisons", pMetaData.supportsSubqueriesInComparisons())));
-		pRows.add(new TableRow(createCellData("supportsSubqueriesInExists", pMetaData.supportsSubqueriesInExists())));
-		pRows.add(new TableRow(createCellData("supportsSubqueriesInIns", pMetaData.supportsSubqueriesInIns())));
-		pRows.add(new TableRow(createCellData("supportsSubqueriesInQuantifieds", pMetaData.supportsSubqueriesInQuantifieds())));
-		pRows.add(new TableRow(createCellData("supportsTableCorrelationNames", pMetaData.supportsTableCorrelationNames())));
-		// pRows.add(new TableRow(createCellData("supportsTransactionIsolationLevel", pMetaData.supportsTransactionIsolationLevel())));
-		pRows.add(new TableRow(createCellData("supportsTransactions", pMetaData.supportsTransactions())));
-		pRows.add(new TableRow(createCellData("supportsUnion", pMetaData.supportsUnion())));
-		pRows.add(new TableRow(createCellData("supportsUnionAll", pMetaData.supportsUnionAll())));
-		// pRows.add(new TableRow(createCellData("updatesAreDetected", pMetaData.updatesAreDetected())));
-		pRows.add(new TableRow(createCellData("usesLocalFilePerTable", pMetaData.usesLocalFilePerTable())));
-		pRows.add(new TableRow(createCellData("usesLocalFiles", pMetaData.usesLocalFiles())));
+		rows.add(new TableRow(createCellData("allTablesAreSelectable", metadata.allTablesAreSelectable())));
+		rows.add(new TableRow(createCellData("dataDefinitionCausesTransactionCommit", metadata.dataDefinitionCausesTransactionCommit())));
+		rows.add(new TableRow(createCellData("dataDefinitionIgnoredInTransactions", metadata.dataDefinitionIgnoredInTransactions())));
+		// rows.add(new TableRow(createCellData("deletesAreDetected", metadata.deletesAreDetected())));
+		rows.add(new TableRow(createCellData("doesMaxRowSizeIncludeBlobs", metadata.doesMaxRowSizeIncludeBlobs())));
+		// rows.add(new TableRow(createCellData("getAttributes", metadata.getAttributes())));
+		// rows.add(new TableRow(createCellData("getBestRowIdentifier", metadata.getBestRowIdentifier())));
+		rows.add(new TableRow(createCellData("getCatalogSeparator", metadata.getCatalogSeparator())));
+		rows.add(new TableRow(createCellData("getCatalogTerm", metadata.getCatalogTerm())));
+		// rows.add(new TableRow(createCellData("getDatabaseMajorVersion", metadata.getDatabaseMajorVersion())));
+		// rows.add(new TableRow(createCellData("getDatabaseMinorVersion", metadata.getDatabaseMinorVersion())));
+		rows.add(new TableRow(createCellData("getDatabaseProductName", metadata.getDatabaseProductName())));
+		rows.add(new TableRow(createCellData("getDatabaseProductVersion", metadata.getDatabaseProductVersion())));
+		rows.add(new TableRow(createCellData("getDefaultTransactionIsolation", metadata.getDefaultTransactionIsolation())));
+		rows.add(new TableRow(createCellData("getDriverMajorVersion", metadata.getDriverMajorVersion())));
+		rows.add(new TableRow(createCellData("getDriverMinorVersion", metadata.getDriverMinorVersion())));
+		rows.add(new TableRow(createCellData("getDriverName", metadata.getDriverName())));
+		rows.add(new TableRow(createCellData("getDriverVersion", metadata.getDriverVersion())));
+		rows.add(new TableRow(createCellData("getExtraNameCharacters", metadata.getExtraNameCharacters())));
+		rows.add(new TableRow(createCellData("getIdentifierQuoteString", metadata.getIdentifierQuoteString())));
+		rows.add(new TableRow(createCellData("getJDBCMajorVersion", metadata.getJDBCMajorVersion())));
+		rows.add(new TableRow(createCellData("getJDBCMinorVersion", metadata.getJDBCMinorVersion())));
+		rows.add(new TableRow(createCellData("getMaxBinaryLiteralLength", metadata.getMaxBinaryLiteralLength())));
+		rows.add(new TableRow(createCellData("getMaxCatalogNameLength", metadata.getMaxCatalogNameLength())));
+		rows.add(new TableRow(createCellData("getMaxCharLiteralLength", metadata.getMaxCharLiteralLength())));
+		rows.add(new TableRow(createCellData("getMaxColumnNameLength", metadata.getMaxColumnNameLength())));
+		rows.add(new TableRow(createCellData("getMaxColumnsInGroupBy", metadata.getMaxColumnsInGroupBy())));
+		rows.add(new TableRow(createCellData("getMaxColumnsInIndex", metadata.getMaxColumnsInIndex())));
+		rows.add(new TableRow(createCellData("getMaxColumnsInOrderBy", metadata.getMaxColumnsInOrderBy())));
+		rows.add(new TableRow(createCellData("getMaxColumnsInSelect", metadata.getMaxColumnsInSelect())));
+		rows.add(new TableRow(createCellData("getMaxColumnsInTable", metadata.getMaxColumnsInTable())));
+		rows.add(new TableRow(createCellData("getMaxConnections", metadata.getMaxConnections())));
+		rows.add(new TableRow(createCellData("getMaxCursorNameLength", metadata.getMaxCursorNameLength())));
+		rows.add(new TableRow(createCellData("getMaxIndexLength", metadata.getMaxIndexLength())));
+		rows.add(new TableRow(createCellData("getMaxProcedureNameLength", metadata.getMaxProcedureNameLength())));
+		rows.add(new TableRow(createCellData("getMaxRowSize", metadata.getMaxRowSize())));
+		rows.add(new TableRow(createCellData("getMaxSchemaNameLength", metadata.getMaxSchemaNameLength())));
+		rows.add(new TableRow(createCellData("getMaxStatementLength", metadata.getMaxStatementLength())));
+		rows.add(new TableRow(createCellData("getMaxStatements", metadata.getMaxStatements())));
+		rows.add(new TableRow(createCellData("getMaxTableNameLength", metadata.getMaxTableNameLength())));
+		rows.add(new TableRow(createCellData("getMaxTablesInSelect", metadata.getMaxTablesInSelect())));
+		rows.add(new TableRow(createCellData("getMaxUserNameLength", metadata.getMaxUserNameLength())));
+		rows.add(new TableRow(createCellData("getNumericFunctions", metadata.getNumericFunctions())));
+		rows.add(new TableRow(createCellData("getProcedureTerm", metadata.getProcedureTerm())));
+		// rows.add(new TableRow(createCellData("getResultSetHoldability", metadata.getResultSetHoldability())));
+		rows.add(new TableRow(createCellData("getSQLKeywords", metadata.getSQLKeywords())));
+		rows.add(new TableRow(createCellData("getSQLStateType", metadata.getSQLStateType())));
+		rows.add(new TableRow(createCellData("getSchemaTerm", metadata.getSchemaTerm())));
+		rows.add(new TableRow(createCellData("getSearchStringEscape", metadata.getSearchStringEscape())));
+		rows.add(new TableRow(createCellData("getStringFunctions", metadata.getStringFunctions())));
+		rows.add(new TableRow(createCellData("getSystemFunctions", metadata.getSystemFunctions())));
+		rows.add(new TableRow(createCellData("getTimeDateFunctions", metadata.getTimeDateFunctions())));
+		rows.add(new TableRow(createCellData("getURL", metadata.getURL())));
+		rows.add(new TableRow(createCellData("getUserName", metadata.getUserName())));
+		// rows.add(new TableRow(createCellData("insertsAreDetected", metadata.insertsAreDetected())));
+		rows.add(new TableRow(createCellData("isCatalogAtStart", metadata.isCatalogAtStart())));
+		rows.add(new TableRow(createCellData("isReadOnly", metadata.isReadOnly())));
+		// rows.add(new TableRow(createCellData("locatorsUpdateCopy", metadata.locatorsUpdateCopy())));
+		rows.add(new TableRow(createCellData("nullPlusNonNullIsNull", metadata.nullPlusNonNullIsNull())));
+		rows.add(new TableRow(createCellData("nullsAreSortedAtEnd", metadata.nullsAreSortedAtEnd())));
+		rows.add(new TableRow(createCellData("nullsAreSortedAtStart", metadata.nullsAreSortedAtStart())));
+		rows.add(new TableRow(createCellData("nullsAreSortedHigh", metadata.nullsAreSortedHigh())));
+		rows.add(new TableRow(createCellData("nullsAreSortedLow", metadata.nullsAreSortedLow())));
+		// rows.add(new TableRow(createCellData("othersDeletesAreVisible", metadata.othersDeletesAreVisible())));
+		// rows.add(new TableRow(createCellData("othersInsertsAreVisible", metadata.othersInsertsAreVisible())));
+		// rows.add(new TableRow(createCellData("othersUpdatesAreVisible", metadata.othersUpdatesAreVisible())));
+		// rows.add(new TableRow(createCellData("ownDeletesAreVisible", metadata.ownDeletesAreVisible())));
+		// rows.add(new TableRow(createCellData("ownInsertsAreVisible", metadata.ownInsertsAreVisible())));
+		// rows.add(new TableRow(createCellData("ownUpdatesAreVisible", metadata.ownUpdatesAreVisible())));
+		rows.add(new TableRow(createCellData("storesLowerCaseIdentifiers", metadata.storesLowerCaseIdentifiers())));
+		rows.add(new TableRow(createCellData("storesLowerCaseQuotedIdentifiers", metadata.storesLowerCaseQuotedIdentifiers())));
+		rows.add(new TableRow(createCellData("storesMixedCaseIdentifiers", metadata.storesMixedCaseIdentifiers())));
+		rows.add(new TableRow(createCellData("storesMixedCaseQuotedIdentifiers", metadata.storesMixedCaseQuotedIdentifiers())));
+		rows.add(new TableRow(createCellData("storesUpperCaseIdentifiers", metadata.storesUpperCaseIdentifiers())));
+		rows.add(new TableRow(createCellData("storesUpperCaseQuotedIdentifiers", metadata.storesUpperCaseQuotedIdentifiers())));
+		rows.add(new TableRow(createCellData("supportsANSI92EntryLevelSQL", metadata.supportsANSI92EntryLevelSQL())));
+		rows.add(new TableRow(createCellData("supportsANSI92FullSQL", metadata.supportsANSI92FullSQL())));
+		rows.add(new TableRow(createCellData("supportsANSI92IntermediateSQL", metadata.supportsANSI92IntermediateSQL())));
+		rows.add(new TableRow(createCellData("supportsAlterTableWithAddColumn", metadata.supportsAlterTableWithAddColumn())));
+		rows.add(new TableRow(createCellData("supportsAlterTableWithDropColumn", metadata.supportsAlterTableWithDropColumn())));
+		rows.add(new TableRow(createCellData("supportsBatchUpdates", metadata.supportsBatchUpdates())));
+		rows.add(new TableRow(createCellData("supportsCatalogsInDataManipulation", metadata.supportsCatalogsInDataManipulation())));
+		rows.add(new TableRow(createCellData("supportsCatalogsInIndexDefinitions", metadata.supportsCatalogsInIndexDefinitions())));
+		rows.add(new TableRow(createCellData("supportsCatalogsInPrivilegeDefinitions", metadata.supportsCatalogsInPrivilegeDefinitions())));
+		rows.add(new TableRow(createCellData("supportsCatalogsInProcedureCalls", metadata.supportsCatalogsInProcedureCalls())));
+		rows.add(new TableRow(createCellData("supportsCatalogsInTableDefinitions", metadata.supportsCatalogsInTableDefinitions())));
+		rows.add(new TableRow(createCellData("supportsColumnAliasing", metadata.supportsColumnAliasing())));
+		rows.add(new TableRow(createCellData("supportsConvert", metadata.supportsConvert())));
+		rows.add(new TableRow(createCellData("supportsCoreSQLGrammar", metadata.supportsCoreSQLGrammar())));
+		rows.add(new TableRow(createCellData("supportsCorrelatedSubqueries", metadata.supportsCorrelatedSubqueries())));
+		rows.add(new TableRow(createCellData("supportsDataDefinitionAndDataManipulationTransactions", metadata.supportsDataDefinitionAndDataManipulationTransactions())));
+		rows.add(new TableRow(createCellData("supportsDataManipulationTransactionsOnly", metadata.supportsDataManipulationTransactionsOnly())));
+		rows.add(new TableRow(createCellData("supportsDifferentTableCorrelationNames", metadata.supportsDifferentTableCorrelationNames())));
+		rows.add(new TableRow(createCellData("supportsExpressionsInOrderBy", metadata.supportsExpressionsInOrderBy())));
+		rows.add(new TableRow(createCellData("supportsExtendedSQLGrammar", metadata.supportsExtendedSQLGrammar())));
+		rows.add(new TableRow(createCellData("supportsFullOuterJoins", metadata.supportsFullOuterJoins())));
+		rows.add(new TableRow(createCellData("supportsGetGeneratedKeys", metadata.supportsGetGeneratedKeys())));
+		rows.add(new TableRow(createCellData("supportsGroupBy", metadata.supportsGroupBy())));
+		rows.add(new TableRow(createCellData("supportsGroupByBeyondSelect", metadata.supportsGroupByBeyondSelect())));
+		rows.add(new TableRow(createCellData("supportsGroupByUnrelated", metadata.supportsGroupByUnrelated())));
+		rows.add(new TableRow(createCellData("supportsIntegrityEnhancementFacility", metadata.supportsIntegrityEnhancementFacility())));
+		rows.add(new TableRow(createCellData("supportsLikeEscapeClause", metadata.supportsLikeEscapeClause())));
+		rows.add(new TableRow(createCellData("supportsLimitedOuterJoins", metadata.supportsLimitedOuterJoins())));
+		rows.add(new TableRow(createCellData("supportsMinimumSQLGrammar", metadata.supportsMinimumSQLGrammar())));
+		rows.add(new TableRow(createCellData("supportsMixedCaseIdentifiers", metadata.supportsMixedCaseIdentifiers())));
+		rows.add(new TableRow(createCellData("supportsMixedCaseQuotedIdentifiers", metadata.supportsMixedCaseQuotedIdentifiers())));
+		rows.add(new TableRow(createCellData("supportsMultipleOpenResults", metadata.supportsMultipleOpenResults())));
+		rows.add(new TableRow(createCellData("supportsMultipleResultSets", metadata.supportsMultipleResultSets())));
+		rows.add(new TableRow(createCellData("supportsMultipleTransactions", metadata.supportsMultipleTransactions())));
+		rows.add(new TableRow(createCellData("supportsNamedParameters", metadata.supportsNamedParameters())));
+		rows.add(new TableRow(createCellData("supportsNonNullableColumns", metadata.supportsNonNullableColumns())));
+		rows.add(new TableRow(createCellData("supportsOpenCursorsAcrossCommit", metadata.supportsOpenCursorsAcrossCommit())));
+		rows.add(new TableRow(createCellData("supportsOpenCursorsAcrossRollback", metadata.supportsOpenCursorsAcrossRollback())));
+		rows.add(new TableRow(createCellData("supportsOpenStatementsAcrossCommit", metadata.supportsOpenStatementsAcrossCommit())));
+		rows.add(new TableRow(createCellData("supportsOpenStatementsAcrossRollback", metadata.supportsOpenStatementsAcrossRollback())));
+		rows.add(new TableRow(createCellData("supportsOrderByUnrelated", metadata.supportsOrderByUnrelated())));
+		rows.add(new TableRow(createCellData("supportsOuterJoins", metadata.supportsOuterJoins())));
+		rows.add(new TableRow(createCellData("supportsPositionedDelete", metadata.supportsPositionedDelete())));
+		rows.add(new TableRow(createCellData("supportsPositionedUpdate", metadata.supportsPositionedUpdate())));
+		// rows.add(new TableRow(createCellData("supportsResultSetConcurrency", metadata.supportsResultSetConcurrency())));
+		// rows.add(new TableRow(createCellData("supportsResultSetHoldability", metadata.supportsResultSetHoldability())));
+		// rows.add(new TableRow(createCellData("supportsResultSetType", metadata.supportsResultSetType())));
+		rows.add(new TableRow(createCellData("supportsSavepoints", metadata.supportsSavepoints())));
+		rows.add(new TableRow(createCellData("supportsSchemasInDataManipulation", metadata.supportsSchemasInDataManipulation())));
+		rows.add(new TableRow(createCellData("supportsSchemasInIndexDefinitions", metadata.supportsSchemasInIndexDefinitions())));
+		rows.add(new TableRow(createCellData("supportsSchemasInPrivilegeDefinitions", metadata.supportsSchemasInPrivilegeDefinitions())));
+		rows.add(new TableRow(createCellData("supportsSchemasInProcedureCalls", metadata.supportsSchemasInProcedureCalls())));
+		rows.add(new TableRow(createCellData("supportsSchemasInTableDefinitions", metadata.supportsSchemasInTableDefinitions())));
+		rows.add(new TableRow(createCellData("supportsSelectForUpdate", metadata.supportsSelectForUpdate())));
+		// rows.add(new TableRow(createCellData("supportsStatementPooling", metadata.supportsStatementPooling())));
+		rows.add(new TableRow(createCellData("supportsStoredProcedures", metadata.supportsStoredProcedures())));
+		rows.add(new TableRow(createCellData("supportsSubqueriesInComparisons", metadata.supportsSubqueriesInComparisons())));
+		rows.add(new TableRow(createCellData("supportsSubqueriesInExists", metadata.supportsSubqueriesInExists())));
+		rows.add(new TableRow(createCellData("supportsSubqueriesInIns", metadata.supportsSubqueriesInIns())));
+		rows.add(new TableRow(createCellData("supportsSubqueriesInQuantifieds", metadata.supportsSubqueriesInQuantifieds())));
+		rows.add(new TableRow(createCellData("supportsTableCorrelationNames", metadata.supportsTableCorrelationNames())));
+		// rows.add(new TableRow(createCellData("supportsTransactionIsolationLevel", metadata.supportsTransactionIsolationLevel())));
+		rows.add(new TableRow(createCellData("supportsTransactions", metadata.supportsTransactions())));
+		rows.add(new TableRow(createCellData("supportsUnion", metadata.supportsUnion())));
+		rows.add(new TableRow(createCellData("supportsUnionAll", metadata.supportsUnionAll())));
+		// rows.add(new TableRow(createCellData("updatesAreDetected", metadata.updatesAreDetected())));
+		rows.add(new TableRow(createCellData("usesLocalFilePerTable", metadata.usesLocalFilePerTable())));
+		rows.add(new TableRow(createCellData("usesLocalFiles", metadata.usesLocalFiles())));
 
-		return pRows;
+		return rows;
 	}
 
 	/** Action method - creates and populates a table cell with an element of
 	    meta data.
 	*/
-	private TableCell[] createCellData(String strName, boolean bValue)
-	{ return createCellData(strName, "" + bValue); }
+	private TableCell[] createCellData(String name, boolean bValue)
+	{ return createCellData(name, "" + bValue); }
 
 	/** Action method - creates and populates a table cell with an element of
 	    meta data.
 	*/
-	private TableCell[] createCellData(String strName, int nValue)
-	{ return createCellData(strName, "" + nValue); }
+	private TableCell[] createCellData(String name, int nValue)
+	{ return createCellData(name, "" + nValue); }
 
 	/** Action method - creates and populates a table cell with an element of
 	    meta data.
 	*/
-	private TableCell[] createCellData(String strName, String strValue)
+	private TableCell[] createCellData(String name, String strValue)
 	{
-		return new TableCell[] { new TableCell(strName),
+		return new TableCell[] { new TableCell(name),
 			new TableCell(strValue) };
 	}
-
-	/***************************************************************************
-	*
-	*	Accessor methods
-	*
-	***************************************************************************/
-
-	/** Accessor method - gets the database connection's connection factory. */
-	public DataSource getDataSource() { return m_DataSource; }
-
-	/** Accessor method - gets the HTML document's output stream. */
-	public PrintWriter getWriter() { return m_Writer; }
-
-	/***************************************************************************
-	*
-	*	Mutator methods
-	*
-	***************************************************************************/
-
-	/** Mutator method - sets the database connection's connection factory. */
-	public void setDataSource(DataSource pNewValue)
-	{ m_DataSource = pNewValue; }
-
-	/** Mutator method - sets the HTML document's output stream. */
-	public void setWriter(PrintWriter pNewValue) { m_Writer = pNewValue; }
-
-	/***************************************************************************
-	*
-	*	Member variables
-	*
-	***************************************************************************/
-
-	/** Private member variable - reference to the database connection's
-	    connection factory.
-	*/
-	private DataSource m_DataSource = null;
-
-	/** Private member variable - reference to the HTML document's output
-	    stream.
-	*/
-	private PrintWriter m_Writer = null;
-
-	/** Private member variable - reference to the table that displays the output. */
-	private Table m_Table = null;
-
-	/***************************************************************************
-	*
-	*	Class entry point
-	*
-	***************************************************************************/
 
 	/** Entry point - Command line entry point for class.
 	*/
 	public static void main(final String... args)
 	{
-		try
+		try (final PrintWriter writer = new PrintWriter(new FileWriter(extractFile(args, 0, "output"))))
 		{
-			// Have enough arguments been supplied?
-			if (3 > args.length)
-				throw new IllegalArgumentException();
-
-			// Local variables
-			String strFile = args[0];
-			String strUrl = args[1];
-			String strUserName = args[2];
-			String strPassword = null;
-			String strDriver = "sun.jdbc.odbc.JdbcOdbcDriver";
-
-			if (3 < args.length)
-				strPassword = args[3];
-
-			if (4 < args.length)
-				strDriver = args[4];
-			else
-				strUrl = "jdbc:odbc:" + strUrl;
-
-			DataSource pDataSource = Base.createDataSource(strDriver,
-				strUrl, strUserName, strPassword);
-			PrintWriter pWriter = new PrintWriter(new FileWriter(strFile));
-
-			(new DatabaseHtml(pDataSource, pWriter)).run();
-
-/* Used to list of meta data method calls.
-			java.lang.reflect.Method[] pMethods = DatabaseMetaData.class.getMethods();
-			Set setMethods = new TreeSet();
-
-			for (int i = 0; i < pMethods.length; i++)
-				setMethods.add(pMethods[i].getName());
-
-			Iterator itMethods = setMethods.iterator();
-
-			while (itMethods.hasNext())
-			{
-				String strMethod = (String) itMethods.next();
-
-				pWriter.print("\t\tpRows.add(new TableRow(createCellData(");
-				pWriter.println("\"" + strMethod + "\", pMetaData." + strMethod + "())));");
-			}
-*/
-			pWriter.close();
+			(new DatabaseHtml(extractDataSource(args, 1), writer)).run();
 		}
 
-		catch (IllegalArgumentException pEx)
+		catch (final IllegalArgumentException ex)
 		{
 			System.out.println("Usage: java " + DatabaseHtml.class.getName() + " HTML_File");
 			System.out.println("\tJDBC_Url");
@@ -379,6 +277,6 @@ public class DatabaseHtml
 			System.out.println("\t[JDBC Driver]");
 		}
 
-		catch (Exception pEx) { pEx.printStackTrace(); }
+		catch (final Exception ex) { ex.printStackTrace(); }
 	}
 }

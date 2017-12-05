@@ -1,12 +1,13 @@
 package com.small.library.doc;
 
+import static com.small.library.generator.Base.*;
+
 import java.io.*;
 import java.sql.*;
 import java.util.List;
 
 import javax.sql.DataSource;
 
-import com.small.library.generator.Base;
 import com.small.library.metadata.*;
 
 /***************************************************************************************
@@ -34,12 +35,6 @@ public class ProceduresHtml
 		metadata = new DBMetadata(dataSource);
 		this.writer = writer;
 	}
-
-	/******************************************************************************
-	*
-	*	HTML handling methods
-	*
-	*****************************************************************************/
 
 	public void write(String strValue) throws IOException { writer.print(strValue); }
 	public void writeLine() throws IOException { writer.println(); }
@@ -102,17 +97,11 @@ public class ProceduresHtml
 	public void openRow() throws IOException { writeLine("<TR>"); }
 	public void closeRow() throws IOException { writeLine("</TR>"); }
 
-	public String createLink(String strUrl, String strValue)
-	{ return "<A HREF=\"" + strUrl + "\">" + strValue + "</A>"; }
+	public String createLink(String url, String strValue)
+	{ return "<A HREF=\"" + url + "\">" + strValue + "</A>"; }
 
-	public String createName(String strName, String strValue)
-	{ return "<A NAME=\"" + strName + "\">" + strValue + "</A>"; }
-
-	/******************************************************************************
-	*
-	*	Action methods
-	*
-	*****************************************************************************/
+	public String createName(String name, String strValue)
+	{ return "<A NAME=\"" + name + "\">" + strValue + "</A>"; }
 
 	public void run()
 		throws SQLException, IOException
@@ -235,45 +224,14 @@ public class ProceduresHtml
 		writeLine("</HTML>");
 	}
 
-	/******************************************************************************
-	*
-	*	Class entry point
-	*
-	*****************************************************************************/
-
-	public static void main(final String... strArgs)
+	public static void main(final String... args)
 	{
-		try
+		try (final PrintWriter writer = new PrintWriter(new FileWriter(extractFile(args, 0, "output"))))
 		{
-			// Have enough arguments been supplied?
-			if (3 > strArgs.length)
-				throw new IllegalArgumentException();
-
-			// Local variables
-			String strFile = strArgs[0];
-			String strUrl = strArgs[1];
-			String strUserName = strArgs[2];
-			String strPassword = null;
-			String strDriver = "sun.jdbc.odbc.JdbcOdbcDriver";
-
-			if (3 < strArgs.length)
-				strPassword = strArgs[3];
-
-			if (4 < strArgs.length)
-				strDriver = strArgs[4];
-			else
-				strUrl = "jdbc:odbc:" + strUrl;
-
-			DataSource dataSource = Base.createDataSource(strDriver,
-				strUrl, strUserName, strPassword);
-			PrintWriter writer = new PrintWriter(new FileWriter(strFile));
-
-			(new ProceduresHtml(dataSource, writer)).run();
-
-			writer.close();
+			(new ProceduresHtml(extractDataSource(args, 1), writer)).run();
 		}
 
-		catch (IllegalArgumentException pEx)
+		catch (IllegalArgumentException ex)
 		{
 			System.out.println("Usage: java " + ProceduresHtml.class.getName() + " HTML_File");
 			System.out.println("\tJDBC_Url");
@@ -282,6 +240,6 @@ public class ProceduresHtml
 			System.out.println("\t[JDBC Driver]");
 		}
 
-		catch (Exception pEx) { pEx.printStackTrace(); }
+		catch (Exception ex) { ex.printStackTrace(); }
 	}
 }
