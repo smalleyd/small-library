@@ -4,6 +4,7 @@ import java.io.*;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -56,7 +57,7 @@ public class TablesDump extends BaseTable
 			If that is not provided, will not include a schema on the
 			insert scripts.
 	*/
-	public TablesDump(PrintWriter pWriter, Tables.Record pTable, DataSource dataSource,
+	public TablesDump(PrintWriter pWriter, Table pTable, DataSource dataSource,
 		String insertSchema)
 	{
 		super(pWriter, null, pTable);
@@ -74,9 +75,9 @@ public class TablesDump extends BaseTable
 	public void generate() throws GeneratorException, IOException
 	{
 		// Get table and column information.
-		Tables.Record table = getTable();
-		String schemaName = table.getSchema();
-		String selectTableName = table.getName();
+		Table table = getTable();
+		String schemaName = table.schema;
+		String selectTableName = table.name;
 		String insertTableName = selectTableName;
 		ColumnInfo[] columns = null;
 
@@ -182,7 +183,7 @@ public class TablesDump extends BaseTable
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
-	public String getOutputFileName(Tables.Record pTable)
+	public String getOutputFileName(Table pTable)
 	{
 		return null;
 	}
@@ -232,8 +233,7 @@ public class TablesDump extends BaseTable
 			File fileOutput = extractFile(strArgs, 0, "output");
 
 			// Create and load the tables object.
-			Tables pTables = extractTables(strArgs, 1, 5);
-			pTables.load();
+			List<Table> tables = extractTables(strArgs, 1, 5);
 
 			// Get the output writer.
 			PrintWriter writer = new PrintWriter(new FileWriter(fileOutput));
@@ -241,16 +241,19 @@ public class TablesDump extends BaseTable
 			// Create the Deployment Descriptor generator.
 			TablesDump pGenerator =
 				new TablesDump(writer,
-				(Tables.Record) null, extractDataSource(strArgs, 1),
+				(Table) null, extractDataSource(strArgs, 1),
 				insertSchema);
 
 			// Buld the body of the deployment descriptor.
-			for (int i = 0; i < pTables.size(); i++)
+			boolean first = true;
+			for (final Table o : tables)
 			{
-				if (0 < i)
+				if (first)
+					first = false;
+				else
 					writer.println();
 
-				pGenerator.setTable((Tables.Record) pTables.item(i));
+				pGenerator.setTable(o);
 				pGenerator.generate();
 
 				writer.flush();

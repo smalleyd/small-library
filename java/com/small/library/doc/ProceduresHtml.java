@@ -6,7 +6,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import com.small.library.data.*;
+import com.small.library.generator.Base;
 import com.small.library.metadata.*;
 
 /***************************************************************************************
@@ -264,7 +264,7 @@ public class ProceduresHtml
 			else
 				strUrl = "jdbc:odbc:" + strUrl;
 
-			DataSource dataSource = DataCollection.createDataSource(strDriver,
+			DataSource dataSource = Base.createDataSource(strDriver,
 				strUrl, strUserName, strPassword);
 			PrintWriter writer = new PrintWriter(new FileWriter(strFile));
 

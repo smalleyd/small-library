@@ -7,7 +7,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import com.small.library.data.*;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 /************************************************************************************************
 *
@@ -21,100 +21,31 @@ import com.small.library.data.*;
 
 public abstract class Base
 {
-	/******************************************************************************
-	*
-	*	Constants - JDBC method suffixes
-	*
-	******************************************************************************/
-
-	/** Constant - JDBC method suffix for "long". */
 	public static final String JDBC_METHOD_SUFFIX_LONG = "Long";
-
-	/** Constant - JDBC method suffix for "int". */
 	public static final String JDBC_METHOD_SUFFIX_INTEGER = "Int";
-
-	/** Constant - JDBC method suffix for "short". */
 	public static final String JDBC_METHOD_SUFFIX_SMALLINT = "Short";
 
-	/******************************************************************************
-	*
-	*	Constants - java types
-	*
-	******************************************************************************/
-
-	/** Constant - java type for "long". */
 	public static final String JAVA_TYPE_LONG = "long";
-
-	/** Constant - java type for "int". */
 	public static final String JAVA_TYPE_INTEGER = "int";
-
-	/** Constant - java type for "short". */
 	public static final String JAVA_TYPE_SMALLINT = "short";
 
-	/******************************************************************************
-	*
-	*	Constants - java object types
-	*
-	******************************************************************************/
-
-	/** Constant - java object type for "long". */
 	public static final String JAVA_OBJECT_TYPE_LONG = "Long";
-
-	/** Constant - java object type for "int". */
 	public static final String JAVA_OBJECT_TYPE_INTEGER = "Integer";
-
-	/** Constant - java object type for "short". */
 	public static final String JAVA_OBJECT_TYPE_SMALLINT = "Short";
 
-	/******************************************************************************
-	*
-	*	Constants - JDBC types
-	*
-	******************************************************************************/
-
-	/** Constant - JDBC type for "long". */
 	public static final String JDBC_TYPE_LONG = "BIGINT";
-
-	/** Constant - JDBC type for "int". */
 	public static final String JDBC_TYPE_INTEGER = "INTEGER";
-
-	/** Constant - JDBC type for "short". */
 	public static final String JDBC_TYPE_SMALLINT = "SMALLINT";
 
-	/******************************************************************************
-	*
-	*	Constants - variable prefixes
-	*
-	******************************************************************************/
-
-	/** Constant - default author. */
 	public static final String AUTHOR_DEFAULT = System.getProperty("user.name");
-
-	/** Constant - variable prefix for an integer. */
 	public static final String PREFIX_INTEGER = "n";
-
-	/** Constant - variable prefix for a small integer. */
 	public static final String PREFIX_SMALLINT = PREFIX_INTEGER;
-
-	/** Constant - variable prefix for a long integer. */
 	public static final String PREFIX_LONG = "l";
-
-	/** Constant - variable prefix for a boolean. */
 	public static final String PREFIX_BOOLEAN = "b";
-
-	/** Constant - variable prefix for a float. */
 	public static final String PREFIX_FLOAT = "f";
-
-	/** Constant - variable prefix for a double. */
 	public static final String PREFIX_DOUBLE = "dbl";
-
-	/** Constant - variable prefix for a <I>String</I>. */
 	public static final String PREFIX_STRING = "str";
-
-	/** Constant - variable prefix for a <I>Date</I>. */
 	public static final String PREFIX_DATE = "dte";
-
-	/** Constant - variable prefix for an object reference. */
 	public static final String PREFIX_OBJECT_REFERENCE = "p";
 
 	/******************************************************************************
@@ -143,23 +74,20 @@ public abstract class Base
 		PRIMITIVES.put("char", "Character");
 	}
 
-	/**************************************************************************************
-	*
-	*	Constructors
-	*
-	**************************************************************************************/
+	private PrintWriter writer;
+	public final String author;
 
 	/** Constructor - constructs an empty object. */
 	public Base() { this(null, AUTHOR_DEFAULT); }
 
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
+		@param writer The output stream.
+		@param author Name of the author.
 	*/
-	public Base(PrintWriter pWriter, String strAuthor)
+	public Base(final PrintWriter writer, final String author)
 	{
-		writer = pWriter;
-		author = strAuthor;
+		this.writer = writer;
+		this.author = author;
 	}
 
 	/**************************************************************************************
@@ -194,19 +122,7 @@ public abstract class Base
 		return DateFormat.getDateInstance(DateFormat.LONG).format(getNow());
 	}
 
-	/******************************************************************************
-	*
-	*	Mutator methods
-	*
-	*****************************************************************************/
-
-	/** Mutator method - sets the output stream. */
-	public void setWriter(PrintWriter pValue)
-	{ writer = pValue; }
-
-	/** Mutator method - sets the author name. */
-	public void setAuthor(String strValue)
-	{ author = strValue; }
+	public void setWriter(final PrintWriter newValue) { writer = newValue; }
 
 	/**************************************************************************************
 	*
@@ -438,7 +354,19 @@ public abstract class Base
 			strUrl = "jdbc:odbc:" + strUrl;
 
 		// Create the data source.
-		return DataCollection.createDataSource(strDriver, strUrl, strUserName, strPassword);
+		return createDataSource(strDriver, strUrl, strUserName, strPassword);
+	}
+
+	/** Helper method - creates JDBC DataSource object. */
+	public static DataSource createDataSource(final String driver, final String url, final String userName, final String password)
+	{
+		final BasicDataSource value = new BasicDataSource();
+		value.setDriverClassName(driver);
+		value.setUrl(url);
+		value.setUsername(userName);
+		value.setPassword(password);
+
+		return value;
 	}
 
 	/** Helper method - extracts the author name from the command line
@@ -451,16 +379,4 @@ public abstract class Base
 	{
 		return extractArgument(strArgs, nArgument, AUTHOR_DEFAULT);
 	}
-
-	/**************************************************************************************
-	*
-	*	Member variables
-	*
-	**************************************************************************************/
-
-	/** Member variable - reference to the output stream. */
-	private PrintWriter writer = null;
-
-	/** Member variable - reference to the author of the generated code. */
-	private String author = null;
 }

@@ -59,7 +59,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		@param table A table record object to base the output on.
 	*/
 	public EntityBeanDAO(PrintWriter writer,
-		String author, Tables.Record table)
+		String author, Table table)
 	{
 		super(writer, author, table);
 	}
@@ -72,7 +72,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		@param version Represents the application version.
 	*/
 	public EntityBeanDAO(PrintWriter writer,
-		String author, Tables.Record table, String packageName, String version)
+		String author, Table table, String packageName, String version)
 	{
 		super(writer, author, table, packageName, version);
 	}
@@ -105,10 +105,10 @@ public class EntityBeanDAO extends EntityBeanBase
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
-	public String getOutputFileName(Tables.Record pTable)
+	public String getOutputFileName(Table table)
 	{
 		// Name should NOT have a suffix.
-		return getClassName(createObjectName(pTable.getName())) + ".java";
+		return getClassName(createObjectName(table.name)) + ".java";
 	}
 
 	/** Helper method - gets the value object name. */
@@ -687,21 +687,20 @@ public class EntityBeanDAO extends EntityBeanBase
 
 			// Local variables
 			File fileOutputDir = extractOutputDirectory(args, 0);
-			String strAuthor = extractAuthor(args, 5);
-			String strPackageName = extractArgument(args, 6, null);
+			String author = extractAuthor(args, 5);
+			String packageName = extractArgument(args, 6, null);
 			String version = extractArgument(args, 7, null);
 
 			// Create and load the tables object.
-			Tables pTables = extractTables(args, 1, 8);
-			pTables.load();
+			List<Table> tables = extractTables(args, 1, 8);
 
 			// Create the SQL Repository Item Descriptor generator.
 			EntityBeanDAO pGenerator =
-				new EntityBeanDAO((PrintWriter) null, strAuthor,
-				(Tables.Record) null, strPackageName, version);
+				new EntityBeanDAO((PrintWriter) null, author,
+				(Table) null, packageName, version);
 
 			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, pTables, fileOutputDir);
+			generateTableResources(pGenerator, tables, fileOutputDir);
 		}
 
 		catch (IllegalArgumentException pEx)

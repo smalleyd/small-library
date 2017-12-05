@@ -3,12 +3,14 @@ package com.small.library.doc;
 import java.io.*;
 import java.sql.*;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
 
-import com.small.library.data.*;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import com.small.library.generator.Base;
 import com.small.library.metadata.*;
 
 /***************************************************************************************
@@ -128,21 +130,11 @@ public class TablesHtml
 	public void run()
 		throws SQLException, IOException
 	{
-		// Local variables.
-		Tables pTables = null;
+		final List<Table> tables = new DBMetadata(connectionFactory).getTables(schemaNamePattern);
 		
-		if (null == schemaNamePattern)
-			pTables = new Tables(connectionFactory);
-		else
-			pTables = new Tables(connectionFactory, (String[]) null, schemaNamePattern);
-
-		warnings = new ArrayList<Exception>();
-
-		pTables.load(true);
-
 		writeHeader();
-		writeContents(pTables);
-		run(pTables);
+		writeContents(tables);
+		run(tables);
 		writeFooter();
 	}
 
@@ -178,7 +170,7 @@ public class TablesHtml
 		writeLine("<H1>" + strCatalog + "</H1>");
 	}
 
-	public void writeContents(Tables records) throws SQLException, IOException
+	public void writeContents(List<Table> records) throws SQLException, IOException
 	{
 		writeLine(createName("Contents", "<H2>Contents</H2>"));
 
@@ -194,29 +186,23 @@ public class TablesHtml
 		String count = null;
 		NumberFormat formatter = NumberFormat.getNumberInstance();
 
-		try (final Connection connection = connectionFactory.getConnection())
+		int i = 1;
+		for (final Table record : records)
 		{
-			connection.setReadOnly(true);
-			connection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+			Long count_ = count(record);
+			if (null == count_)
+				count = "N/A";
+			else
+				count = formatter.format(count_);
 
-			for (int i = 0; i < records.size(); i++)
-			{
-				Tables.Record record = (Tables.Record) records.item(i);
-				Long count_ = count(connection, record);
-				if (null == count_)
-					count = "N/A";
-				else
-					count = formatter.format(count_);
-	
-				openRow();
-				writeDetail(i + 1);
-				writeDetail(createLink("#" + record.getName(), record.getName()));
-				writeDetail(record.getRemarks());
-				writeDetail(count);
-				closeRow();
-	
-				System.out.println(record.getName() + " - Row Count: " + count);
-			}
+			openRow();
+			writeDetail(i++);
+			writeDetail(createLink("#" + record.name, record.name));
+			writeDetail(record.remarks);
+			writeDetail(count);
+			closeRow();
+
+			System.out.println(record.name + " - Row Count: " + count);
 		}
 
 		out.flush();
@@ -224,60 +210,54 @@ public class TablesHtml
 		closeTable();
 	}
 
-	public Long count(Connection connection, Tables.Record table) throws SQLException
+	public Long count(Table table) throws SQLException
 	{
-		ResultSet rs = null;
-		Statement stmt = connection.createStatement();
-		stmt.setQueryTimeout(90);	// Some counts just take too long.
 
-		try
+		try (final Connection connection = connectionFactory.getConnection();
+		     final Statement stmt = connection.createStatement())
 		{
-			rs = stmt.executeQuery("SELECT COUNT(1) FROM " + table.getName());
-			if (rs.next())
-				return rs.getLong(1);
+			stmt.setQueryTimeout(90);	// Some counts just take too long.
+		    try (final ResultSet rs = stmt.executeQuery("SELECT COUNT(1) FROM " + table.name))
+		    {
+		    	if (rs.next()) return rs.getLong(1);
 	
-			return 0L;
-		}
-
-		catch (SQLException ex) { /** Assume a timeout. */ return null; }
-		finally
-		{
-			if (null != rs) rs.close();
-			if (null != stmt) stmt.close();
+		    	return 0L;
+		    }
+			catch (SQLException ex) { /** Assume a timeout. */ return null; }
 		}
 	}
 
-	public void run(Tables pTables) throws SQLException, IOException
+	public void run(List<Table> tables) throws SQLException, IOException
 	{
-		for (int i = 0; i < pTables.size(); i++)
+		int i = 0;
+		for (final Table record : tables)
 		{
-			Tables.Record record = (Tables.Record) pTables.item(i);
 			long time = System.currentTimeMillis();
-			System.out.println("Starting output of table - " + record.getName() + " ...");
-			run(record, i);
-			System.out.println("Finished output of table = " + record.getName() + " in " + (((float) (System.currentTimeMillis() - time)) / 1000f) + " seconds.");
+			System.out.println("Starting output of table - " + record.name + " ...");
+			run(record, i++);
+			System.out.println("Finished output of table = " + record.name + " in " + (((float) (System.currentTimeMillis() - time)) / 1000f) + " seconds.");
 			out.flush();
 		}
 	}
 
-	public void run(Tables.Record pTable, int nIndex) throws SQLException, IOException
+	public void run(final Table table, final int index) throws SQLException, IOException
 	{
 		writeLine("<DIV STYLE=\"page-break-before:always\">");
-		writeLine(createName(pTable.getName(), "<H2>" + pTable.getName() + "</H2>"));
-		run(pTable.getColumns());
+		writeLine(createName(table.name, "<H2>" + table.name + "</H2>"));
+		runColumns(table.getColumns());
 		writeBreak();
-		run(pTable.getIndexes(), pTable.getPrimaryKeys());
+		run(table.getIndexes(), table.getPrimaryKeys());
 		writeBreak();
-		run(pTable.getImportedKeys());
+		runImportedKeys(table.getImportedKeys());
 		writeBreak();
-		run(pTable.getExportedKeys());
+		runExportedKeys(table.getExportedKeys());
 
 		writeBreak();
 		writeLine(createLink("#Contents", "Goto Contents"));
 		writeLine("</DIV>");
 	}
 
-	public void run(final List<Column> columns) throws SQLException, IOException
+	public void runColumns(final List<Column> columns) throws SQLException, IOException
 	{
 		openTable();
 		openRow();
@@ -300,12 +280,12 @@ public class TablesHtml
 		closeTable();
 	}
 
-	public void run(final Column pColumn, final int nIndex)
+	public void run(final Column pColumn, final int index)
 	{
 		try
 		{
 			openRow();
-			writeDetail(nIndex + 1);
+			writeDetail(index + 1);
 			writeDetail(pColumn.name);
 			writeDetail(pColumn.typeName);
 			writeDetail(pColumn.size);
@@ -317,21 +297,9 @@ public class TablesHtml
 		catch (IOException ex) { throw new RuntimeException(ex); }
 	}
 
-	public void run(final Index pIndexes, final List<PrimaryKey> primaryKeys) throws SQLException, IOException
+	public void run(final List<Index> indexes, final List<PrimaryKey> primaryKeys) throws SQLException, IOException
 	{
 		String strUnsupportedException = null;
-
-		// DO NOT ABORT. Indexes and foreign keys errors are only warnings.
-		try
-		{
-			pIndexes.load();
-		}
-
-		catch (SQLException pEx)
-		{
-			warnings.add(pEx);
-			return;
-		}
 
 		openTable();
 		openRow();
@@ -340,7 +308,7 @@ public class TablesHtml
 
 		// If supported, but no indexes found, use the String variable
 		// to display the message.
-		if ((null == strUnsupportedException) && (0 == pIndexes.size()))
+		if ((null == strUnsupportedException) && (0 == indexes.size()))
 			strUnsupportedException = "None";
 
 		if (null != strUnsupportedException)
@@ -358,82 +326,57 @@ public class TablesHtml
 		writeDetailHeader("Column");
 		closeRow();
 
-		for (int i = 0; i < pIndexes.size(); i++)
-			run((Index.Record) pIndexes.item(i), primaryKeys, i);
+		int i = 0;
+		for (final Index o : indexes)
+			run(o, primaryKeys, i++);
 
 		closeTable();
 	}
 
-	public void run(final Index.Record pIndex, final List<PrimaryKey> primaryKeys, final int nIndex) throws SQLException, IOException
+	public void run(final Index index, final List<PrimaryKey> primaryKeys, final int i) throws SQLException, IOException
 	{
 		openRow();
-		writeDetail(nIndex + 1);
-		writeDetail(pIndex.getName());
-		writeDetail(pIndex.isUnique());
+		writeDetail(i + 1);
+		writeDetail(index.name);
+		writeDetail(index.unique);
 
 		if ((null == primaryKeys) || (0 == primaryKeys.size()) ||
 		    (null == primaryKeys.get(0).name))
 			writeDetail(false);
 		else
-			writeDetail(primaryKeys.get(0).name.equals(pIndex.getName()));
+			writeDetail(primaryKeys.get(0).name.equals(index.name));
 
 		// The run(Keys.Record) function closes the row.
-		run(pIndex.getKeys());
+		writeKeys(index.keys);
 		closeRow();
 	}
 
-	public void run(Key pKeys) throws SQLException, IOException
+	public void writeKeys(final List<Key> keys) throws SQLException, IOException
 	{
-		StringBuffer keysText = new StringBuffer();
-
-		for (int i = 0; i < pKeys.size(); i++)
-		{
-			if (0 < i)
-				keysText.append(", ");
-
-			keysText.append(((Key.Record) pKeys.item(i)).getName());
-		}
-
-		writeDetail(keysText.toString());
+		writeDetail(StringUtils.join(keys, ", "));
 	}
 
 	/*
-	public void run(Keys.Record pKey, int nIndex) throws SQLException, IOException
+	public void run(Keys.Record pKey, int index) throws SQLException, IOException
 	{
-		if (0 < nIndex)
+		if (0 < index)
 			writeDetailBlank(4);
 
-		writeDetail(pKey.getName());
+		writeDetail(pKey.name);
 		closeRow();
 	}
 	*/
 
-	public void run(ImportedKeys pImportedKeys) throws SQLException, IOException
+	public void runImportedKeys(final List<ForeignKey> keys) throws SQLException, IOException
 	{
-		String strUnsupportedException = null;
-
-		// DO NOT ABORT. Indexes and foreign keys errors are only warnings.
-		try { pImportedKeys.load(); }
-
-		catch (SQLException pEx)
-		{
-			warnings.add(pEx);
-			return;
-		}
-
 		openTable();
 		openRow();
 		writeDetailHeader("Imported Keys", 5);
 		closeRow();
 
-		// If supported, but no imported keys found, use the String variable
-		// to display the message.
-		if ((null == strUnsupportedException) && (0 == pImportedKeys.size()))
-			strUnsupportedException = "None";
-
-		if (null != strUnsupportedException)
+		if (CollectionUtils.isEmpty(keys))
 		{
-			writeDetailColSpan(strUnsupportedException, 5);
+			writeDetailColSpan("None", 5);
 			closeTable();
 			return;
 		}
@@ -446,51 +389,31 @@ public class TablesHtml
 		writeDetailHeader("Reference Column");
 		closeRow();
 
-		for (int i = 0; i < pImportedKeys.size(); i++)
-			run((ImportedKeys.Record) pImportedKeys.item(i), i);
+		int i = 1;
+		for (final ForeignKey o : keys)
+		{
+			openRow();
+			writeDetail(i++);
+			writeDetail(o.name);
+			writeKeys(o.fks);
+			writeDetail(createLink("#" + o.pkTable, o.pkTable));
+			writeKeys(o.pks);
+			closeRow();
+		}
 
 		closeTable();
 	}
 
-	public void run(ImportedKeys.Record pImportedKey, int nIndex) throws SQLException, IOException
+	public void runExportedKeys(final List<ForeignKey> keys) throws SQLException, IOException
 	{
-		String strTable = pImportedKey.getTable_PK();
-
-		openRow();
-		writeDetail(nIndex + 1);
-		writeDetail(pImportedKey.getName());
-		run(pImportedKey.getColumns_FK());
-		writeDetail(createLink("#" + strTable, strTable));
-		run(pImportedKey.getColumns_PK());
-		closeRow();
-	}
-
-	public void run(ExportedKeys pExportedKeys) throws SQLException, IOException
-	{
-		String strUnsupportedException = null;
-
-		// DO NOT ABORT. Indexes and foreign keys errors are only warnings.
-		try { pExportedKeys.load(); }
-
-		catch (SQLException pEx)
-		{
-			warnings.add(pEx);
-			return;
-		}
-
 		openTable();
 		openRow();
 		writeDetailHeader("Exported Keys", 4);
 		closeRow();
 
-		// If supported, but no exported key found, use the String variable
-		// to display the message.
-		if ((null == strUnsupportedException) && (0 == pExportedKeys.size()))
-			strUnsupportedException = "None";
-
-		if (null != strUnsupportedException)
+		if (CollectionUtils.isEmpty(keys))
 		{
-			writeDetailColSpan(strUnsupportedException, 4);
+			writeDetailColSpan("None", 4);
 			closeTable();
 			return;
 		}
@@ -502,22 +425,18 @@ public class TablesHtml
 		writeDetailHeader("Reference Column");
 		closeRow();
 
-		for (int i = 0; i < pExportedKeys.size(); i++)
-			run((ExportedKeys.Record) pExportedKeys.item(i), i);
+		int i = 1;
+		for (final ForeignKey o : keys)
+		{
+			openRow();
+			writeDetail(i++);
+			writeDetail(o.name);
+			writeDetail(createLink("#" + o.fkTable, o.fkTable));
+			writeKeys(o.fks);
+			closeRow();
+		}
 
 		closeTable();
-	}
-
-	public void run(ExportedKeys.Record pExportedKey, int nIndex) throws SQLException, IOException
-	{
-		String strTable = pExportedKey.getTable_FK();
-
-		openRow();
-		writeDetail(nIndex + 1);
-		writeDetail(pExportedKey.getName());
-		writeDetail(createLink("#" + strTable, strTable));
-		writeDetail(pExportedKey.getColumn_FK());
-		closeRow();
 	}
 
 	public void writeFooter() throws SQLException, IOException
@@ -554,7 +473,6 @@ public class TablesHtml
 	private DataSource connectionFactory = null;
 	private PrintWriter out = null;
 	private String schemaNamePattern = null;
-	private List<Exception> warnings = null;
 
 	/******************************************************************************
 	*
@@ -562,36 +480,36 @@ public class TablesHtml
 	*
 	*****************************************************************************/
 
-	public static void main(String strArgs[])
+	public static void main(final String... args)
 	{
 		try
 		{
 			// Have enough arguments been supplied?
-			if (3 > strArgs.length)
+			if (3 > args.length)
 				throw new IllegalArgumentException();
 
 			// Local variables
-			String strFile = strArgs[0];
-			String strUrl = strArgs[1];
-			String strUserName = strArgs[2];
+			String file = args[0];
+			String strUrl = args[1];
+			String strUserName = args[2];
 			String strPassword = null;
 			String strDriver = "sun.jdbc.odbc.JdbcOdbcDriver";
 			String strSchemaNamePattern = null;
 
-			if (3 < strArgs.length)
-				strPassword = strArgs[3];
+			if (3 < args.length)
+				strPassword = args[3];
 
-			if (4 < strArgs.length)
-				strDriver = strArgs[4];
+			if (4 < args.length)
+				strDriver = args[4];
 			else
 				strUrl = "jdbc:odbc:" + strUrl;
 
-			if (5 < strArgs.length)
-				strSchemaNamePattern = strArgs[5];
+			if (5 < args.length)
+				strSchemaNamePattern = args[5];
 
-			DataSource pDataSource = DataCollection.createDataSource(strDriver,
+			DataSource pDataSource = Base.createDataSource(strDriver,
 				strUrl, strUserName, strPassword);
-			PrintWriter pWriter = new PrintWriter(new FileWriter(strFile));
+			PrintWriter pWriter = new PrintWriter(new FileWriter(file));
 
 			(new TablesHtml(pDataSource, pWriter,
 				strSchemaNamePattern)).run();

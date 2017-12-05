@@ -62,7 +62,7 @@ public class RedshiftLoader extends EntityBeanBase
 		@param pTable A table record object to base the output on.
 	*/
 	public RedshiftLoader(PrintWriter writer,
-		String author, Tables.Record table)
+		String author, Table table)
 	{
 		super(writer, author, table);
 	}
@@ -74,7 +74,7 @@ public class RedshiftLoader extends EntityBeanBase
 		@param strPackageName Package name of the wrapper class.
 	*/
 	public RedshiftLoader(PrintWriter writer,
-		String author, Tables.Record table, String packageName)
+		String author, Table table, String packageName)
 	{
 		super(writer, author, table, packageName);
 	}
@@ -86,7 +86,7 @@ public class RedshiftLoader extends EntityBeanBase
 		@param strPackageName Package name of the wrapper class.
 	*/
 	public RedshiftLoader(PrintWriter writer,
-		String author, Tables.Record table, String packageName,
+		String author, Table table, String packageName,
 		String version)
 	{
 		super(writer, author, table, packageName, version);
@@ -123,7 +123,7 @@ public class RedshiftLoader extends EntityBeanBase
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
-	public String getOutputFileName(Tables.Record pTable)
+	public String getOutputFileName(Table pTable)
 	{
 		// Name should NOT have a suffix.
 		return getClassName() + ".java";
@@ -164,7 +164,7 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");
-		writeLine("*\tClass that loads data from the " + getTable().getName().toUpperCase() + " table in another JDBC compliant");
+		writeLine("*\tClass that loads data from the " + getTable().name.toUpperCase() + " table in another JDBC compliant");
 		writeLine("*\tdatabase to a similar table in Redshift.");
 		writeLine("*");
 		writeLine("*\t@author " + getAuthor());
@@ -186,7 +186,7 @@ public class RedshiftLoader extends EntityBeanBase
 	private void writeConstants() throws IOException
 	{
 		String name = getObjectName();
-		String tableName = getTable().getName();
+		String tableName = getTable().name;
 
 		writeLine("/** Name of process. */", 1);
 		writeLine("public static final String NAME = \"" + name + "\";", 1);
@@ -373,16 +373,15 @@ public class RedshiftLoader extends EntityBeanBase
 			String version = extractArgument(args, 7, VERSION_DEFAULT);
 
 			// Create and load the tables object.
-			Tables pTables = extractTables(args, 1, 8);
-			pTables.load();
+			List<Table> tables = extractTables(args, 1, 8);
 
 			// Create the SQL Repository Item Descriptor generator.
 			RedshiftLoader pGenerator =
 				new RedshiftLoader((PrintWriter) null, strAuthor,
-				(Tables.Record) null, strPackageName, version);
+				(Table) null, strPackageName, version);
 
 			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, pTables, fileOutputDir);
+			generateTableResources(pGenerator, tables, fileOutputDir);
 		}
 
 		catch (IllegalArgumentException pEx)

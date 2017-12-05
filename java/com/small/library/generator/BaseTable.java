@@ -5,7 +5,7 @@ import java.sql.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.sql.DataSource;
+import org.apache.commons.lang3.StringUtils;
 
 import com.small.library.metadata.*;
 
@@ -21,22 +21,9 @@ import com.small.library.metadata.*;
 
 public abstract class BaseTable extends BaseJDBC
 {
-	/******************************************************************************
-	*
-	*	Constants
-	*
-	******************************************************************************/
-
-	/** Constant - accessor method prefix (get). */
 	public static final String PREFIX_ACCESSOR_METHOD = "get";
-
-	/** Constant - accessor method prefix for booleans (is). */
 	public static final String PREFIX_ACCESSOR_METHOD_BOOL = "is";
-
-	/** Constant - mutator method prefix (set). */
 	public static final String PREFIX_MUTATOR_METHOD = "set";
-
-	/** Constant - "with" method prefix (with). */
 	public static final String PREFIX_WITH_METHOD = "with";
 
 	/******************************************************************************
@@ -49,15 +36,15 @@ public abstract class BaseTable extends BaseJDBC
 	public BaseTable() { this(null, AUTHOR_DEFAULT, null); }
 
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
-		@param pTable A table record object to base the output on.
+		@param writer The output stream.
+		@param author Name of the author.
+		@param table A table record object to base the output on.
 	*/
-	public BaseTable(PrintWriter pWriter, String strAuthor, Tables.Record pTable)
+	public BaseTable(PrintWriter writer, String author, Table table)
 	{
-		super(pWriter, strAuthor);
+		super(writer, author);
 
-		setTable(pTable);
+		setTable(table);
 	}
 
 	/******************************************************************************
@@ -69,7 +56,7 @@ public abstract class BaseTable extends BaseJDBC
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
-	public abstract String getOutputFileName(Tables.Record pTable)
+	public abstract String getOutputFileName(Table table)
 		throws GeneratorException;
 
 	/******************************************************************************
@@ -79,7 +66,7 @@ public abstract class BaseTable extends BaseJDBC
 	*****************************************************************************/
 
 	/** Accessor method - gets the table object. */
-	public Tables.Record getTable()	{ return table; }
+	public Table getTable()	{ return table; }
 
 	/** Accessor method - gets object name representation of the table name. */
 	public String getObjectName() { return objectName; }
@@ -107,14 +94,10 @@ public abstract class BaseTable extends BaseJDBC
 	}
 
 	/** Accessor method - gets the table's imported foreign keys. */
-	public ImportedKeys getImportedKeys()
-		throws SQLException
+	public List<ForeignKey> getImportedKeys() throws SQLException
 	{
 		if (null == importKeys)
-		{
-			importKeys = table.getImportedKeys();
-			importKeys.load();
-		}
+			return (importKeys = table.getImportedKeys());
 
 		return importKeys;
 	}
@@ -126,14 +109,14 @@ public abstract class BaseTable extends BaseJDBC
 	*****************************************************************************/
 
 	/** Mutator method - sets the table object. */
-	public void setTable(Tables.Record pValue)
+	public void setTable(Table value)
 	{
-		table = pValue;
+		table = value;
 
-		if (null == pValue)
+		if (null == value)
 			objectName = null;
 		else
-			objectName = createObjectName(pValue.getName());
+			objectName = createObjectName(value.name);
 
 		columns = null;
 		primaryKeys = null;
@@ -225,27 +208,11 @@ public abstract class BaseTable extends BaseJDBC
 		@return an <I>ImportedKey</I> object or <CODE>null</CODE> if the column
 			is not an imported foreign key.
 	*/
-	public ImportedKeys.Record getImportedKey(final Column column)
-		throws SQLException
+	public ForeignKey getImportedKey(final Column column) throws SQLException
 	{
-		String columnName = column.name;
-		ImportedKeys importedKeys = getImportedKeys();
-
-		for (int i = 0; i < importedKeys.size(); i++)
-		{
-			ImportedKeys.Record importedKey = (ImportedKeys.Record) importedKeys.item(i);
-			Key keys = importedKey.getColumns_FK();
-
-			// If more than one key, will not implement as now.
-			if (1 != keys.size())
-				continue;
-
-			if (columnName.equals(keys.item(0).getName()))
-				return importedKey;
-		}
-
-		// None found.
-		return null;
+		return getImportedKeys().stream()
+			.filter(o -> 1 == o.fks.size() && column.name.equals(o.fks.get(0).name))
+			.findFirst().orElse(null);
 	}
 
 	/** Helper method - gets the object version of the column name as an imported key name.
@@ -303,7 +270,7 @@ public abstract class BaseTable extends BaseJDBC
 			info.mutatorMethodName = getMutatorMethodName(info);
 			info.withMethodName = getWithMethodName(info);
 	
-			ImportedKeys.Record importedKey = getImportedKey(column);
+			ForeignKey importedKey = getImportedKey(column);
 	
 			info.isImportedKey = ((null == importedKey) ? false : true);
 	
@@ -312,7 +279,7 @@ public abstract class BaseTable extends BaseJDBC
 				info.importedKeyName = getImportedKeyName(column);
 				info.importedKeyMemberName = fromObjectNameToMemberName(
 					info.importedKeyName);
-				info.importedTableName = importedKey.getTable_PK();
+				info.importedTableName = importedKey.pkTable;
 				info.importedObjectName = createObjectName(info.importedTableName);
 			}
 	
@@ -358,86 +325,82 @@ public abstract class BaseTable extends BaseJDBC
 	    class entry methods (i.e. main).
 		@param pGenerator <I>BaseTable</I> class used to generate a
 			table resource.
-		@param pTables Collection of table record objects used to generate
+		@param tables Collection of table record objects used to generate
 			the resources.
 		@param fileOutputDirectory Directory to output the generated resources.
 	*/
 	public static void generateTableResources(BaseTable pGenerator,
-		Tables pTables, File fileOutputDirectory)
+		List<Table> tables, File fileOutputDirectory)
 			throws GeneratorException, IOException
 	{
 		// Loop through the tables and generate.
-		for (int i = 0; i < pTables.size(); i++)
+		for (final Table table : tables)
 		{
-			Tables.Record pTable = (Tables.Record) pTables.item(i);
-
 			// Set the table immediately so that the generator can
 			// use the table object to generate the name.
-			pGenerator.setTable(pTable);
+			pGenerator.setTable(table);
 
-			File fileOutput = new File(fileOutputDirectory, pGenerator.getOutputFileName(pTable));
-			PrintWriter pWriter = new PrintWriter(new FileWriter(fileOutput));
+			File fileOutput = new File(fileOutputDirectory, pGenerator.getOutputFileName(table));
+			PrintWriter writer = new PrintWriter(new FileWriter(fileOutput));
 
-			pGenerator.setWriter(pWriter);
+			pGenerator.setWriter(writer);
 			pGenerator.generate();
 
-			pWriter.close();
+			writer.close();
 		}
 	}
 
 	/** Helper method - gets a <I>Tables</I> object based on the command line
 	    arguments.
-		@param strArgs An array of command line arguments.
+		@param args An array of command line arguments.
 		@param nFirstArgument Index in the array that indicates the first
 			data source argument. The argument order should be
 			URL, User ID, Password, & Driver.
 		@param tableNamePatternArg Table Name Pattern.
 	*/
-	protected static Tables extractTables(String[] strArgs,
-		int nFirstArgument, String tableNamePattern)
-			throws IllegalArgumentException,
-				SQLException
+	protected static List<Table> extractTables(final String[] args,
+		final int nFirstArgument, final String tableNamePattern)
+			throws IllegalArgumentException, SQLException
 	{
-		DataSource dataSource = extractDataSource(strArgs, nFirstArgument);
+		final DBMetadata metadata = new DBMetadata(extractDataSource(args, nFirstArgument));
 
-		if ((null == tableNamePattern) || (0 == tableNamePattern.length()))
-			return new Tables(dataSource);
-		else
-			return new Tables(dataSource,
-				(String[]) null, tableNamePattern);
+		if (StringUtils.isEmpty(tableNamePattern))
+			return metadata.getTables();
+
+		return metadata.getTables(tableNamePattern);
 	}
 
 	/** Helper method - gets a <I>Tables</I> object based on the command line
 	    arguments.
-		@param strArgs An array of command line arguments.
+		@param args An array of command line arguments.
 		@param nFirstArgument Index in the array that indicates the first
 			data source argument. The argument order should be
 			URL, User ID, Password, & Driver.
 		@param tableNamePatternArg Index in the array that indicates the
 			Table Name Pattern argument.
 	*/
-	protected static Tables extractTables(String[] strArgs,
+	protected static List<Table> extractTables(String[] args,
 		int nFirstArgument, int tableNamePatternArg)
 			throws IllegalArgumentException,
 				SQLException
 	{
-		return extractTables(strArgs, nFirstArgument,
-			extractArgument(strArgs, tableNamePatternArg, null));
+		return extractTables(args, nFirstArgument,
+			extractArgument(args, tableNamePatternArg, null));
 	}
 
 	/** Helper method - gets a <I>Tables</I> object based on the command line
 	    arguments.
-		@param strArgs An array of command line arguments.
+		@param args An array of command line arguments.
 		@param nFirstArgument Index in the array that indicates the first
 			data source argument. The argument order should be
 			URL, User ID, Password, & Driver.
 	*/
-	protected static Tables extractTables(String[] strArgs,
+	protected static List<Table> extractTables(String[] args,
 		int nFirstArgument)
 			throws IllegalArgumentException,
 				SQLException
 	{
-		return extractTables(strArgs, nFirstArgument, (String) null);
+		return extractTables(args, nFirstArgument, (String) null);
 	}
 
 	/******************************************************************************
@@ -449,7 +412,7 @@ public abstract class BaseTable extends BaseJDBC
 	/** Member variable - reference to the table record object that the
 	    output is based on.
 	*/
-	private Tables.Record table = null;
+	private Table table = null;
 
 	/** Member variable - object name representation of the table name. */
 	private String objectName = null;
@@ -461,5 +424,5 @@ public abstract class BaseTable extends BaseJDBC
 	private List<PrimaryKey> primaryKeys = null;
 
 	/** Member variable - reference to the table's imported foreign keys. */
-	private ImportedKeys importKeys = null;
+	private List<ForeignKey> importKeys = null;
 }

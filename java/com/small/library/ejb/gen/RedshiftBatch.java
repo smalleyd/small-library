@@ -1,6 +1,7 @@
 package com.small.library.ejb.gen;
 
 import java.io.*;
+import java.util.List;
 
 import com.small.library.generator.*;
 import com.small.library.metadata.*;
@@ -59,7 +60,7 @@ public class RedshiftBatch extends EntityBeanBase
 		@param pTable A table record object to base the output on.
 	*/
 	public RedshiftBatch(PrintWriter writer,
-		String author, Tables.Record table)
+		String author, Table table)
 	{
 		super(writer, author, table);
 	}
@@ -71,7 +72,7 @@ public class RedshiftBatch extends EntityBeanBase
 		@param strPackageName Package name of the wrapper class.
 	*/
 	public RedshiftBatch(PrintWriter writer,
-		String author, Tables.Record table, String packageName)
+		String author, Table table, String packageName)
 	{
 		super(writer, author, table, packageName);
 	}
@@ -83,7 +84,7 @@ public class RedshiftBatch extends EntityBeanBase
 		@param strPackageName Package name of the wrapper class.
 	*/
 	public RedshiftBatch(PrintWriter writer,
-		String author, Tables.Record table, String packageName,
+		String author, Table table, String packageName,
 		String version)
 	{
 		super(writer, author, table, packageName, version);
@@ -120,7 +121,7 @@ public class RedshiftBatch extends EntityBeanBase
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
-	public String getOutputFileName(Tables.Record pTable)
+	public String getOutputFileName(Table pTable)
 	{
 		// Name should NOT have a suffix.
 		return getClassName() + ".java";
@@ -159,7 +160,7 @@ public class RedshiftBatch extends EntityBeanBase
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");
-		writeLine("*\tBatch process class that loads inserts and updates into the " + getTable().getName().toUpperCase() + " table from the AWS queue.");
+		writeLine("*\tBatch process class that loads inserts and updates into the " + getTable().name.toUpperCase() + " table from the AWS queue.");
 		writeLine("*");
 		writeLine("*\t@author " + getAuthor());
 		writeLine("*\t@version " + getVersion());
@@ -180,7 +181,7 @@ public class RedshiftBatch extends EntityBeanBase
 	private void writeConstants() throws IOException
 	{
 		String name = getObjectName();
-		String tableName = getTable().getName();
+		String tableName = getTable().name;
 
 		writeLine("/** Name of process. */", 1);
 		writeLine("public static final String NAME = \"" + name + "\";", 1);
@@ -358,16 +359,15 @@ public class RedshiftBatch extends EntityBeanBase
 			String version = extractArgument(args, 7, VERSION_DEFAULT);
 
 			// Create and load the tables object.
-			Tables pTables = extractTables(args, 1, 8);
-			pTables.load();
+			List<Table> tables = extractTables(args, 1, 8);
 
 			// Create the SQL Repository Item Descriptor generator.
 			RedshiftBatch pGenerator =
 				new RedshiftBatch((PrintWriter) null, strAuthor,
-				(Tables.Record) null, strPackageName, version);
+				(Table) null, strPackageName, version);
 
 			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, pTables, fileOutputDir);
+			generateTableResources(pGenerator, tables, fileOutputDir);
 		}
 
 		catch (IllegalArgumentException pEx)

@@ -1,6 +1,7 @@
 package com.small.library.ejb.gen;
 
 import java.io.*;
+import java.util.List;
 
 import com.small.library.generator.*;
 import com.small.library.metadata.*;
@@ -55,25 +56,25 @@ public class EntityBeanFilter extends EntityBeanBase
 	/** Constructor - constructs a populated object.
 		@param pWriter The output stream.
 		@param strAuthor Name of the author.
-		@param pTable A table record object to base the output on.
+		@param table A table record object to base the output on.
 	*/
 	public EntityBeanFilter(PrintWriter pWriter,
-		String strAuthor, Tables.Record pTable)
+		String strAuthor, Table table)
 	{
-		super(pWriter, strAuthor, pTable);
+		super(pWriter, strAuthor, table);
 	}
 
 	/** Constructor - constructs a populated object.
 		@param pWriter The output stream.
 		@param strAuthor Name of the author.
-		@param pTable A table record object to base the output on.
+		@param table A table record object to base the output on.
 		@param strPackageName Package name of the wrapper class.
 		@param version application version number.
 	*/
 	public EntityBeanFilter(PrintWriter pWriter,
-		String strAuthor, Tables.Record pTable, String strPackageName, String version)
+		String strAuthor, Table table, String strPackageName, String version)
 	{
-		super(pWriter, strAuthor, pTable, strPackageName, version);
+		super(pWriter, strAuthor, table, strPackageName, version);
 	}
 
 	/******************************************************************************
@@ -108,10 +109,10 @@ public class EntityBeanFilter extends EntityBeanBase
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
-	public String getOutputFileName(Tables.Record pTable)
+	public String getOutputFileName(Table table)
 	{
 		// Name should NOT have a suffix.
-		return getClassName(createObjectName(pTable.getName())) + ".java";
+		return getClassName(createObjectName(table.name)) + ".java";
 	}
 
 	/******************************************************************************
@@ -147,7 +148,7 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine();
 		writeLine("/********************************************************************************************************************");
 		writeLine("*");
-		writeLine("*\tValue object class that represents the search criteria for " + createObjectName(getTable().getName()) + " query.");
+		writeLine("*\tValue object class that represents the search criteria for " + createObjectName(getTable().name) + " query.");
 		writeLine("*");
 		writeLine("*\t@author " + getAuthor());
 		writeLine("*\t@version " + getVersion());
@@ -494,16 +495,15 @@ public class EntityBeanFilter extends EntityBeanBase
 			String version = extractArgument(args, 7, null);
 
 			// Create and load the tables object.
-			Tables pTables = extractTables(args, 1, 8);
-			pTables.load();
+			final List<Table> tables = extractTables(args, 1, 8);
 
 			// Create the SQL Repository Item Descriptor generator.
 			EntityBeanFilter pGenerator =
 				new EntityBeanFilter((PrintWriter) null, strAuthor,
-				(Tables.Record) null, strPackageName, version);
+				(Table) null, strPackageName, version);
 
 			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, pTables, fileOutputDir);
+			generateTableResources(pGenerator, tables, fileOutputDir);
 		}
 
 		catch (IllegalArgumentException pEx)

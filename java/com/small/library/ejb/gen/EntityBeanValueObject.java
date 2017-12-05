@@ -1,6 +1,7 @@
 package com.small.library.ejb.gen;
 
 import java.io.*;
+import java.util.List;
 
 import com.small.library.generator.*;
 import com.small.library.metadata.*;
@@ -55,25 +56,25 @@ public class EntityBeanValueObject extends EntityBeanBase
 	/** Constructor - constructs a populated object.
 		@param pWriter The output stream.
 		@param strAuthor Name of the author.
-		@param pTable A table record object to base the output on.
+		@param table A table record object to base the output on.
 	*/
 	public EntityBeanValueObject(PrintWriter pWriter,
-		String strAuthor, Tables.Record pTable)
+		String strAuthor, Table table)
 	{
-		super(pWriter, strAuthor, pTable);
+		super(pWriter, strAuthor, table);
 	}
 
 	/** Constructor - constructs a populated object.
 		@param pWriter The output stream.
 		@param strAuthor Name of the author.
-		@param pTable A table record object to base the output on.
+		@param table A table record object to base the output on.
 		@param strPackageName Package name of the wrapper class.
 		@param version Represents the application version number.
 	*/
 	public EntityBeanValueObject(PrintWriter pWriter,
-		String strAuthor, Tables.Record pTable, String strPackageName, String version)
+		String strAuthor, Table table, String strPackageName, String version)
 	{
-		super(pWriter, strAuthor, pTable, strPackageName, version);
+		super(pWriter, strAuthor, table, strPackageName, version);
 	}
 
 	/******************************************************************************
@@ -109,10 +110,10 @@ public class EntityBeanValueObject extends EntityBeanBase
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
-	public String getOutputFileName(Tables.Record pTable)
+	public String getOutputFileName(Table table)
 	{
 		// Name should NOT have a suffix.
-		return getClassName(createObjectName(pTable.getName())) + ".java";
+		return getClassName(createObjectName(table.name)) + ".java";
 	}
 
 	/******************************************************************************
@@ -147,7 +148,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");
-		writeLine("*\tValue object class that represents the " + getTable().getName() + " table.");
+		writeLine("*\tValue object class that represents the " + getTable().name + " table.");
 		writeLine("*");
 		writeLine("*\t@author " + getAuthor());
 		writeLine("*\t@version " + getVersion());
@@ -164,7 +165,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("{");
 		writeLine("private static final long serialVersionUID = 1L;", 1);
 		writeLine();
-		writeLine("public static final String TABLE = \"" + getTable().getName() + "\";", 1);
+		writeLine("public static final String TABLE = \"" + getTable().name + "\";", 1);
 		for (ColumnInfo i : m_ColumnInfo)
 			if (i.isString)
 				writeLine("public static final int MAX_LEN_" + i.columnName.toUpperCase() + " = " + i.size + ";", 1);
@@ -387,16 +388,15 @@ public class EntityBeanValueObject extends EntityBeanBase
 			String version = extractArgument(args, 7, null);
 
 			// Create and load the tables object.
-			Tables pTables = extractTables(args, 1, 8);
-			pTables.load();
+			List<Table> tables = extractTables(args, 1, 8);
 
 			// Create the SQL Repository Item Descriptor generator.
 			EntityBeanValueObject pGenerator =
 				new EntityBeanValueObject((PrintWriter) null, strAuthor,
-				(Tables.Record) null, strPackageName, version);
+				(Table) null, strPackageName, version);
 
 			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, pTables, fileOutputDir);
+			generateTableResources(pGenerator, tables, fileOutputDir);
 		}
 
 		catch (IllegalArgumentException pEx)

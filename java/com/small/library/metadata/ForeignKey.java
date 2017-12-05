@@ -1,6 +1,9 @@
 package com.small.library.metadata;
 
+import java.io.Serializable;
 import java.sql.*;
+import java.util.List;
+import java.util.LinkedList;
 
 /***************************************************************************************
 *
@@ -12,54 +15,36 @@ import java.sql.*;
 *
 ***************************************************************************************/
 
-public abstract class ForeignKey extends MetaDataRecord
+public class ForeignKey implements Serializable
 {
-	public void fetch(ResultSet rs) throws SQLException
+	private static final long serialVersionUID = 1L;
+
+	public final String name;
+	public final String pkName;
+	public final String pkTable;
+	public final String fkTable;
+	public final short updateRule;
+	public final short deleteRule;
+	public final short deferrability;
+
+	public final List<Key> pks = new LinkedList<>();
+	public final List<Key> fks = new LinkedList<>();
+
+	public ForeignKey(final ResultSet rs) throws SQLException
 	{
-		m_strTable_PK = rs.getString(3);
-		m_strColumn_PK = rs.getString(4);
-		m_strTable_FK = rs.getString(7);
-		m_strColumn_FK = rs.getString(8);
-		m_nUpdateRule = rs.getShort(10);
-		m_nDeleteRule = rs.getShort(11);
-		m_strName = rs.getString(12);
-		m_strName_PK = rs.getString(13);
-		m_nDeferrability = rs.getShort(14);
+		pkTable = rs.getString(3);
+		fkTable = rs.getString(7);
+		updateRule = rs.getShort(10);
+		deleteRule = rs.getShort(11);
+		name = rs.getString(12);
+		pkName = rs.getString(13);
+		deferrability = rs.getShort(14);
 	}
 
-	public String getName_PK() { return m_strName_PK; }
-	public String getTable_PK() { return m_strTable_PK; }
-	public String getTable_FK() { return m_strTable_FK; }
-	public short getUpdateRule() { return m_nUpdateRule; }
-	public short getDeleteRule() { return m_nDeleteRule; }
-	public short getDeferrability() { return m_nDeferrability; }
-
-	// These accessor methods are used to build the keys.
-	public String getColumn_PK() { return m_strColumn_PK; }
-	public String getColumn_FK() { return m_strColumn_FK; }
-
-	// Key column collections.
-	public Key getColumns_PK() { return m_Columns_PK; }
-	public Key getColumns_FK() { return m_Columns_FK; }
-
-	public boolean equals(Object pValue)
+	public void addKey(final ResultSet rs) throws SQLException
 	{
-		if ((null == pValue) || (!(pValue instanceof ForeignKey)))
-			return false;
-
-		return getName().equals(((ForeignKey) pValue).getName());
+		final short order = rs.getShort(9);
+		pks.add(new Key(order, rs.getString(4)));
+		fks.add(new Key(order, rs.getString(8)));
 	}
-
-	// Field data members.
-	private String m_strName_PK = null;
-	private String m_strTable_PK = null;
-	private String m_strColumn_PK = null;
-	private String m_strTable_FK = null;
-	private String m_strColumn_FK = null;
-	private short m_nUpdateRule = DatabaseMetaData.importedKeyNoAction;
-	private short m_nDeleteRule = DatabaseMetaData.importedKeyNoAction;
-	private short m_nDeferrability = DatabaseMetaData.importedKeyInitiallyDeferred;
-
-	private Key m_Columns_PK = new Key();
-	private Key m_Columns_FK = new Key();
 }

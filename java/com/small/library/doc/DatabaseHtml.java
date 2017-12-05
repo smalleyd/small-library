@@ -5,7 +5,7 @@ import java.sql.*;
 
 import javax.sql.DataSource;
 
-import com.small.library.data.*;
+import com.small.library.generator.Base;
 import com.small.library.html.*;
 
 /***********************************************************************************
@@ -321,30 +321,30 @@ public class DatabaseHtml
 
 	/** Entry point - Command line entry point for class.
 	*/
-	public static void main(String[] strArgs)
+	public static void main(final String... args)
 	{
 		try
 		{
 			// Have enough arguments been supplied?
-			if (3 > strArgs.length)
+			if (3 > args.length)
 				throw new IllegalArgumentException();
 
 			// Local variables
-			String strFile = strArgs[0];
-			String strUrl = strArgs[1];
-			String strUserName = strArgs[2];
+			String strFile = args[0];
+			String strUrl = args[1];
+			String strUserName = args[2];
 			String strPassword = null;
 			String strDriver = "sun.jdbc.odbc.JdbcOdbcDriver";
 
-			if (3 < strArgs.length)
-				strPassword = strArgs[3];
+			if (3 < args.length)
+				strPassword = args[3];
 
-			if (4 < strArgs.length)
-				strDriver = strArgs[4];
+			if (4 < args.length)
+				strDriver = args[4];
 			else
 				strUrl = "jdbc:odbc:" + strUrl;
 
-			DataSource pDataSource = DataCollection.createDataSource(strDriver,
+			DataSource pDataSource = Base.createDataSource(strDriver,
 				strUrl, strUserName, strPassword);
 			PrintWriter pWriter = new PrintWriter(new FileWriter(strFile));
 

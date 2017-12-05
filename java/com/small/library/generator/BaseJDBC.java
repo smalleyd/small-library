@@ -309,12 +309,12 @@ public abstract class BaseJDBC extends Base
 	public BaseJDBC() { this(null, AUTHOR_DEFAULT); }
 
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
+		@param writer The output stream.
+		@param author Name of the author.
 	*/
-	public BaseJDBC(PrintWriter pWriter, String strAuthor)
+	public BaseJDBC(PrintWriter writer, String author)
 	{
-		super(pWriter, strAuthor);
+		super(writer, author);
 	}
 
 	/******************************************************************************

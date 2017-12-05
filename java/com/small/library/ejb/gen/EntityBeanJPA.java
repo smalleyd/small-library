@@ -1,6 +1,7 @@
 package com.small.library.ejb.gen;
 
 import java.io.*;
+import java.util.List;
 
 import com.small.library.generator.*;
 import com.small.library.metadata.*;
@@ -69,37 +70,37 @@ public class EntityBeanJPA extends EntityBeanBase
 	/** Constructor - constructs a populated object.
 		@param pWriter The output stream.
 		@param strAuthor Name of the author.
-		@param pTable A table record object to base the output on.
+		@param table A table record object to base the output on.
 	*/
 	public EntityBeanJPA(PrintWriter pWriter,
-		String strAuthor, Tables.Record pTable)
+		String strAuthor, Table table)
 	{
-		super(pWriter, strAuthor, pTable);
+		super(pWriter, strAuthor, table);
 	}
 
 	/** Constructor - constructs a populated object.
 		@param pWriter The output stream.
 		@param strAuthor Name of the author.
-		@param pTable A table record object to base the output on.
+		@param table A table record object to base the output on.
 		@param strPackageName Package name of the wrapper class.
 	*/
 	public EntityBeanJPA(PrintWriter pWriter,
-		String strAuthor, Tables.Record pTable, String strPackageName)
+		String strAuthor, Table table, String strPackageName)
 	{
-		super(pWriter, strAuthor, pTable, strPackageName);
+		super(pWriter, strAuthor, table, strPackageName);
 	}
 
 	/** Constructor - constructs a populated object.
 		@param pWriter The output stream.
 		@param strAuthor Name of the author.
-		@param pTable A table record object to base the output on.
+		@param table A table record object to base the output on.
 		@param strPackageName Package name of the wrapper class.
 	*/
 	public EntityBeanJPA(PrintWriter pWriter,
-		String strAuthor, Tables.Record pTable, String strPackageName,
+		String strAuthor, Table table, String strPackageName,
 		String version)
 	{
-		super(pWriter, strAuthor, pTable, strPackageName);
+		super(pWriter, strAuthor, table, strPackageName);
 
 		this.version = version;
 	}
@@ -134,7 +135,7 @@ public class EntityBeanJPA extends EntityBeanBase
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
-	public String getOutputFileName(Tables.Record pTable)
+	public String getOutputFileName(Table table)
 	{
 		// Name should NOT have a suffix.
 		return getClassName() + ".java";
@@ -175,7 +176,7 @@ public class EntityBeanJPA extends EntityBeanBase
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");
-		writeLine("*\tEntity Bean CMP class that represents the " + getTable().getName() + " table.");
+		writeLine("*\tEntity Bean CMP class that represents the " + getTable().name + " table.");
 		writeLine("*");
 		writeLine("*\t@author " + getAuthor());
 		writeLine("*\t@version " + version);
@@ -191,8 +192,8 @@ public class EntityBeanJPA extends EntityBeanBase
 		writeLine("@Entity");
 		writeLine("@Cacheable");
 		writeLine("@DynamicUpdate");
-		writeLine("@Table(name=\"" + getTable().getName() + "\")");
-		writeLine("@Cache(usage=CacheConcurrencyStrategy.READ_WRITE, region=\"" + getTable().getName() + "\")");
+		writeLine("@Table(name=\"" + getTable().name + "\")");
+		writeLine("@Cache(usage=CacheConcurrencyStrategy.READ_WRITE, region=\"" + getTable().name + "\")");
 		writeLine("public class " + getClassName() + " implements Serializable");
 		writeLine("{");
 		writeLine("\tpublic final static long serialVersionUID = 1L;");
@@ -355,16 +356,15 @@ public class EntityBeanJPA extends EntityBeanBase
 			String version = extractArgument(args, 7, VERSION_DEFAULT);
 
 			// Create and load the tables object.
-			Tables pTables = extractTables(args, 1, 8);
-			pTables.load();
+			List<Table> tables = extractTables(args, 1, 8);
 
 			// Create the SQL Repository Item Descriptor generator.
 			EntityBeanJPA pGenerator =
 				new EntityBeanJPA((PrintWriter) null, strAuthor,
-				(Tables.Record) null, strPackageName, version);
+				(Table) null, strPackageName, version);
 
 			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, pTables, fileOutputDir);
+			generateTableResources(pGenerator, tables, fileOutputDir);
 		}
 
 		catch (IllegalArgumentException pEx)

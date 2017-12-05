@@ -1,6 +1,7 @@
 package com.small.library.ejb.gen;
 
 import java.io.*;
+import java.util.List;
 
 import com.small.library.generator.*;
 import com.small.library.metadata.*;
@@ -56,7 +57,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		@param table A table record object to base the output on.
 	*/
 	public RedshiftBatchTest(PrintWriter writer,
-		String author, Tables.Record table)
+		String author, Table table)
 	{
 		super(writer, author, table);
 	}
@@ -69,7 +70,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		@param version Represents the application version.
 	*/
 	public RedshiftBatchTest(PrintWriter writer,
-		String author, Tables.Record table, String packageName, String version)
+		String author, Table table, String packageName, String version)
 	{
 		super(writer, author, table, packageName, version);
 	}
@@ -102,7 +103,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
-	public String getOutputFileName(Tables.Record pTable)
+	public String getOutputFileName(Table pTable)
 	{
 		// Name should NOT have a suffix.
 		return getClassName() + ".java";
@@ -170,7 +171,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		String name = getObjectName();
 		String batchName = RedshiftBatch.getClassName(name);
 		String valueName = valueObjectName(name);
-		String tableName = getTable().getName();
+		String tableName = getTable().name;
 
 		writeLine();
 		writeLine("@FixMethodOrder(MethodSorters.NAME_ASCENDING)	// Ensure that the methods are executed in order listed.");
@@ -271,7 +272,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("{", 1);
 		writeLine("try (final Handle h = dest.open())", 2);
 		writeLine("{", 2);
-		writeLine("final List<Map<String, Object>> records = h.select(\"SELECT * FROM " + getTable().getName() + " WHERE id = ?\", ID);", 3);
+		writeLine("final List<Map<String, Object>> records = h.select(\"SELECT * FROM " + getTable().name + " WHERE id = ?\", ID);", 3);
 		writeLine("Assert.assertEquals(\"Check size\", 1, records.size());", 3);
 		writeLine("final Map<String, Object> rs = records.get(0);", 3);
 		writeLine();
@@ -354,16 +355,15 @@ public class RedshiftBatchTest extends EntityBeanBase
 			String version = extractArgument(args, 7, null);
 
 			// Create and load the tables object.
-			Tables pTables = extractTables(args, 1, 8);
-			pTables.load();
+			List<Table> tables = extractTables(args, 1, 8);
 
 			// Create the SQL Repository Item Descriptor generator.
 			RedshiftBatchTest pGenerator =
 				new RedshiftBatchTest((PrintWriter) null, strAuthor,
-				(Tables.Record) null, strPackageName, version);
+				(Table) null, strPackageName, version);
 
 			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, pTables, fileOutputDir);
+			generateTableResources(pGenerator, tables, fileOutputDir);
 		}
 
 		catch (IllegalArgumentException pEx)

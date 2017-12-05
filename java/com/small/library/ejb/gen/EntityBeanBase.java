@@ -39,14 +39,14 @@ public abstract class EntityBeanBase extends BaseTable
 	public EntityBeanBase() { super(); }
 
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
-		@param pTable A table record object to base the output on.
+		@param writer The output stream.
+		@param author Name of the author.
+		@param table A table record object to base the output on.
 	*/
-	public EntityBeanBase(PrintWriter pWriter,
-		String strAuthor, Tables.Record pTable)
+	public EntityBeanBase(PrintWriter writer,
+		String author, Table table)
 	{
-		this(pWriter, strAuthor, pTable, null);
+		this(writer, author, table, null);
 	}
 
 	/** Constructor - constructs a populated object.
@@ -56,11 +56,11 @@ public abstract class EntityBeanBase extends BaseTable
 		@param packageName Package name of the wrapper class.
 	*/
 	public EntityBeanBase(PrintWriter writer,
-		String author, Tables.Record table, String packageName)
+		String author, Table table, String packageName)
 	{
 		super(writer, author, table);
 
-		if (null != (m_strPackageName = packageName))
+		if (null != (this.packageName = packageName))
 		{
 			// Get the domain portion of the package name.
 			final int len = packageName.length() - 1;
@@ -84,16 +84,16 @@ public abstract class EntityBeanBase extends BaseTable
 	}
 
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param strAuthor Name of the author.
-		@param pTable A table record object to base the output on.
-		@param strPackageName Package name of the wrapper class.
+		@param writer The output stream.
+		@param author Name of the author.
+		@param table A table record object to base the output on.
+		@param packageName Package name of the wrapper class.
 		@param version Represents the version of the resource.
 	*/
-	public EntityBeanBase(PrintWriter pWriter,
-		String strAuthor, Tables.Record pTable, String strPackageName, String version)
+	public EntityBeanBase(PrintWriter writer,
+		String author, Table table, String packageName, String version)
 	{
-		this(pWriter, strAuthor, pTable, strPackageName);
+		this(writer, author, table, packageName);
 
 		this.version = version;
 	}
@@ -135,7 +135,7 @@ public abstract class EntityBeanBase extends BaseTable
 	*****************************************************************************/
 
 	/** Accessor method - gets the package name of the wrapper class. */
-	public String getPackageName() { return m_strPackageName; }
+	public String getPackageName() { return packageName; }
 
 	/** Accessor method - gets domain name portion of the package name. */
 	public String getDomainPackageName() { return domainPackageName; }
@@ -166,7 +166,7 @@ public abstract class EntityBeanBase extends BaseTable
 	*****************************************************************************/
 
 	/** Mutator method - sets the package name of the wrapper class. */
-	public void setPackageName(String newValue) { m_strPackageName = newValue; }
+	public void setPackageName(String newValue) { packageName = newValue; }
 
 	/** Mutator method - sets domain name portion of the package name. */
 	public void setDomainPackageName(String newValue) { domainPackageName = newValue; }
@@ -187,7 +187,7 @@ public abstract class EntityBeanBase extends BaseTable
 	*****************************************************************************/
 
 	/** Member variable - reference to the package name of the wrapper class. */
-	private String m_strPackageName = null;
+	private String packageName = null;
 
 	/** Member variable - represents the domain name portion of the package name. */
 	private String domainPackageName = null;

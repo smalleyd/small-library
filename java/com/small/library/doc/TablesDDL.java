@@ -4,6 +4,8 @@ import java.io.*;
 import java.sql.*;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.small.library.generator.*;
 import com.small.library.metadata.*;
 
@@ -35,12 +37,12 @@ public class TablesDDL extends BaseTable
 	public TablesDDL() { super(); }
 
 	/** Constructor - constructs a populated object.
-		@param pWriter The output stream.
-		@param pTable A table record object to base the output on.
+		@param writer The output stream.
+		@param table A table record object to base the output on.
 	*/
-	public TablesDDL(PrintWriter pWriter, Tables.Record pTable)
+	public TablesDDL(PrintWriter writer, Table table)
 	{
-		super(pWriter, null, pTable);
+		super(writer, null, table);
 	}
 
 	/******************************************************************************
@@ -52,9 +54,9 @@ public class TablesDDL extends BaseTable
 	/** Action method - generates the table's create SQL.  */
 	public void generate() throws GeneratorException, IOException
 	{
-		Tables.Record table = getTable();
-		String schemaName = table.getSchema();
-		String tableName = table.getName();
+		Table table = getTable();
+		String schemaName = table.schema;
+		String tableName = table.name;
 		ColumnInfo[] columns = null;
 		final List<PrimaryKey> primaryKeys;
 		try { primaryKeys = table.getPrimaryKeys(); }
@@ -118,58 +120,42 @@ public class TablesDDL extends BaseTable
 	public void generateForeignKeys()
 		throws GeneratorException, IOException
 	{
-		Tables.Record table = getTable();
-		ImportedKeys importedKeys = table.getImportedKeys();
-
-		try { importedKeys.load(); }
-		catch (SQLException ex) { throw new GeneratorException(ex); }
+		final Table table = getTable();
+		final List<ForeignKey> importedKeys;
+		try { importedKeys = table.getImportedKeys(); }
+		catch (SQLException ex) { throw new RuntimeException(ex); }
 
 		int size = importedKeys.size();
 
 		if (0 == size)
 			return;
 
-		String schemaName = table.getSchema();
-		String tableName = table.getName();
+		String schemaName = table.schema;
+		String tableName = table.name;
 
 		if (null != schemaName)
 			tableName = schemaName + "." + tableName;
 
-		for (int i = 0; i < size; i++)
+		for (final ForeignKey importedKey : importedKeys)
 		{
-			ImportedKeys.Record importedKey = (ImportedKeys.Record) importedKeys.item(i);
-
 			write("ALTER TABLE ");
 			write(tableName);
 			write(" ADD CONSTRAINT ");
-			write(importedKey.getName());
+			write(importedKey.name);
 			write(" FOREIGN KEY (");
-			outputKeys(importedKey.getColumns_FK());
+			write(keys(importedKey.fks));
 			write(") REFERENCES ");
-			write(importedKey.getTable_PK());
+			write(importedKey.pkTable);
 			write(" (");
-			outputKeys(importedKey.getColumns_PK());
+			write(keys(importedKey.pks));
 			writeLine(");");
 		}
 	}
 
 	/** Helper method - outputs a list of Keys. */
-	protected void outputKeys(Key keys) throws IOException
+	protected String keys(List<Key> keys) throws IOException
 	{
-		int size = keys.size();
-
-		if (0 == size)
-			return;
-
-		for (int i = 0; i < size; i++)
-		{
-			Key.Record key = (Key.Record) keys.item(i);
-
-			if (0 < i)
-				write(", ");
-
-			write(key.getName());
-		}
+		return StringUtils.join(keys, ", ");
 	}
 
 	/******************************************************************************
@@ -181,7 +167,7 @@ public class TablesDDL extends BaseTable
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
-	public String getOutputFileName(Tables.Record pTable)
+	public String getOutputFileName(Table table)
 	{
 		return null;
 	}
@@ -201,20 +187,19 @@ public class TablesDDL extends BaseTable
 			bridge if a drive is not supplied.
 		@param strArg6 optional database schema name.
 	*/
-	public static void main(String strArgs[])
+	public static void main(String... args)
 	{
 		try
 		{
 			// Have enough arguments been supplied?
-			if (3 > strArgs.length)
+			if (3 > args.length)
 				throw new IllegalArgumentException("Please supply at least 3 arguments.");
 
 			// Local variables
-			File fileOutput = extractFile(strArgs, 0, "output");
+			File fileOutput = extractFile(args, 0, "output");
 
 			// Create and load the tables object.
-			Tables pTables = extractTables(strArgs, 1, 5);
-			pTables.load();
+			List<Table> tables = extractTables(args, 1, 5);
 
 			// Get the output writer.
 			PrintWriter writer = new PrintWriter(new FileWriter(fileOutput));
@@ -222,15 +207,18 @@ public class TablesDDL extends BaseTable
 			// Create the Deployment Descriptor generator.
 			TablesDDL pGenerator =
 				new TablesDDL(writer,
-				(Tables.Record) null);
+				(Table) null);
 
 			// Generate the table create SQL.
-			for (int i = 0; i < pTables.size(); i++)
+			boolean first = true;
+			for (final Table o : tables)
 			{
-				if (0 < i)
+				if (first)
+					first = false;
+				else
 					writer.println();
 
-				pGenerator.setTable((Tables.Record) pTables.item(i));
+				pGenerator.setTable(o);
 				pGenerator.generate();
 
 				writer.flush();
@@ -239,12 +227,15 @@ public class TablesDDL extends BaseTable
 			writer.println();
 
 			// Generate the table foreign key alter SQL.
-			for (int i = 0; i < pTables.size(); i++)
+			first = true;
+			for (final Table o : tables)
 			{
-				if (0 < i)
+				if (first)
+					first = false;
+				else
 					writer.println();
 
-				pGenerator.setTable((Tables.Record) pTables.item(i));
+				pGenerator.setTable(o);
 				pGenerator.generateForeignKeys();
 
 				writer.flush();

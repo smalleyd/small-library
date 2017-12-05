@@ -1,6 +1,7 @@
 package com.small.library.ejb.gen;
 
 import java.io.*;
+import java.util.List;
 
 import com.small.library.generator.*;
 import com.small.library.metadata.*;
@@ -57,7 +58,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		@param table A table record object to base the output on.
 	*/
 	public EntityJerseyResourceTest(PrintWriter writer,
-		String author, Tables.Record table)
+		String author, Table table)
 	{
 		super(writer, author, table);
 	}
@@ -70,7 +71,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		@param version Represents the application version.
 	*/
 	public EntityJerseyResourceTest(PrintWriter writer,
-		String author, Tables.Record table, String packageName, String version)
+		String author, Table table, String packageName, String version)
 	{
 		super(writer, author, table, packageName, version);
 	}
@@ -103,10 +104,10 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 	/** Accessor method - gets the name of the output file based on a table name.
 	    Used by BaseTable.generatorTableResources.
 	*/
-	public String getOutputFileName(Tables.Record pTable)
+	public String getOutputFileName(Table table)
 	{
 		// Name should NOT have a suffix.
-		return getClassName(createObjectName(pTable.getName())) + ".java";
+		return getClassName(createObjectName(table.name)) + ".java";
 	}
 
 	/** Helper method - gets the value object name. */
@@ -500,16 +501,15 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 			String version = extractArgument(args, 7, null);
 
 			// Create and load the tables object.
-			Tables pTables = extractTables(args, 1, 8);
-			pTables.load();
+			List<Table> tables = extractTables(args, 1, 8);
 
 			// Create the SQL Repository Item Descriptor generator.
 			EntityJerseyResourceTest pGenerator =
 				new EntityJerseyResourceTest((PrintWriter) null, strAuthor,
-				(Tables.Record) null, strPackageName, version);
+				(Table) null, strPackageName, version);
 
 			// Call the BaseTable method to handle the outputing.
-			generateTableResources(pGenerator, pTables, fileOutputDir);
+			generateTableResources(pGenerator, tables, fileOutputDir);
 		}
 
 		catch (IllegalArgumentException pEx)
