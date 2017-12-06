@@ -26,7 +26,7 @@ import com.small.library.metadata.*;
 
 public class TablesHtml
 {
-	private final DataSource connectionFactory;
+	private final DataSource dataSource;
 	private final PrintWriter out;
 	private final String schemaNamePattern;
 
@@ -39,7 +39,7 @@ public class TablesHtml
 	public TablesHtml(DataSource dataSource, PrintWriter writer,
 		String schemaNamePattern)
 	{
-		connectionFactory = dataSource;
+		this.dataSource = dataSource;
 		out = writer;
 		this.schemaNamePattern = schemaNamePattern;
 	}
@@ -114,24 +114,17 @@ public class TablesHtml
 	public void run()
 		throws SQLException, IOException
 	{
-		final List<Table> tables = new DBMetadata(connectionFactory).getTables(schemaNamePattern);
+		final DBMetadata metadata = new DBMetadata(dataSource);
+		final List<Table> tables = metadata.getTables(schemaNamePattern);
 		
-		writeHeader();
+		writeHeader(metadata.getCatalog());
 		writeContents(tables);
 		run(tables);
 		writeFooter();
 	}
 
-	public void writeHeader() throws SQLException, IOException
+	private void writeHeader(final String catalog) throws SQLException, IOException
 	{
-		// Get a title for the document.
-		String strCatalog = null;
-
-		try (final Connection pConnection = connectionFactory.getConnection())
-		{
-			strCatalog = pConnection.getCatalog();
-		}
-
 		writeLine("<HTML>");
 		writeLine("<HEAD>");
 		writeLine("<TITLE>Database Structure Document</TITLE>");
@@ -151,10 +144,10 @@ public class TablesHtml
 		writeLine();		
 		writeLine("</HEAD>");
 		writeLine("<BODY LINK=\"Blue\" ALINK=\"Blue\" VLINK=\"Blue\">");
-		writeLine("<H1>" + strCatalog + "</H1>");
+		writeLine("<H1>" + catalog + "</H1>");
 	}
 
-	public void writeContents(List<Table> records) throws SQLException, IOException
+	private void writeContents(final List<Table> records) throws SQLException, IOException
 	{
 		writeLine(createName("Contents", "<H2>Contents</H2>"));
 
@@ -168,7 +161,7 @@ public class TablesHtml
 		closeRow();
 
 		String count = null;
-		NumberFormat formatter = NumberFormat.getNumberInstance();
+		final NumberFormat formatter = NumberFormat.getNumberInstance();
 
 		int i = 1;
 		for (final Table record : records)
@@ -194,10 +187,10 @@ public class TablesHtml
 		closeTable();
 	}
 
-	public Long count(Table table) throws SQLException
+	private Long count(final Table table) throws SQLException
 	{
 
-		try (final Connection connection = connectionFactory.getConnection();
+		try (final Connection connection = dataSource.getConnection();
 		     final Statement stmt = connection.createStatement())
 		{
 			stmt.setQueryTimeout(90);	// Some counts just take too long.
@@ -211,7 +204,7 @@ public class TablesHtml
 		}
 	}
 
-	public void run(List<Table> tables) throws SQLException, IOException
+	private void run(final List<Table> tables) throws SQLException, IOException
 	{
 		int i = 0;
 		for (final Table record : tables)
@@ -224,7 +217,7 @@ public class TablesHtml
 		}
 	}
 
-	public void run(final Table table, final int index) throws SQLException, IOException
+	private void run(final Table table, final int index) throws SQLException, IOException
 	{
 		writeLine("<DIV STYLE=\"page-break-before:always\">");
 		writeLine(createName(table.name, "<H2>" + table.name + "</H2>"));
@@ -241,7 +234,7 @@ public class TablesHtml
 		writeLine("</DIV>");
 	}
 
-	public void runColumns(final List<Column> columns) throws SQLException, IOException
+	private void runColumns(final List<Column> columns) throws SQLException, IOException
 	{
 		openTable();
 		openRow();
@@ -264,7 +257,7 @@ public class TablesHtml
 		closeTable();
 	}
 
-	public void run(final Column pColumn, final int index)
+	private void run(final Column pColumn, final int index)
 	{
 		try
 		{
@@ -281,7 +274,7 @@ public class TablesHtml
 		catch (IOException ex) { throw new RuntimeException(ex); }
 	}
 
-	public void run(final List<Index> indexes, final List<PrimaryKey> primaryKeys) throws SQLException, IOException
+	private void run(final List<Index> indexes, final List<PrimaryKey> primaryKeys) throws SQLException, IOException
 	{
 		String strUnsupportedException = null;
 
@@ -317,7 +310,7 @@ public class TablesHtml
 		closeTable();
 	}
 
-	public void run(final Index index, final List<PrimaryKey> primaryKeys, final int i) throws SQLException, IOException
+	private void run(final Index index, final List<PrimaryKey> primaryKeys, final int i) throws SQLException, IOException
 	{
 		openRow();
 		writeDetail(i + 1);
@@ -335,23 +328,23 @@ public class TablesHtml
 		closeRow();
 	}
 
-	public void writeKeys(final List<Key> keys) throws SQLException, IOException
+	private void writeKeys(final List<Key> keys) throws SQLException, IOException
 	{
 		writeDetail(StringUtils.join(keys, ", "));
 	}
 
 	/*
-	public void run(Keys.Record pKey, int index) throws SQLException, IOException
+	private void run(final Key key, final int index) throws SQLException, IOException
 	{
 		if (0 < index)
 			writeDetailBlank(4);
 
-		writeDetail(pKey.name);
+		writeDetail(key.name);
 		closeRow();
 	}
 	*/
 
-	public void runImportedKeys(final List<ForeignKey> keys) throws SQLException, IOException
+	private void runImportedKeys(final List<ForeignKey> keys) throws SQLException, IOException
 	{
 		openTable();
 		openRow();
@@ -388,7 +381,7 @@ public class TablesHtml
 		closeTable();
 	}
 
-	public void runExportedKeys(final List<ForeignKey> keys) throws SQLException, IOException
+	private void runExportedKeys(final List<ForeignKey> keys) throws SQLException, IOException
 	{
 		openTable();
 		openRow();
@@ -423,7 +416,7 @@ public class TablesHtml
 		closeTable();
 	}
 
-	public void writeFooter() throws SQLException, IOException
+	private void writeFooter() throws SQLException, IOException
 	{
 		writeLine("</BODY>");
 		writeLine("</HTML>");
