@@ -24,4 +24,12 @@ public class PrimaryKey implements Serializable
 		key = rs.getString(4);
 		name = rs.getString(6);
 	}
+
+	@Override
+	public String toString()
+	{
+		return new StringBuilder("{ name: ").append("name")
+			.append(", key: ").append(key)
+			.append(" }").toString();
+	}
 }

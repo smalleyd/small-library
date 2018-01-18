@@ -176,7 +176,7 @@ public abstract class BaseTable extends BaseJDBC
 	public boolean isPartOfPrimaryKey(final Column column)
 		throws SQLException
 	{
-		return getPrimaryKeys().stream().filter(o -> column.name.equals(o.name)).findFirst().isPresent();
+		return getPrimaryKeys().stream().filter(o -> column.name.equals(o.key)).findFirst().isPresent();
 	}
 
 	/** Helper method - gets the <I>ImportedKey</I> that represents the column.
@@ -284,7 +284,7 @@ public abstract class BaseTable extends BaseJDBC
 	    columns' meta data.
 		@param columns An array column record objects.
 	*/
-	public ColumnInfo[] getColumnInfo(List<Column> columns)
+	public ColumnInfo[] getColumnInfo(final List<Column> columns)
 		throws SQLException
 	{
 		return columns.stream().map(o -> getColumnInfo(o)).collect(Collectors.toList()).toArray(new ColumnInfo[columns.size()]);

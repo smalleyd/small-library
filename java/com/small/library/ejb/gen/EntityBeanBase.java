@@ -35,8 +35,8 @@ public abstract class EntityBeanBase extends BaseTable
 		@param author Name of the author.
 		@param table A table record object to base the output on.
 	*/
-	public EntityBeanBase(PrintWriter writer,
-		String author, Table table)
+	public EntityBeanBase(final PrintWriter writer,
+		final String author, final Table table)
 	{
 		this(writer, author, table, null);
 	}
@@ -47,8 +47,8 @@ public abstract class EntityBeanBase extends BaseTable
 		@param table A table record object to base the output on.
 		@param packageName Package name of the wrapper class.
 	*/
-	public EntityBeanBase(PrintWriter writer,
-		String author, Table table, String packageName)
+	public EntityBeanBase(final PrintWriter writer,
+		final String author, final Table table, final String packageName)
 	{
 		this(writer, author, table, packageName, null);
 	}
@@ -60,8 +60,8 @@ public abstract class EntityBeanBase extends BaseTable
 		@param packageName Package name of the wrapper class.
 		@param version Represents the version of the resource.
 	*/
-	public EntityBeanBase(PrintWriter writer,
-		String author, Table table, String packageName, String version)
+	public EntityBeanBase(final PrintWriter writer,
+		final String author, final Table table, final String packageName, final String version)
 	{
 		super(writer, author, table);
 
@@ -139,7 +139,7 @@ public abstract class EntityBeanBase extends BaseTable
 	/** Helper method - gets the Java type of the primary key column. */
 	public String getPkJavaType()
 	{
-		for (ColumnInfo i : columnInfo)
+		for (final ColumnInfo i : columnInfo)
 			if (i.isPartOfPrimaryKey)
 				return i.javaType;
 
