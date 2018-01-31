@@ -260,12 +260,12 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine();
 		writeLine("final " + clazz + " v = (" + clazz + ") o;", 2);
 		ColumnInfo item = columnInfo[0];
-		writeLine("return Objects.equals(" + item.memberVariableName + ", v." + item.memberVariableName + ") &&", 2);
+		writeLine("return " + writeEquals(item) + " &&", 2);
 		final int last = columnInfo.length - 1;
 		for (int i = 1; i < columnInfo.length; i++)
 		{
 			final String term = (last > i) ? " &&" : ";";
-			writeLine("Objects.equals(" + (item = columnInfo[i]).memberVariableName + ", v." + item.memberVariableName + ")" + term, 3);
+			writeLine(writeEquals(item = columnInfo[i]) + term, 3);
 			if (null != item.importedKeyMemberName)
 				writeLine("Objects.equals(" + item.importedKeyMemberName + "Name, v." + item.importedKeyMemberName + "Name)" + term, 3);
 		}
@@ -287,6 +287,14 @@ public class EntityBeanValueObject extends EntityBeanBase
 		}
 		writeLine(".append(\" }\").toString();", 3);
 		writeLine("}", 1);
+	}
+
+	private String writeEquals(final ColumnInfo item)
+	{
+		if (item.isPrimitive)
+			return "(" + item.memberVariableName + " == v." + item.memberVariableName + ")";
+
+		return "Objects.equals(" + item.memberVariableName + ", v." + item.memberVariableName + ")";
 	}
 
 	/** Output method - writes the class footer. */
