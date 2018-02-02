@@ -400,7 +400,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		{
 			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", value." + i.memberVariableName + ");", 2);
 			if (i.isImportedKey)
-				writeLine("Assert.assertEquals(assertId + \"Check " + i.importedKeyMemberName + " name\", expected." + i.importedKeyMemberName + "Name, value." + i.importedKeyMemberName + "Name);", 2);
+				writeLine("Assert.assertEquals(assertId + \"Check " + i.importedKeyMemberName + "Name\", expected." + i.importedKeyMemberName + "Name, value." + i.importedKeyMemberName + "Name);", 2);
 		}
 		writeLine("}", 1);
 	}
