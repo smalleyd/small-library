@@ -152,6 +152,7 @@ public class RedshiftLoader extends EntityBeanBase
 
 		writeLine("/** Name of process. */", 1);
 		writeLine("public static final String NAME = \"" + name + "\";", 1);
+		writeLine("private static final String TABLE_NAME = \"" + tableName + "\";", 1);
 		writeLine();
 		writeLine("/** Size of bundle to load into S3 & subsequently Redshift. */", 1);
 		writeLine("public static final int BATCH_SIZE = 10000;", 1);
@@ -165,7 +166,7 @@ public class RedshiftLoader extends EntityBeanBase
 		}
 		writeLine(" \" +");
 		writeLine("\"FROM " + tableName + " o \" +", 2);
-		writeLine("\"WHERE o." + columnInfo[0].columnName + " > ? \" +", 2);
+		writeLine("\"WHERE o." + columnInfo[0].columnName + " > ? AND o.id < %d \" +", 2);
 		writeLine("\"ORDER BY o." + columnInfo[0].columnName + " LIMIT ? OFFSET ?\";", 2);
 		writeLine();
 		writeLine("/** Creates the COPY SQL for the specific " + tableName.toUpperCase() + " table. */", 1);
@@ -181,9 +182,6 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine("\"emptyasnull \" +", 2);
 		writeLine("\"gzip \" +", 2);
 		writeLine("\"delimiter '\\t'\";", 2);
-		writeLine();
-		writeLine("/** Gets the maximum / last ID loaded. */", 1);
-		writeLine("public static final String SELECT_MAX_ID = \"SELECT MAX(id) FROM " + tableName + "\";", 1);
 		writeLine();
 		writeLine("/** S3 resource name for the INSERT file. */", 1);
 		writeLine("public static final String S3_KEY = \"loader/" + tableName + ".gz\";", 1);
@@ -201,25 +199,22 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine("public static void main(final String... args) throws Exception", 1);
 		writeLine("{", 1);
 		writeLine("final AnalyticsConfiguration conf = AnalyticsApplication.load(args);", 2);
+		writeLine("final long[] minMaxIds = getMinAndMaxIds(conf, TABLE_NAME);", 2);
 		writeLine();
-		writeLine("// Get the last ID loaded.", 2);
-		writeLine("final long maxId;", 2);
-		writeLine("try (Connection conn = conf.destPool().getConnection())", 2);
-		writeLine("{", 2);
-		writeLine("maxId = getMaxId(conn, SELECT_MAX_ID, 0L);", 3);
-		writeLine("}", 2);
-		writeLine();
-		writeLine("new " + className + "(conf, maxId).run();", 2);
+		writeLine("new " + className + "(conf, minMaxIds[1], minMaxIds[0]).run();", 2);
 		writeLine();
 		writeLine("System.exit(0);", 2);
 		writeLine("}", 1);
 		writeLine();
-		writeLine("/** Populator. */", 1);
-		writeLine("public " + className + "(final AnalyticsConfiguration conf, final long lastId)", 1);
+		writeLine("private long lastId = 0L;", 1);
+		writeLine("private final String select;", 1);
+		writeLine();
+		writeLine("public " + className + "(final AnalyticsConfiguration conf, final long lastId, final long minId)", 1);
 		writeLine("{", 1);
 		writeLine("super(conf);", 2);
 		writeLine();
-		writeLine("info(\"MAX_ID: %d\", this.lastId = lastId);", 2);
+		writeLine("info(\"MAX_ID: {}\", this.lastId = lastId);", 2);
+		writeLine("info(\"SELECT: {}\", (select = String.format(SELECT, minId)));", 2);
 		writeLine("}", 1);
 	}
 
@@ -235,16 +230,13 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine("public int getBatchSize() { return BATCH_SIZE; }", 1);
 		writeLine();
 		writeLine("@Override", 1);
-		writeLine("public String getSelect() { return SELECT; }", 1);
+		writeLine("public String getSelect() { return select; }", 1);
 		writeLine();
 		writeLine("@Override", 1);
 		writeLine("public String getCopy() { return COPY; }", 1);
 		writeLine();
 		writeLine("@Override", 1);
 		writeLine("public String getS3Key() { return S3_KEY; }", 1);
-		writeLine();
-		writeLine("/** Represents the last ID field retrieved. Used as a filter on the SELECT query. */", 1);
-		writeLine("private long lastId = 0L;", 1);
 	}
 
 	/** Output method - writes the mutator methods. */
