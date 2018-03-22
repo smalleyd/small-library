@@ -117,6 +117,7 @@ public class RedshiftBatch extends EntityBeanBase
 		String name = getObjectName();
 		writeLine("import java.io.*;");
 		writeLine();
+		writeLine("import " + basePackageName + "." + getAppName() + "BatchConfig;");
 		writeLine("import " + domainPackageName + ".dwservice.io.CSVWriter;");
 		writeLine("import " + basePackageName + ".value." + valueObjectName(name) + ";");
 		writeLine();
