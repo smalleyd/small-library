@@ -162,6 +162,9 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("updateQueueUrl = conf.aws.updateQueueUrl(batch.getEntityName());", 2);
 		writeLine();
 		writeLine("Assert.assertEquals(\"Check tableName\", \"" + tableName + "\", batch.getTableName());", 2);
+		writeLine("Assert.assertFalse(\"Check useParallelQueue\", batch.isUseParallelQueue());", 2);
+		writeLine("Assert.assertNull(\"Check nextInsertQueueUrls\", batch.nextInsertQueueUrls);", 2);
+		writeLine("Assert.assertNull(\"Check nextUpdateQueueUrls\", batch.nextUpdateQueueUrls);", 2);
 		writeLine();
 		writeLine("/* TODO: placeholder for the INSERT object.", 2);
 		write("INSERT = new " + valueName + "(ID", 2);
