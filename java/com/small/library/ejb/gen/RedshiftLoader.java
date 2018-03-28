@@ -246,7 +246,7 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine("@Override", 1);
 		writeLine("public int bindSelect(final PreparedStatement stmt) throws SQLException", 1);
 		writeLine("{", 1);
-		writeLine("info(\"BINDING: lastId: %d\", lastId);", 2);
+		writeLine("info(\"BINDING: lastId: {}\", lastId);", 2);
 		writeLine("stmt.setLong(1, lastId);", 2);
 		writeLine();
 		writeLine("return 1;", 2);
