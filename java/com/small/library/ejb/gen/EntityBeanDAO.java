@@ -249,7 +249,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(".check();", 3);
 		writeLine();
 		writeLine("// Validation foreign keys.", 2);
-		writeLine("Session session = currentSession();", 2);
+		writeLine("final Session session = currentSession();", 2);
 		List<String> cmrVars = new LinkedList<>();
 		for (ColumnInfo i : columnInfo)
 		{
@@ -263,7 +263,7 @@ public class EntityBeanDAO extends EntityBeanBase
 				writeLine("{", tabs++);
 			}
 
-			writeLine(i.importedObjectName + " " + i.importedKeyMemberName + " = (" + i.importedObjectName +
+			writeLine("final " + i.importedObjectName + " " + i.importedKeyMemberName + " = (" + i.importedObjectName +
 				") session.get(" + i.importedObjectName + ".class, value." + i.memberVariableName + ");", tabs);
 			writeLine("if (null == " + i.importedKeyMemberName + ")", tabs);
 			writeLine("validator.add(\"" + i.memberVariableName + "\", \"The " + i.name + ", %" + (i.isString ? "s" : "d") + ", is invalid.\", value." + i.memberVariableName + ");", tabs + 1);
