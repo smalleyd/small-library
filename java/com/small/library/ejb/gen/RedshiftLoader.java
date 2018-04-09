@@ -253,6 +253,7 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine("}", 1);
 		writeLine();
 		writeLine("/** Writes a single line to the CSV file. */", 1);
+		writeLine("@Override", 1);
 		writeLine("protected Item writeLine(final ResultSet rs, final CSVWriter out) throws IOException, SQLException", 1);
 		writeLine("{", 1);
 		writeLine("out", 2);
