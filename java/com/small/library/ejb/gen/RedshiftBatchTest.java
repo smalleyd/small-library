@@ -104,7 +104,6 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine();
 		writeLine("import org.junit.*;");
 		writeLine("import org.junit.runners.MethodSorters;");
-		writeLine("import org.skife.jdbi.v2.Handle;");
 		writeLine("import org.skife.jdbi.v2.DBI;");
 		writeLine();
 		writeLine("import " + domainPackageName + ".junit.dropwizard.LifecycleRule;");
@@ -190,10 +189,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("@AfterClass", 1);
 		writeLine("public static void down() throws Exception", 1);
 		writeLine("{", 1);
-		writeLine("try (final Handle h = dest.open())", 2);
-		writeLine("{", 2);
-		writeLine("h.update(\"TRUNCATE TABLE \" + batch.getEntityName());", 3);
-		writeLine("}", 2);
+		writeLine("dest.withHandle(h -> h.update(\"TRUNCATE TABLE \" + batch.getEntityName()));", 2);
 		writeLine("}", 1);
 	}
 
@@ -232,21 +228,18 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void verify() throws Exception", 1);
 		writeLine("{", 1);
-		writeLine("try (final Handle h = dest.open())", 2);
-		writeLine("{", 2);
-		writeLine("final List<Map<String, Object>> records = h.select(\"SELECT * FROM " + getTable().name + " WHERE id = ?\", ID);", 3);
-		writeLine("Assert.assertEquals(\"Check size\", 1, records.size());", 3);
-		writeLine("final Map<String, Object> rs = records.get(0);", 3);
+		writeLine("final List<Map<String, Object>> records = dest.withHandle(h -> h.select(\"SELECT * FROM " + getTable().name + " WHERE id = ?\", ID));", 2);
+		writeLine("Assert.assertEquals(\"Check size\", 1, records.size());", 2);
+		writeLine("final Map<String, Object> rs = records.get(0);", 2);
 		writeLine();
-		write("check(UPDATE, new " + valueName + "((" + columnInfo[0].javaType + ") rs.get(\"" + columnInfo[0].columnName + "\")", 3);
+		write("check(UPDATE, new " + valueName + "((" + columnInfo[0].javaType + ") rs.get(\"" + columnInfo[0].columnName + "\")", 2);
 		for (int i = 1; i < columnInfo.length; i++)
 		{
 			writeLine(",");
 			ColumnInfo col = columnInfo[i];
-			write("(" + col.javaType + ") rs.get(\"" + col.columnName + "\")", 4);
+			write("(" + col.javaType + ") rs.get(\"" + col.columnName + "\")", 3);
 		}
 		writeLine("));");
-		writeLine("}", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("/** Helper method - checks an expected value against a supplied value object. */", 1);
