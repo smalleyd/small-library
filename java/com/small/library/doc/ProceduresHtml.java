@@ -63,7 +63,7 @@ public class ProceduresHtml
 
 	public void writeDetail(int nValue) throws IOException
 	{
-		Integer pValue = new Integer(nValue);
+		Integer pValue = Integer.valueOf(nValue);
 		writeDetail(pValue.toString());
 	}
 
