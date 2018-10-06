@@ -265,6 +265,12 @@ public abstract class BaseTable extends BaseJDBC
 				info.isPrimitive = false;
 				info.javaType = fromPrimitiveToObject(info.javaType);
 			}
+
+			final String typeMethodName = fromPrimitiveToObject(info.javaType);
+			if (info.isPrimitive && info.isNullable)
+				info.resultSetGetter = "(" + typeMethodName + ") rs.getObject(\"" + column.name + "\")";
+			else
+				info.resultSetGetter = "rs.get" + info.jdbcMethodSuffix + "(\"" + column.name + "\")";
 		}
 		catch (final SQLException ex) { throw new RuntimeException(ex); }
 

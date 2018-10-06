@@ -44,6 +44,7 @@ public class ColumnInfo
 	public String importedKeyMemberName;	// Class member version of the field name minus the standard imported key suffixes of "id", "i", or "c". The first letter is lower case.
 	public String importedTableName;	// The table name that the imported foreign key represents. If the field is not an imported key, the value is <CODE>null</CODE>.
 	public String importedObjectName;	// The object name of the table that represents the imported foreign key.
+	public String resultSetGetter;	// The ResultSet retrieval call.
 
 	/** Indicates that the field is numeric or date that can be searched by range. */
 	public boolean isRange()
