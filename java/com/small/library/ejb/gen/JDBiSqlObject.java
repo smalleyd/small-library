@@ -162,7 +162,7 @@ public class JDBiSqlObject extends EntityBeanBase
 			" " + where;
 		final String delete = "DELETE " + table + " " + where;
 
-		writeLine("@SqlQuery(\"SELECT " + fields + " FROM " + table + " WHERE " + where + "\")", 1);
+		writeLine("@SqlQuery(\"SELECT " + fields + " FROM " + table + " " + where + "\")", 1);
 		writeLine("public " + valueName + " get(" + params + ");", 1);
 		writeLine();
 		writeLine("@SqlUpdate(\"" + insert + "\")", 1);
