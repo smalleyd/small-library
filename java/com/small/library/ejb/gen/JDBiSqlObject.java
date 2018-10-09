@@ -118,6 +118,7 @@ public class JDBiSqlObject extends EntityBeanBase
 		writeLine("import org.skife.jdbi.v2.sqlobject.*;");
 		writeLine("import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper");
 		writeLine();
+		writeLine("import " + getDomainPackageName() + ".dwservice.jdbi.BindPOJO;");
 		writeLine("import " + basePackageName + ".mapper." + JDBiMapper.getClassName(getObjectName()) + ";");
 		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(getObjectName()) + ";");
 		writeLine();
@@ -150,10 +151,11 @@ public class JDBiSqlObject extends EntityBeanBase
 			.filter(v -> v.isPartOfPrimaryKey)
 			.map(v -> String.format(PARAM, v.memberVariableName, v.javaType, v.memberVariableName))
 			.collect(joining(", "));
-		final String fields = Arrays.stream(columnInfo).map(v -> v.columnName).collect(joining(", "));
+		final String fields = Arrays.stream(columnInfo).map(v -> "o." + v.columnName).collect(joining(", "));
 		final String where = "WHERE " + Arrays.stream(columnInfo).filter(v -> v.isPartOfPrimaryKey).map(v -> v.columnName + " = :" + v.memberVariableName).collect(joining(" AND "));
+		final String selectWhere = "WHERE " + Arrays.stream(columnInfo).filter(v -> v.isPartOfPrimaryKey).map(v -> "o." + v.columnName + " = :" + v.memberVariableName).collect(joining(" AND "));
 		final String insert = "INSERT INTO " + table + " (" +
-			fields +
+			Arrays.stream(columnInfo).map(v -> v.columnName).collect(joining(", ")) +
 			") VALUES (" +
 			Arrays.stream(columnInfo).map(v -> ":" + v.memberVariableName).collect(joining(", ")) +
 			")";
@@ -162,14 +164,14 @@ public class JDBiSqlObject extends EntityBeanBase
 			" " + where;
 		final String delete = "DELETE " + table + " " + where;
 
-		writeLine("@SqlQuery(\"SELECT " + fields + " FROM " + table + " " + where + "\")", 1);
+		writeLine("@SqlQuery(\"SELECT " + fields + " FROM " + table + " o " + selectWhere + "\")", 1);
 		writeLine("public " + valueName + " get(" + params + ");", 1);
 		writeLine();
 		writeLine("@SqlUpdate(\"" + insert + "\")", 1);
-		writeLine("public int insert(@BindBean final " + valueName + " value);", 1);
+		writeLine("public int insert(@BindPOJO final " + valueName + " value);", 1);
 		writeLine();
 		writeLine("@SqlUpdate(\"" + update + "\")", 1);
-		writeLine("public int update(@BindBean final " + valueName + " value);", 1);
+		writeLine("public int update(@BindPOJO final " + valueName + " value);", 1);
 		writeLine();
 		writeLine("@SqlUpdate(\"" + delete + "\")", 1);
 		writeLine("public int remove(" + params + ");", 1);
