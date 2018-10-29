@@ -9,7 +9,7 @@ import com.small.library.metadata.*;
 
 /***************************************************************************************
 *
-*	Generates a JDBi ResultSet Mapper class based on the underlying table.
+*	Generates a JDBi RowMapper class based on the underlying table.
 *
 *	The classes are annotated fully.
 *
@@ -115,8 +115,8 @@ public class JDBiMapper extends EntityBeanBase
 		writeLine("import java.sql.ResultSet;");
 		writeLine("import java.sql.SQLException;");
 		writeLine("");
-		writeLine("import org.skife.jdbi.v2.StatementContext;");
-		writeLine("import org.skife.jdbi.v2.tweak.ResultSetMapper;");
+		writeLine("import org.jdbi.v3.core.mapper.RowMapper;");
+		writeLine("import org.jdbi.v3.core.statement.StatementContext;");
 		writeLine();
 		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(getObjectName()) + ";");
 		writeLine();
@@ -135,7 +135,7 @@ public class JDBiMapper extends EntityBeanBase
 	private void writeClassDeclaration() throws IOException
 	{
 		writeLine();
-		writeLine("public class " + getClassName() + " implements ResultSetMapper<" + EntityBeanValueObject.getClassName(getObjectName()) + ">");
+		writeLine("public class " + getClassName() + " implements RowMapper<" + EntityBeanValueObject.getClassName(getObjectName()) + ">");
 		writeLine("{");
 	}
 
@@ -145,7 +145,7 @@ public class JDBiMapper extends EntityBeanBase
 		final String valueName = EntityBeanValueObject.getClassName(getObjectName());
 
 		writeLine("@Override", 1);
-		writeLine("public " + valueName + " map(final int i, final ResultSet rs, final StatementContext ctx) throws SQLException", 1);
+		writeLine("public " + valueName + " map(final ResultSet rs, final StatementContext ctx) throws SQLException", 1);
 		writeLine("{", 1);
 		writeLine("return new " + valueName + "(", 2);
 

@@ -115,10 +115,11 @@ public class JDBiSqlObject extends EntityBeanBase
 			writeLine();
 		}
 
-		writeLine("import org.skife.jdbi.v2.sqlobject.*;");
-		writeLine("import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper");
+		writeLine("import org.jdbi.v3.sqlobject.config.RegisterRowMapper;");
+		writeLine("import org.jdbi.v3.sqlobject.customizer.Bind;");
+		writeLine("import org.jdbi.v3.sqlobject.customizer.BindFields;");
+		writeLine("import org.jdbi.v3.sqlobject.statement.*;");
 		writeLine();
-		writeLine("import " + getDomainPackageName() + ".dwservice.jdbi.BindPOJO;");
 		writeLine("import " + basePackageName + ".mapper." + JDBiMapper.getClassName(getObjectName()) + ";");
 		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(getObjectName()) + ";");
 		writeLine();
@@ -137,7 +138,7 @@ public class JDBiSqlObject extends EntityBeanBase
 	private void writeClassDeclaration() throws IOException
 	{
 		writeLine();
-		writeLine("@RegisterMapper(" + getObjectName() + "Mapper.class)");
+		writeLine("@RegisterRowMapper(" + getObjectName() + "Mapper.class)");
 		writeLine("public interface " + getClassName());
 		writeLine("{");
 	}
@@ -168,10 +169,10 @@ public class JDBiSqlObject extends EntityBeanBase
 		writeLine("public " + valueName + " get(" + params + ");", 1);
 		writeLine();
 		writeLine("@SqlUpdate(\"" + insert + "\")", 1);
-		writeLine("public int insert(@BindPOJO final " + valueName + " value);", 1);
+		writeLine("public int insert(@BindFields final " + valueName + " value);", 1);
 		writeLine();
 		writeLine("@SqlUpdate(\"" + update + "\")", 1);
-		writeLine("public int update(@BindPOJO final " + valueName + " value);", 1);
+		writeLine("public int update(@BindFields final " + valueName + " value);", 1);
 		writeLine();
 		writeLine("@SqlUpdate(\"" + delete + "\")", 1);
 		writeLine("public int remove(" + params + ");", 1);
