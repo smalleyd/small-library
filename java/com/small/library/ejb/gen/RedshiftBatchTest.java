@@ -104,7 +104,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine();
 		writeLine("import org.junit.*;");
 		writeLine("import org.junit.runners.MethodSorters;");
-		writeLine("import org.skife.jdbi.v2.DBI;");
+		writeLine("import org.jdbi.v3.core.Jdbi;");
 		writeLine();
 		writeLine("import " + domainPackageName + ".junit.dropwizard.LifecycleRule;");
 		writeLine("import " + domainPackageName + ".dwservice.aws.AWSManager;");
@@ -139,7 +139,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("private static " + getAppName() + "BatchConfig conf;", 1);
 		writeLine("private static " + batchName + " batch;", 1);
 		writeLine("private static AWSManager aws;", 1);
-		writeLine("private static DBI dest;", 1);
+		writeLine("private static Jdbi dest;", 1);
 		writeLine("private static String insertQueueUrl;", 1);
 		writeLine("private static String updateQueueUrl;", 1);
 		writeLine();
@@ -189,7 +189,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("@AfterClass", 1);
 		writeLine("public static void down() throws Exception", 1);
 		writeLine("{", 1);
-		writeLine("dest.withHandle(h -> h.update(\"TRUNCATE TABLE \" + batch.getEntityName()));", 2);
+		writeLine("dest.withHandle(h -> h.execute(\"TRUNCATE TABLE \" + batch.getEntityName()));", 2);
 		writeLine("}", 1);
 	}
 
@@ -228,7 +228,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void verify() throws Exception", 1);
 		writeLine("{", 1);
-		writeLine("final List<Map<String, Object>> records = dest.withHandle(h -> h.select(\"SELECT * FROM " + getTable().name + " WHERE id = ?\", ID));", 2);
+		writeLine("final List<Map<String, Object>> records = dest.withHandle(h -> h.select(\"SELECT * FROM " + getTable().name + " WHERE id = ?\", ID).mapToMap().list());", 2);
 		writeLine("Assert.assertEquals(\"Check size\", 1, records.size());", 2);
 		writeLine("final Map<String, Object> rs = records.get(0);", 2);
 		writeLine();
