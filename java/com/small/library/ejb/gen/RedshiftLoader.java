@@ -121,6 +121,7 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine();
 		writeLine("import com.amazonaws.services.dynamodbv2.document.Item;");
 		writeLine("import " + domainPackageName + ".dwservice.io.CSVWriter;");
+		writeLine("import " + domainPackageName + ".dwservice.time.StopWatch;");
 		writeLine("import " + basePackageName + ".AnalyticsApplication;");
 		writeLine("import " + basePackageName + ".AnalyticsConfiguration;");
 		writeLine();
@@ -250,6 +251,19 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine("stmt.setLong(1, lastId);", 2);
 		writeLine();
 		writeLine("return 1;", 2);
+		writeLine("}", 1);
+		writeLine();
+		writeLine("@Override", 1);
+		writeLine("protected void onCompletion(final Connection conn) throws SQLException", 1);
+		writeLine("{", 1);
+		writeLine("var timer = new StopWatch();", 2);
+		writeLine();
+		writeLine("info(\"Populating denormalized fields ...\");", 2);
+		writeLine("try (var stmt = conn.createStatement())", 2);
+		writeLine("{", 2);
+		writeLine("// info(\"Populated denormalized fields ({}) from X in {}.\", stmt.executeUpdate(UPDATE_BY_X), timer.split());", 3);
+		writeLine("}", 2);
+		writeLine("info(\"Populated denormalized fields in {}.\", timer.total());", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("/** Writes a single line to the CSV file. */", 1);
