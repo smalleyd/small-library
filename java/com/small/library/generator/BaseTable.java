@@ -258,19 +258,20 @@ public abstract class BaseTable extends BaseJDBC
 				info.importedTableName = importedKey.pkTable;
 				info.importedObjectName = createObjectName(info.importedTableName);
 			}
+
+			// MUST do this before converting javaType to objectJavaType. DLS on 12/6/2018.
+			final String objectJavaType = fromPrimitiveToObject(info.javaType);
+			if (info.isPrimitive && info.isNullable)
+				info.resultSetGetter = "(" + objectJavaType + ") rs.getObject(\"" + column.name + "\")";
+			else
+				info.resultSetGetter = "rs.get" + info.jdbcMethodSuffix + "(\"" + column.name + "\")";
 	
 			// If is primitive and primary key or if it is nullable or an imported foreign key, make the Java type an object.
 			if (info.isPrimitive && (info.isPartOfPrimaryKey || info.isNullable || info.isImportedKey))
 			{
 				info.isPrimitive = false;
-				info.javaType = fromPrimitiveToObject(info.javaType);
+				info.javaType = objectJavaType;
 			}
-
-			final String typeMethodName = fromPrimitiveToObject(info.javaType);
-			if (info.isPrimitive && info.isNullable)
-				info.resultSetGetter = "(" + typeMethodName + ") rs.getObject(\"" + column.name + "\")";
-			else
-				info.resultSetGetter = "rs.get" + info.jdbcMethodSuffix + "(\"" + column.name + "\")";
 		}
 		catch (final SQLException ex) { throw new RuntimeException(ex); }
 
