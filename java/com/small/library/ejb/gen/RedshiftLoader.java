@@ -268,17 +268,15 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine();
 		writeLine("/** Writes a single line to the CSV file. */", 1);
 		writeLine("@Override", 1);
-		writeLine("protected Item writeLine(final ResultSet rs, final CSVWriter out) throws IOException, SQLException", 1);
+		writeLine("protected Item writeLine(final Map<String, Object> rs, final CSVWriter out) throws IOException, SQLException", 1);
 		writeLine("{", 1);
 		writeLine("out", 2);
 		for (final ColumnInfo i : columnInfo)
 		{
 			if (i.isPartOfPrimaryKey)
-				writeLine(".add(lastId = rs.get" + i.jdbcMethodSuffix + "(\"" + i.columnName + "\"))", 3);
-			else if (PRIMITIVES.contains(i.javaType) && i.isNullable)
-				writeLine(".add((" + i.javaType + ") rs.getObject(\"" + i.columnName + "\"))", 3);
+				writeLine(".add(lastId = (" + i.javaType + ") rs.get(\"" + i.columnName + "\"))", 3);
 			else
-				writeLine(".add(rs.get" + i.jdbcMethodSuffix + "(\"" + i.columnName + "\"))", 3);
+				writeLine(".add((" + i.javaType + ") rs.get(\"" + i.columnName + "\"))", 3);
 		}
 		writeLine(".add();	// Line terminator", 3);
 		writeLine();
