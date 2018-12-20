@@ -116,14 +116,13 @@ public class RedshiftLoader extends EntityBeanBase
 			writeLine();
 		}
 
-		writeLine("import java.io.*;");
-		writeLine("import java.sql.*;");
+		writeLine("import java.io.IOException;");
+		writeLine("import java.util.Map;");
 		writeLine();
 		writeLine("import com.amazonaws.services.dynamodbv2.document.Item;");
 		writeLine("import " + domainPackageName + ".dwservice.io.CSVWriter;");
-		writeLine("import " + domainPackageName + ".dwservice.time.StopWatch;");
-		writeLine("import " + basePackageName + ".AnalyticsApplication;");
-		writeLine("import " + basePackageName + ".AnalyticsConfiguration;");
+		writeLine("import " + basePackageName + ".LoaderApp;");
+		writeLine("import " + basePackageName + ".LoaderConfig;");
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");
@@ -141,7 +140,7 @@ public class RedshiftLoader extends EntityBeanBase
 	private void writeClassDeclaration() throws IOException
 	{
 		writeLine();
-		writeLine("public class " + getClassName() + " extends AbstractLoader");
+		writeLine("public class " + getClassName() + " extends AbstractLoaderWithLongIdX");
 		writeLine("{");
 	}
 
@@ -167,7 +166,7 @@ public class RedshiftLoader extends EntityBeanBase
 		}
 		writeLine(" \" +");
 		writeLine("\"FROM " + tableName + " o \" +", 2);
-		writeLine("\"WHERE o." + columnInfo[0].columnName + " > ? AND o.id < %d \" +", 2);
+		writeLine("\"WHERE o." + columnInfo[0].columnName + " > ? AND o.id < ? \" +", 2);
 		writeLine("\"ORDER BY o." + columnInfo[0].columnName + " LIMIT ? OFFSET ?\";", 2);
 		writeLine();
 		writeLine("/** Creates the COPY SQL for the specific " + tableName.toUpperCase() + " table. */", 1);
@@ -199,23 +198,17 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine("/** Application entry point. */", 1);
 		writeLine("public static void main(final String... args) throws Exception", 1);
 		writeLine("{", 1);
-		writeLine("final AnalyticsConfiguration conf = AnalyticsApplication.load(args);", 2);
-		writeLine("final long[] minMaxIds = getMinAndMaxIds(conf, TABLE_NAME);", 2);
+		writeLine("final LoaderConfig conf = LoaderApp.load(args);", 2);
 		writeLine();
-		writeLine("new " + className + "(conf, minMaxIds[1], minMaxIds[0]).run();", 2);
+		writeLine("new " + className + "(conf).run();", 2);
 		writeLine();
+		writeLine("conf.close();", 2);
 		writeLine("System.exit(0);", 2);
 		writeLine("}", 1);
 		writeLine();
-		writeLine("private long lastId = 0L;", 1);
-		writeLine("private final String select;", 1);
-		writeLine();
-		writeLine("public " + className + "(final AnalyticsConfiguration conf, final long lastId, final long minId)", 1);
+		writeLine("public " + className + "(final LoaderConfig conf)", 1);
 		writeLine("{", 1);
 		writeLine("super(conf);", 2);
-		writeLine();
-		writeLine("info(\"MAX_ID: {}\", this.lastId = lastId);", 2);
-		writeLine("info(\"SELECT: {}\", (select = String.format(SELECT, minId)));", 2);
 		writeLine("}", 1);
 	}
 
@@ -231,44 +224,28 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine("public int getBatchSize() { return BATCH_SIZE; }", 1);
 		writeLine();
 		writeLine("@Override", 1);
-		writeLine("public String getSelect() { return select; }", 1);
+		writeLine("public String getSelect() { return SELECT; }", 1);
 		writeLine();
 		writeLine("@Override", 1);
 		writeLine("public String getCopy() { return COPY; }", 1);
 		writeLine();
 		writeLine("@Override", 1);
 		writeLine("public String getS3Key() { return S3_KEY; }", 1);
+		writeLine();
+		writeLine("@Override", 1);
+		writeLine("public String getTableName() { return TABLE_NAME; }", 1);
 	}
 
 	/** Output method - writes the mutator methods. */
 	private void writeOutputMethod() throws IOException	
 	{
 		writeLine();
-		writeLine("@Override", 1);
-		writeLine("public int bindSelect(final PreparedStatement stmt) throws SQLException", 1);
-		writeLine("{", 1);
-		writeLine("info(\"BINDING: lastId: {}\", lastId);", 2);
-		writeLine("stmt.setLong(1, lastId);", 2);
-		writeLine();
-		writeLine("return 1;", 2);
-		writeLine("}", 1);
-		writeLine();
-		writeLine("@Override", 1);
-		writeLine("protected void onCompletion(final Connection conn) throws SQLException", 1);
-		writeLine("{", 1);
-		writeLine("var timer = new StopWatch();", 2);
-		writeLine();
-		writeLine("info(\"Populating denormalized fields ...\");", 2);
-		writeLine("try (var stmt = conn.createStatement())", 2);
-		writeLine("{", 2);
-		writeLine("// info(\"Populated denormalized fields ({}) from X in {}.\", stmt.executeUpdate(UPDATE_BY_X), timer.split());", 3);
-		writeLine("}", 2);
-		writeLine("info(\"Populated denormalized fields in {}.\", timer.total());", 2);
-		writeLine("}", 1);
+		writeLine("// @Override", 1);
+		writeLine("// TODO: uncomment to implement. // protected void onCompletion(final Handle dest) { denormalize(dest); }", 1);
 		writeLine();
 		writeLine("/** Writes a single line to the CSV file. */", 1);
 		writeLine("@Override", 1);
-		writeLine("protected Item writeLine(final Map<String, Object> rs, final CSVWriter out) throws IOException, SQLException", 1);
+		writeLine("protected Item writeLine(final Map<String, Object> rs, final CSVWriter out) throws IOException", 1);
 		writeLine("{", 1);
 		writeLine("out", 2);
 		for (final ColumnInfo i : columnInfo)
