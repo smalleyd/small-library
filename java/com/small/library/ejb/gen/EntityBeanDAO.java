@@ -102,22 +102,28 @@ public class EntityBeanDAO extends EntityBeanBase
 		}
 
 		String name = getObjectName();
-		writeLine("import static " + domainPackageName + ".common.hibernate.OrderByBuilder.*;");
+		writeLine("import static " + domainPackageName + ".common.dao.OrderByBuilder.*;");
 		writeLine();
 		writeLine("import java.util.stream.Collectors;");
 		writeLine();
 		writeLine("import org.hibernate.*;");
 		writeLine("import org.hibernate.criterion.*;");
+		writeLine("import org.jdbi.v3.core.Jdbi;");
+		writeLine("import org.jdbi.v3.sqlobject.config.RegisterRowMapper;"); 
+		writeLine("import org.jdbi.v3.sqlobject.customizer.Bind;");
+		writeLine("import org.jdbi.v3.sqlobject.statement.SqlQuery;"); 
 		writeLine();
 		writeLine("import io.dropwizard.hibernate.AbstractDAO;");
 		writeLine();
+		writeLine("import " + domainPackageName + ".common.dao.OrderByBuilder;");
 		writeLine("import " + domainPackageName + ".common.dao.QueryResults;");
 		writeLine("import " + domainPackageName + ".common.error.ValidationException;");
 		writeLine("import " + domainPackageName + ".common.error.Validator;");
-		writeLine("import " + domainPackageName + ".common.hibernate.OrderByBuilder;");
 		writeLine("import " + domainPackageName + ".common.hibernate.QueryBuilder;");
+		writeLine("import " + domainPackageName + ".common.jdbi.*;");
 		writeLine("import " + basePackageName + ".entity.*;");
 		writeLine("import " + basePackageName + ".filter." + EntityBeanFilter.getClassName(name) + ";");
+		writeLine("import " + basePackageName + ".mapper." + JDBiMapper.getClassName(name) + ";");
 		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(name) + ";");
 		writeLine();
 		writeLine("/**********************************************************************************");
@@ -136,6 +142,7 @@ public class EntityBeanDAO extends EntityBeanBase
 	{
 		final String name = getClassName();
 		final String objectName = getObjectName();
+		final String mapperName = JDBiMapper.getClassName(objectName);
 
 		writeLine();
 		write("public class " + name + " extends AbstractDAO<");
@@ -144,6 +151,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("{");
 		writeLine("private static final String SELECT = \"SELECT OBJECT(o) FROM " + objectName + " o\";", 1);
 		writeLine("private static final String COUNT = \"SELECT COUNT(o." + columnInfo[0].memberVariableName + ") FROM " + objectName + " o\";", 1);
+		writeLine("private static final " + mapperName + " MAPPER = new " + mapperName + "();", 1);
 		writeLine("private static final OrderByBuilder ORDER = new OrderByBuilder('o', ", 1);
 		int size = columnInfo.length;
 		for (ColumnInfo i : columnInfo)
@@ -163,9 +171,19 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("/** Native SQL clauses. */", 1);
 		writeLine("public static final String FROM_ALIAS = \"o\";", 1);
 		writeLine();
+		writeLine("@RegisterRowMapper(" + mapperName + ".class)", 1);
+		writeLine("private static interface READER", 1);
+		writeLine("{", 1);
+		writeLine("}", 1);
+		writeLine();
+		writeLine("private final Jdbi dbi;", 1);
+		writeLine("private final READER reader;", 1);
+		writeLine();
 		writeLine("public " + name + "(final SessionFactory factory)", 1);
 		writeLine("{", 1);
 		writeLine("super(factory);", 2);
+		writeLine("reader = (dbi = JDBiUtils.getReader(factory)).onDemand(READER.class);", 2);
+		writeLine("");
 		writeLine("}", 1);
 		writeLine();
 	}
