@@ -255,8 +255,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("@Override", 1);
 		writeLine("public boolean equals(final Object o)", 1);
 		writeLine("{", 1);
-		writeLine("if ((null == o) || !(o instanceof " + clazz + "))", 2);
-		writeLine("return false;", 3);
+		writeLine("if (!(o instanceof " + clazz + ")) return false;", 2);
 		writeLine();
 		writeLine("final " + clazz + " v = (" + clazz + ") o;", 2);
 		ColumnInfo item = columnInfo[0];
