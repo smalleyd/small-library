@@ -257,7 +257,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("{", 1);
 		writeLine("if (!(o instanceof " + clazz + ")) return false;", 2);
 		writeLine();
-		writeLine("final " + clazz + " v = (" + clazz + ") o;", 2);
+		writeLine("var v = (" + clazz + ") o;", 2);
 		ColumnInfo item = columnInfo[0];
 		writeLine("return " + writeEquals(item) + " &&", 2);
 		final int last = columnInfo.length - 1;
