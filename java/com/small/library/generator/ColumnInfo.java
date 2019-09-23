@@ -20,7 +20,9 @@ public class ColumnInfo
 	public boolean isNullable;
 	public boolean isBoolean;
 	public boolean isCharacter;
+	public boolean isDecimal;
 	public boolean isString;
+	public boolean isTime;
 	public int dataType;	// <I>java.sql.Types</I> value as integer.
 	public boolean isPartOfPrimaryKey;
 	public boolean isAutoIncrementing;

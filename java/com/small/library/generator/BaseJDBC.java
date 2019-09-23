@@ -65,7 +65,13 @@ public abstract class BaseJDBC extends Base
 		Types.DATE, Types.TIME, Types.TIMESTAMP));
 
 	/** Static member - set of SQL types that map to a Java String. */
+	private static Set<Integer> DECIMAL_TYPES = new HashSet<>(Arrays.asList(Types.DECIMAL, Types.DOUBLE, Types.NUMERIC, Types.REAL, Types.FLOAT));
+
+	/** Static member - set of SQL types that map to a Java String. */
 	private static Set<Integer> STRING_TYPES = new HashSet<>(Arrays.asList(Types.CHAR, Types.CLOB, Types.LONGVARCHAR, Types.VARCHAR));
+
+	/** Static member - set of SQL types that map to a Java String. */
+	private static Set<Integer> TIME_TYPES = new HashSet<>(Arrays.asList(Types.DATE, Types.TIME, Types.TIMESTAMP));
 
 	/** Static constructor - initializes static member variables. */
 	static
@@ -446,9 +452,21 @@ public abstract class BaseJDBC extends Base
 	}
 
 	/** Accessor method - gets the String attribute of the column. */
+	public boolean isDecimal(final Column column)
+	{
+		return DECIMAL_TYPES.contains(getSQLType(column));
+	}
+
+	/** Accessor method - gets the String attribute of the column. */
 	public boolean isString(final Column column)
 	{
 		return STRING_TYPES.contains(getSQLType(column));
+	}
+
+	/** Accessor method - gets the String attribute of the column. */
+	public boolean isTime(final Column column)
+	{
+		return TIME_TYPES.contains(getSQLType(column));
 	}
 
 	/** Accessor method - gets a column's type definition used in DDL.

@@ -226,7 +226,9 @@ public abstract class BaseTable extends BaseJDBC
 			info.isNullable = column.nullable;
 			info.isBoolean = isBoolean(column);
 			info.isCharacter = isCharacter(column);
+			info.isDecimal = isDecimal(column);
 			info.isString = isString(column);
+			info.isTime = isTime(column);
 			info.dataType = column.dataType;
 			info.isPartOfPrimaryKey = isPartOfPrimaryKey(column);
 			info.isAutoIncrementing = isColumnAutoIncrementing(column);
