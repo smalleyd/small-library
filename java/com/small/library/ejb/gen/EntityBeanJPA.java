@@ -248,7 +248,7 @@ public class EntityBeanJPA extends EntityBeanBase
 
 		writeLine();
 		writeLine("@Transient", 1);
-		writeLine("public " + valueName + " toValue(final " + name + " record)", 1);
+		writeLine("public " + valueName + " toValue()", 1);
 		writeLine("{", 1);
 			writeLine("var value = new " + valueName + "(", 2);
 		int i = 0, last = columnInfo.length - 1;
