@@ -85,6 +85,7 @@ public class EntityBeanJPA extends EntityBeanBase
 		writeAccessorMethods();
 		writeImportedKeysAccessorMethods();
 		writeConstructors();
+		writeTransients();
 
 		writeFooter();
 	}
@@ -237,6 +238,35 @@ public class EntityBeanJPA extends EntityBeanBase
 		for (final ColumnInfo item : columnInfo)
 			writeLine("\t\tthis." + item.memberVariableName + " = " + item.memberVariableName + ";");
 		writeLine("\t}");			
+	}
+
+	/** Output method - writes the transient helper methods. */
+	private void writeTransients() throws IOException
+	{
+		var name = getObjectName();
+		var valueName = EntityBeanValueObject.getClassName(getObjectName());
+
+		writeLine();
+		writeLine("@Transient", 1);
+		writeLine("public " + valueName + " toValue(final " + name + " record)", 1);
+		writeLine("{", 1);
+			writeLine("var value = new " + valueName + "(", 2);
+		int i = 0, last = columnInfo.length - 1;
+		for (var info : columnInfo)
+			writeLine(info.accessorMethodName + "()" + ((i++ < last) ? "," : ");"), 3);
+		writeLine();
+		for (var info : columnInfo)
+		{
+			if (!info.isImportedKey) continue;
+
+			int tabs = 2;
+			if (info.isNullable)
+				writeLine("if (null != value." + info.memberVariableName  + ")", tabs++);
+			writeLine("value." + info.importedKeyMemberName  + "Name = get" + info.importedKeyName + "().getName();", tabs);
+		}
+		writeLine();
+		writeLine("return value;", 2);
+		writeLine("}", 1);
 	}
 
 	/** Output method - writes the class footer. */

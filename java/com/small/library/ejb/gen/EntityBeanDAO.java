@@ -191,10 +191,10 @@ public class EntityBeanDAO extends EntityBeanBase
 	/** Output method - writes the accessor methods. */
 	private void writeMethods() throws IOException
 	{
-		String name = getObjectName();
-		String valueName = getValueObjectName();
-		String primaryKeyType = this.getPkJavaType();
-		String filterName = EntityBeanFilter.getClassName(name);
+		var name = getObjectName();
+		var valueName = getValueObjectName();
+		var primaryKeyType = this.getPkJavaType();
+		var filterName = EntityBeanFilter.getClassName(name);
 
 		writeLine("/** Adds a single " + name + " value.", 1);
 		writeLine(" *", 1); 
@@ -492,7 +492,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("/** Helper method - creates a non-transactional value from a transactional entity. */", 1);
 		writeLine("private " + valueName + " toValue(final " + name + " record)", 1);
 		writeLine("{", 1);
-			writeLine("" + valueName + " value = new " + valueName + "(", 2);
+			writeLine("var value = new " + valueName + "(", 2);
 		int i = 0, last = columnInfo.length - 1;
 		for (ColumnInfo info : columnInfo)
 			writeLine("record." + info.accessorMethodName + "()" + ((i++ < last) ? "," : ");"), 3);
