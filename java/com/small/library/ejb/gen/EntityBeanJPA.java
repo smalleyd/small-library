@@ -217,7 +217,7 @@ public class EntityBeanJPA extends EntityBeanBase
 		writeLine();
 
 		// Constructor signature.
-		write("\tpublic " + getClassName() + "(");
+		write("public " + getClassName() + "(", 1);
 		for (int i = 0, last = columnInfo.length - 1; i < columnInfo.length; i++)
 		{
 			ColumnInfo item = columnInfo[i];
@@ -234,16 +234,24 @@ public class EntityBeanJPA extends EntityBeanBase
 		}
 
 		// Write body.
-		writeLine("\t{");
+		writeLine("{", 1);
 		for (final ColumnInfo item : columnInfo)
-			writeLine("\t\tthis." + item.memberVariableName + " = " + item.memberVariableName + ";");
-		writeLine("\t}");			
+			writeLine("this." + item.memberVariableName + " = " + item.memberVariableName + ";", 2);
+		writeLine("}", 1);
+
+		// Write constructor with all possible values.
+		writeLine();
+		var valueName = EntityBeanValueObject.getClassName(getObjectName());
+		writeLine("public " + getClassName() + "(final " + valueName + " value)", 1);
+		writeLine("{", 1);
+		for (final ColumnInfo item : columnInfo)
+			writeLine("this." + item.memberVariableName + " = value." + item.memberVariableName + ";", 2);
+		writeLine("}", 1);
 	}
 
 	/** Output method - writes the transient helper methods. */
 	private void writeTransients() throws IOException
 	{
-		var name = getObjectName();
 		var valueName = EntityBeanValueObject.getClassName(getObjectName());
 
 		writeLine();
