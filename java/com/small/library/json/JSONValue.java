@@ -119,7 +119,7 @@ public class JSONValue implements Runnable
 		// Get a reference to the output directory.
 		final File output = new File(args[1]);
 		if (!output.isDirectory())
-			throw new IllegalArgumentException("'" + args[0] + "' is not a directory.");
+			throw new IllegalArgumentException("'" + args[1] + "' is not a directory.");
 
 		// Load each configuration file and create the output.
 		final ObjectMapper mapper = new ObjectMapper();
