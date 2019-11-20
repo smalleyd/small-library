@@ -39,6 +39,7 @@ public class JSONValue implements Runnable
 		out.print("package "); out.print(conf.packageName); out.println(";");
 		out.println();
 		out.println("import java.io.Serializable;");
+		out.println("import java.util.Objects;");
 		if (CollectionUtils.isNotEmpty(conf.imports))
 		{
 			out.println();
@@ -84,6 +85,21 @@ public class JSONValue implements Runnable
 		out.println("\t}");
 		out.println();
 		out.println("\t@Override");
+		out.println("\tpublic boolean equals(final Object o)");
+		out.println("\t{");
+		out.print("\t\tif (!(o instanceof "); out.print(conf.className); out.println(")) return false;");
+		out.println();
+		out.print("\t\tvar v = ("); out.print(conf.className); out.println(") o;");
+		index[0] = 0;
+		conf.fields.forEach((k, v) -> {
+			var term = (size > ++index[0]) ? " &&" : ";";
+			out.print("\t\t");
+			out.print((1 == index[0]) ? "return " : "\t");
+			out.println(toEquals(k, v, term));
+		});
+		out.println("\t}");
+		out.println();
+		out.println("\t@Override");
 		out.println("\tpublic String toString()");
 		out.println("\t{");
 		out.print("\t\treturn new StringBuilder(\"{ ");
@@ -95,6 +111,13 @@ public class JSONValue implements Runnable
 		out.println("\t\t\t.append(\" }\").toString();");
 		out.println("\t}");
 		out.println("}");
+	}
+
+	public static final String FORMAT_EQUALS_PRIMITIVE = "(%s == v.%s)%s";
+	public static final String FORMAT_EQUALS_OBJECT = "Objects.equals(%s, v.%s)%s";
+	private String toEquals(final String name, final String type, final String term)
+	{
+		return String.format(Character.isLowerCase(type.charAt(0)) ? FORMAT_EQUALS_PRIMITIVE : FORMAT_EQUALS_OBJECT, name, name, term);
 	}
 
 	public static void main(final String... args) throws Exception
