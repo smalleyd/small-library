@@ -22,6 +22,9 @@ public class JSONValue implements Runnable
 {
 	private static final Logger log = LoggerFactory.getLogger(JSONValue.class);
 
+	public static final String FORMAT_EQUALS_PRIMITIVE = "(%s == v.%s)%s";
+	public static final String FORMAT_EQUALS_OBJECT = "Objects.equals(%s, v.%s)%s";
+
 	private final JSONConfig conf;
 	private final PrintStream out;
 
@@ -113,8 +116,6 @@ public class JSONValue implements Runnable
 		out.println("}");
 	}
 
-	public static final String FORMAT_EQUALS_PRIMITIVE = "(%s == v.%s)%s";
-	public static final String FORMAT_EQUALS_OBJECT = "Objects.equals(%s, v.%s)%s";
 	private String toEquals(final String name, final String type, final String term)
 	{
 		return String.format(Character.isLowerCase(type.charAt(0)) ? FORMAT_EQUALS_PRIMITIVE : FORMAT_EQUALS_OBJECT, name, name, term);
