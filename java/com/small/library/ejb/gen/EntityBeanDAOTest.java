@@ -101,6 +101,8 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		}
 
 		final String name = getObjectName();
+		writeLine("import static com.jibe.dwtesting.TestingUtils.*;");
+		writeLine();
 		writeLine("import org.apache.commons.lang3.StringUtils;");
 		writeLine("import org.junit.*;");
 		writeLine("import org.junit.runners.MethodSorters;");
@@ -209,7 +211,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 			}
 			if (i.isString)
 			{
-				final String maxLenName = valueName + ".MAX_LEN_" + i.columnName.toUpperCase();
+				var maxLenName = valueName + ".MAX_LEN_" + i.columnName.toUpperCase();
 
 				writeLine();
 				writeLine("@Test(expected=ValidationException.class)", 1);
@@ -220,7 +222,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 			}
 			if (i.isImportedKey)
 			{
-				String invalidId_ = i.isCharacter ? "\"INVALID\"" : (10 < i.size) ? "1000L" : "1000";
+				var invalidId_ = i.isCharacter ? "\"INVALID\"" : (10 < i.size) ? "1000L" : "1000";
 				writeLine();
 				writeLine("@Test(expected=ValidationException.class)", 1);
 				writeLine("public void add_invalid" + i.name + "()", 1);
@@ -273,7 +275,12 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("var value = dao.update(VALUE);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);
+		writeLine("}", 1);
+
 		writeLine();
+		writeLine("@Test", 1);
+		writeLine("public void modify_count()", 1);
+		writeLine("{", 1);
 		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 0L);", 2);
 		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 1L);", 2);
 		writeLine("}", 1);
@@ -292,13 +299,47 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void search()", 1);
 		writeLine("{", 1);
-		for (final ColumnInfo i : columnInfo)
+		writeLine("var hourAgo = hourAgo();", 2);
+		writeLine("var hourAhead = hourAhead();", 2);
+		writeLine();
+		for (var i : columnInfo)
 		{
 			writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 1L);", 2);
-			if (i.isRange())
+			if (i.isTime)
+			{
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAgo), 1L);", 2);
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(hourAhead), 1L);", 2);
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAgo)." + i.withMethodName + "To(hourAhead), 1L);", 2);
+			}
+			else if (i.isRange())
 			{
 				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.memberVariableName + "), 1L);", 2);
 				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.memberVariableName + "), 1L);", 2);
+			}
+		}
+
+		writeLine();
+		writeLine("// Negative tests", 2);
+		for (var i : columnInfo)
+		{
+			if (i.isCharacter)
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(\"invalid\"), 0L);", 2);
+			else if (i.isBoolean)
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(!VALUE." + i.memberVariableName + "), 0L);", 2);
+			else
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + " + 1000" + ((10 < i.size) ? "L" : "") + "), 0L);", 2);
+				
+			if (i.isTime)
+			{
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAhead), 0L);", 2);
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(hourAgo), 0L);", 2);
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAhead)." + i.withMethodName + "To(hourAgo), 0L);", 2);
+			}
+			else if (i.isRange())
+			{
+				var l = ((10 < i.size) ? "L" : "");
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.memberVariableName + " + 1" + l + "), 0L);", 2);
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.memberVariableName + " - 1" + l + "), 0L);", 2);
 			}
 		}
 		writeLine("}", 1);
@@ -333,7 +374,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("public void search_sort()", 1);
 		writeLine("{", 1);
 		int size = columnInfo.length;
-		for (final ColumnInfo i : columnInfo)
+		for (var i : columnInfo)
 		{
 			String defaultDir = (i.isAutoIncrementing || i.isBoolean || i.isRange()) ? "DESC" : "ASC";
 			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", null), \"" + i.memberVariableName + "\", \"" + defaultDir + "\"); // Missing sort direction is converted to the default.", 2);

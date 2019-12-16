@@ -100,10 +100,10 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		}
 
 		var name = getObjectName();
-		writeLine("import java.util.*;");
-		writeLine();
 		writeLine("import static org.fest.assertions.api.Assertions.assertThat;");
+		writeLine("import static " + domainPackageName + ".dwtesting.TestingUtils.*;");
 		writeLine();
+		writeLine("import java.util.*;");
 		writeLine("import javax.ws.rs.client.*;");
 		writeLine("import javax.ws.rs.core.GenericType;");
 		writeLine("import javax.ws.rs.core.Response;");
@@ -118,7 +118,6 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("import " + domainPackageName + ".dwservice.errors.ValidationExceptionMapper;");
 		writeLine("import " + domainPackageName + ".dwservice.mediatype.UTF8MediaType;");
 		writeLine("import " + domainPackageName + ".dwservice.value.OperationResponse;");
-		writeLine("import " + domainPackageName + ".dwtesting.TestingUtils;");
 		writeLine("import " + basePackageName + "." + getAppName() + "App;");
 		writeLine("import " + basePackageName + ".dao." + EntityBeanDAO.getClassName(name) + ";");
 		writeLine("import " + basePackageName + ".filter." + EntityBeanFilter.getClassName(name) + ";");
@@ -209,7 +208,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("// TODO: populate the VALUE with data.", 2);
 		writeLine("var response = request()", 2);
 		writeLine(".post(Entity.entity(VALUE = new " + valueName + "(), UTF8MediaType.APPLICATION_JSON_TYPE));", 3);
-		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine("Assert.assertEquals(\"Status\", HTTP_STATUS_OK, response.getStatus());", 2);
 		writeLine();
 		writeLine("var value = response.readEntity(" + valueName + ".class);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
@@ -220,11 +219,9 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void find()", 1);
 		writeLine("{", 1);
-		writeLine("var response = target().queryParam(\"name\", \"\")", 2);
-		writeLine(".request(UTF8MediaType.APPLICATION_JSON_TYPE)", 3);
-		writeLine(".get();", 3);
+		writeLine("var response = request(target().queryParam(\"name\", \"\")).get();", 2);
+		writeLine("Assert.assertEquals(\"Status\", HTTP_STATUS_OK, response.getStatus());", 2);
 		writeLine();
-		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
 		writeLine("var values = response.readEntity(TYPE_LIST_VALUE);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", values);", 2);
 		writeLine();
@@ -236,7 +233,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("public void get()", 1);
 		writeLine("{", 1);
 		writeLine("var response = get(VALUE.id);", 2);
-		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine("Assert.assertEquals(\"Status\", HTTP_STATUS_OK, response.getStatus());", 2);
 		writeLine();
 		writeLine("var value = response.readEntity(" + valueName + ".class);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
@@ -254,7 +251,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void getWithException()", 1);
 		writeLine("{", 1);
-		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.id + " + invalidId + ").getStatus());", 2);
+		writeLine("Assert.assertEquals(\"Status\", HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.id + " + invalidId + ").getStatus());", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -266,7 +263,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine();
 		writeLine("// TODO: provide a change to the VALUE.", 2);
 		writeLine("var response = request().put(Entity.entity(VALUE, UTF8MediaType.APPLICATION_JSON_TYPE));", 2);
-		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine("Assert.assertEquals(\"Status\", HTTP_STATUS_OK, response.getStatus());", 2);
 		writeLine();
 		writeLine("var value = response.readEntity(" + valueName + ".class);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
@@ -295,13 +292,47 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void search()", 1);
 		writeLine("{", 1);
+		writeLine("var hourAgo = hourAgo();", 2);
+		writeLine("var hourAhead = hourAhead();", 2);
+		writeLine();
 		for (var i : columnInfo)
 		{
 			writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 1L);", 2);
-			if (i.isRange())
+			if (i.isTime)
+			{
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAgo), 1L);", 2);
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(hourAhead), 1L);", 2);
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAgo)." + i.withMethodName + "To(hourAhead), 1L);", 2);
+			}
+			else if (i.isRange())
 			{
 				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.memberVariableName + "), 1L);", 2);
 				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.memberVariableName + "), 1L);", 2);
+			}
+		}
+
+		writeLine();
+		writeLine("// Negative tests", 2);
+		for (var i : columnInfo)
+		{
+			if (i.isCharacter)
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(\"invalid\"), 0L);", 2);
+			else if (i.isBoolean)
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(!VALUE." + i.memberVariableName + "), 0L);", 2);
+			else
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + " + 1000" + ((10 < i.size) ? "L" : "") + "), 0L);", 2);
+				
+			if (i.isTime)
+			{
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAhead), 0L);", 2);
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(hourAgo), 0L);", 2);
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAhead)." + i.withMethodName + "To(hourAgo), 0L);", 2);
+			}
+			else if (i.isRange())
+			{
+				var l = ((10 < i.size) ? "L" : "");
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.memberVariableName + " + 1" + l + "), 0L);", 2);
+				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.memberVariableName + " - 1" + l + "), 0L);", 2);
 			}
 		}
 		writeLine("}", 1);
@@ -313,7 +344,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("var response = request(\"search\")", 2);
 		writeLine(".post(Entity.entity(filter, UTF8MediaType.APPLICATION_JSON_TYPE));", 3);
 		writeLine("var assertId = \"SEARCH \" + filter + \": \";", 2);
-		writeLine("Assert.assertEquals(assertId + \"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine("Assert.assertEquals(assertId + \"Status\", HTTP_STATUS_OK, response.getStatus());", 2);
 		writeLine();
 		writeLine("var results = response.readEntity(TYPE_QUERY_RESULTS);", 2);
 		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
@@ -351,7 +382,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("{", 1);
 		writeLine("var response = request(id" + to_s + ").delete();", 2);
 		writeLine("var assertId = \"DELETE (\" + id + \", \" + success + \"): \";", 2);
-		writeLine("Assert.assertEquals(assertId + \"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine("Assert.assertEquals(assertId + \"Status\", HTTP_STATUS_OK, response.getStatus());", 2);
 		writeLine();
 		writeLine("var results = response.readEntity(OperationResponse.class);", 2);
 		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
@@ -362,7 +393,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void testRemove_get()", 1);
 		writeLine("{", 1);
-		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.id).getStatus());", 2);
+		writeLine("Assert.assertEquals(\"Status\", HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.id).getStatus());", 2);
 		writeLine("}", 1);
 
 		writeLine();

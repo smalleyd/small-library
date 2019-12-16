@@ -113,8 +113,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("import org.jdbi.v3.sqlobject.customizer.Bind;");
 		writeLine("import org.jdbi.v3.sqlobject.statement.SqlQuery;"); 
 		writeLine();
-		writeLine("import " + domainPackageName + ".dwservice.dao.OrderByBuilder;");
-		writeLine("import " + domainPackageName + ".dwservice.dao.QueryResults;");
+		writeLine("import " + domainPackageName + ".dwservice.dao.*;");
 		writeLine("import " + domainPackageName + ".dwservice.errors.ValidationException;");
 		writeLine("import " + domainPackageName + ".dwservice.errors.Validator;");
 		writeLine("import " + domainPackageName + ".dwservice.hibernate.AbstractDAO;");
@@ -244,12 +243,12 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine();
 		boolean first = true;
 		writeLine("// Throw exception after field existence checks and before FK checks.", 2);
-		for (ColumnInfo i : columnInfo)
+		for (var i : columnInfo)
 		{
 			if (i.isAutoIncrementing)
 				continue;
 
-			String validator = first ? "validator" : "\t";
+			var validator = first ? "validator" : "\t";
 			if (i.isString)
 			{
 				final String maxLenName = valueName + ".MAX_LEN_" + i.columnName.toUpperCase();
@@ -260,6 +259,8 @@ public class EntityBeanDAO extends EntityBeanBase
 			}
 			else if (!i.isNullable && !i.isPrimitive)
 				writeLine(validator + ".ensureExists(\"" + i.memberVariableName + "\", \"" + i.name + "\", value." + i.memberVariableName + ")", 2);
+			else
+				continue;	// Make sure to call first = false below unless validation is written. DLS on 12/16/2019.
 
 			first = false;
 		}
@@ -267,8 +268,8 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine();
 		writeLine("// Validation foreign keys.", 2);
 		writeLine("var session = currentSession();", 2);
-		List<String> cmrVars = new LinkedList<>();
-		for (ColumnInfo i : columnInfo)
+		var cmrVars = new LinkedList<String>();
+		for (var i : columnInfo)
 		{
 			if (!i.isImportedKey)
 				continue;
@@ -303,8 +304,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("public boolean remove(final " + primaryKeyType + " id) throws ValidationException", 1);
 		writeLine("{", 1);
 			writeLine("var record = get(id);", 2);
-			writeLine("if (null == record)", 2);
-				writeLine("return false;", 3);
+			writeLine("if (null == record) return false;", 2);
 			writeLine();
 			writeLine("currentSession().delete(record);", 2);
 			writeLine();
@@ -360,8 +360,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("{", 1);
 			writeLine("var builder = createQueryBuilder(filter.clean(), SELECT);", 2);
 			writeLine("var v = new QueryResults<" + valueName + ", " + filterName + ">(builder.aggregate(COUNT), filter);", 2);
-			writeLine("if (v.isEmpty())", 2);
-			writeLine("return v;", 3);
+			writeLine("if (v.isEmpty()) return v;", 2);
 			writeLine();
 			writeLine("return v.withRecords(builder.orderBy(ORDER.normalize(v)).run(v).stream().map(o -> toValue(o)).collect(Collectors.toList()));", 2);
 			writeLine();
