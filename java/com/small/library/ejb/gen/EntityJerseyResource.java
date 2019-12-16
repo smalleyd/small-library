@@ -102,7 +102,7 @@ public class EntityJerseyResource extends EntityBeanBase
 
 		final String name = getObjectName();
 
-		writeLine("import java.util.*;");
+		writeLine("import java.util.List;");
 		writeLine();
 		writeLine("import javax.ws.rs.*;");
 		writeLine();
@@ -110,11 +110,10 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine("import io.swagger.annotations.*;");
 		writeLine();
 		writeLine("import com.codahale.metrics.annotation.Timed;");
-		writeLine("import " + domainPackageName + ".common.dao.QueryResults;");
-		writeLine("import " + domainPackageName + ".common.error.ValidationException;");
-		writeLine("import " + domainPackageName + ".common.jersey.JerseyUtils;");
-		writeLine("import " + domainPackageName + ".common.model.Model;");
-		writeLine("import " + domainPackageName + ".common.value.NameValue;");
+		writeLine("import " + domainPackageName + ".dwservice.dao.QueryResults;");
+		writeLine("import " + domainPackageName + ".dwservice.errors.ValidationException;");
+		writeLine("import " + domainPackageName + ".dwservice.mediatype.UTF8MediaType;");
+		writeLine("import " + domainPackageName + ".dwservice.value.OperationResponse;");
 		writeLine("import " + basePackageName + ".dao." + EntityBeanDAO.getClassName(name) + ";");
 		writeLine("import " + basePackageName + ".filter." + EntityBeanFilter.getClassName(name) + ";");
 		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(name) + ";");
@@ -141,8 +140,8 @@ public class EntityJerseyResource extends EntityBeanBase
 		
 		writeLine();
 		writeLine("@Path(\"/" + mapping + "\")");
-		writeLine("@Consumes(JerseyUtils.APPLICATION_JSON)");
-		writeLine("@Produces(JerseyUtils.APPLICATION_JSON)");
+		writeLine("@Consumes(UTF8MediaType.APPLICATION_JSON)");
+		writeLine("@Produces(UTF8MediaType.APPLICATION_JSON)");
 		writeLine("@Api(value=\"" + name + "\")");
 		writeLine("public class " + getClassName());
 		writeLine("{");
@@ -173,38 +172,39 @@ public class EntityJerseyResource extends EntityBeanBase
 		}
 
 		// Parent URI mapping.
-		final String name = getObjectName();
-		final String filterName = EntityBeanFilter.getClassName(name);
+		var name = getObjectName();
+		var valueName = getValueObjectName();
+		var filterName = EntityBeanFilter.getClassName(name);
 
 		writeLine();
 		writeLine("@GET", 1);
 		writeLine("@Path(\"/{id}\") @Timed @UnitOfWork(readOnly=true, transactional=false)", 1);
-		writeLine("@ApiOperation(value=\"get\", notes=\"Gets a single " + name + " by its primary key.\", response=" + getValueObjectName() + ".class)", 1);
-		writeLine("public " + getValueObjectName() + " get(@PathParam(\"id\") final " + primaryKeyType + " id) throws ValidationException", 1);
+		writeLine("@ApiOperation(value=\"get\", notes=\"Gets a single " + name + " by its primary key.\", response=" + valueName + ".class)", 1);
+		writeLine("public " + valueName + " get(@PathParam(\"id\") final " + primaryKeyType + " id) throws ValidationException", 1);
 		writeLine("{", 1);
 			writeLine("return dao.getByIdWithException(id);", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("@GET", 1);
 		writeLine("@Timed @UnitOfWork(readOnly=true, transactional=false)", 1);
-		writeLine("@ApiOperation(value=\"find\", notes=\"Finds " + name + "s by wildcard name search.\", response=NameValue.class, responseContainer=\"List\")", 1);
-		writeLine("public List<NameValue> find(@QueryParam(\"name\") @ApiParam(name=\"name\", value=\"Value for the wildcard search\") final String name)", 1);
+		writeLine("@ApiOperation(value=\"find\", notes=\"Finds " + name + "s by wildcard name search.\", response=" + valueName + ".class, responseContainer=\"List\")", 1);
+		writeLine("public List<" + valueName + "> find(@QueryParam(\"name\") @ApiParam(name=\"name\", value=\"Value for the wildcard search\") final String name)", 1);
 		writeLine("{", 1);
 			writeLine("return dao.getActiveByIdOrName(name);", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("@POST", 1);
 		writeLine("@Timed @UnitOfWork", 1);
-		writeLine("@ApiOperation(value=\"add\", notes=\"Adds a single " + name + ". Returns the supplied " + name + " value with the auto generated identifier populated.\", response=" + getValueObjectName() + ".class)", 1);
-		writeLine("public " + getValueObjectName() + " add(final " + getValueObjectName() + " value) throws ValidationException", 1);
+		writeLine("@ApiOperation(value=\"add\", notes=\"Adds a single " + name + ". Returns the supplied " + name + " value with the auto generated identifier populated.\", response=" + valueName + ".class)", 1);
+		writeLine("public " + valueName + " add(final " + valueName + " value) throws ValidationException", 1);
 		writeLine("{", 1);
 			writeLine("return dao.add(value);", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("@PUT", 1);
 		writeLine("@Timed @UnitOfWork", 1);
-		writeLine("@ApiOperation(value=\"set\", notes=\"Updates an existing single " + name + ". Returns the supplied " + name + " value with the auto generated identifier populated.\", response=" + getValueObjectName() + ".class)", 1);
-		writeLine("public " + getValueObjectName() + " set(final " + getValueObjectName() + " value) throws ValidationException", 1);
+		writeLine("@ApiOperation(value=\"set\", notes=\"Updates an existing single " + name + ". Returns the supplied " + name + " value with the auto generated identifier populated.\", response=" + valueName + ".class)", 1);
+		writeLine("public " + valueName + " set(final " + valueName + " value) throws ValidationException", 1);
 		writeLine("{", 1);
 			writeLine("return dao.update(value);", 2);
 		writeLine("}", 1);
@@ -212,15 +212,15 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine("@DELETE", 1);
 		writeLine("@Path(\"/{id}\") @Timed @UnitOfWork", 1);
 		writeLine("@ApiOperation(value=\"remove\", notes=\"Removes/deactivates a single " + name + " by its primary key.\")", 1);
-		writeLine("public Model<Boolean> remove(@PathParam(\"id\") final " + primaryKeyType + " id) throws ValidationException", 1);
+		writeLine("public OperationResponse remove(@PathParam(\"id\") final " + primaryKeyType + " id) throws ValidationException", 1);
 		writeLine("{", 1);
-			writeLine("return new Model<Boolean>(dao.remove(id));", 2);
+			writeLine("return new OperationResponse(dao.remove(id));", 2);
 		writeLine("}", 1);
 		writeLine();
 		writeLine("@POST", 1);
 		writeLine("@Path(\"/search\") @Timed @UnitOfWork(readOnly=true, transactional=false)", 1);
 		writeLine("@ApiOperation(value=\"search\", notes=\"Searches the " + name + "s based on the supplied filter.\", response=QueryResults.class)", 1);
-		writeLine("public QueryResults<" + getValueObjectName() + ", " + filterName + "> search(final " + filterName + " filter) throws ValidationException", 1);
+		writeLine("public QueryResults<" + valueName + ", " + filterName + "> search(final " + filterName + " filter) throws ValidationException", 1);
 		writeLine("{", 1);
 			writeLine("return dao.search(filter);", 2);
 		writeLine("}", 1);

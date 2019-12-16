@@ -1,7 +1,6 @@
 package com.small.library.ejb.gen;
 
 import java.io.*;
-import java.util.List;
 
 import com.small.library.generator.*;
 import com.small.library.metadata.*;
@@ -90,9 +89,9 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 	/** Output method - writes the file header. */
 	private void writeHeader() throws IOException
 	{
-		final String packageName = getPackageName();
-		final String domainPackageName = getDomainPackageName();
-		final String basePackageName = getBasePackageName();
+		var packageName = getPackageName();
+		var domainPackageName = getDomainPackageName();
+		var basePackageName = getBasePackageName();
 
 		if (null != packageName)
 		{
@@ -100,27 +99,27 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 			writeLine();
 		}
 
-		final String name = getObjectName();
+		var name = getObjectName();
 		writeLine("import java.util.*;");
+		writeLine();
+		writeLine("import static org.fest.assertions.api.Assertions.assertThat;");
 		writeLine();
 		writeLine("import javax.ws.rs.client.*;");
 		writeLine("import javax.ws.rs.core.GenericType;");
 		writeLine("import javax.ws.rs.core.Response;");
 		writeLine();
-		writeLine("import org.hibernate.SessionFactory;");
 		writeLine("import org.junit.*;");
 		writeLine("import org.junit.runners.MethodSorters;");
 		writeLine();
 		writeLine("import io.dropwizard.testing.junit.ResourceTestRule;");
 		writeLine();
 		writeLine("import " + domainPackageName + ".junit.hibernate.*;");
-		writeLine("import " + domainPackageName + ".common.dao.QueryResults;");
-		writeLine("import " + domainPackageName + ".common.error.ValidationExceptionMapper;");
-		writeLine("import " + domainPackageName + ".common.model.Model;");
-		writeLine("import " + domainPackageName + ".common.jersey.JerseyUtils;");
-		writeLine("import " + domainPackageName + ".common.value.NameValue;");
-		writeLine("import " + domainPackageName + ".testing.TestingUtils;");
-		writeLine("import " + basePackageName + "." + getAppName() + "Application;");
+		writeLine("import " + domainPackageName + ".dwservice.dao.QueryResults;");
+		writeLine("import " + domainPackageName + ".dwservice.errors.ValidationExceptionMapper;");
+		writeLine("import " + domainPackageName + ".dwservice.mediatype.UTF8MediaType;");
+		writeLine("import " + domainPackageName + ".dwservice.value.OperationResponse;");
+		writeLine("import " + domainPackageName + ".dwtesting.TestingUtils;");
+		writeLine("import " + basePackageName + "." + getAppName() + "App;");
 		writeLine("import " + basePackageName + ".dao." + EntityBeanDAO.getClassName(name) + ";");
 		writeLine("import " + basePackageName + ".filter." + EntityBeanFilter.getClassName(name) + ";");
 		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(name) + ";");
@@ -139,20 +138,20 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 	/** Output method - writes the class declaration. */
 	private void writeClassDeclaration() throws IOException
 	{
-		final String name = getClassName();
-		final String objectName = getObjectName();
-		final String daoName = EntityBeanDAO.getClassName(objectName);
-		final String mapping = fromObjectNameToMemberName(objectName) + "s";
-		final String filterName = EntityBeanFilter.getClassName(objectName);
-		final String valueName = EntityBeanValueObject.getClassName(objectName);
-		final String resourceName = EntityJerseyResource.getClassName(objectName);
+		var name = getClassName();
+		var objectName = getObjectName();
+		var daoName = EntityBeanDAO.getClassName(objectName);
+		var mapping = fromObjectNameToMemberName(objectName) + "s";
+		var filterName = EntityBeanFilter.getClassName(objectName);
+		var valueName = EntityBeanValueObject.getClassName(objectName);
+		var resourceName = EntityJerseyResource.getClassName(objectName);
 
 		writeLine();
 		writeLine("@FixMethodOrder(MethodSorters.NAME_ASCENDING)	// Ensure that the methods are executed in order listed.");
 		writeLine("public class " + name);
 		writeLine("{");
 		writeLine("@ClassRule", 1);
-		writeLine("public static final HibernateRule DAO_RULE = new HibernateRule(" + getAppName() + "Application.ENTITIES);", 1);
+		writeLine("public static final HibernateRule DAO_RULE = new HibernateRule(" + getAppName() + "App.ENTITIES);", 1);
 		writeLine();
 		writeLine("@Rule", 1);
 		writeLine("public final HibernateTransactionRule transRule = new HibernateTransactionRule(DAO_RULE);", 1);
@@ -169,15 +168,14 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("private static final String TARGET = \"/" + mapping + "\";", 1);
 		writeLine();
 		writeLine("/** Generic types for reading values from responses. */", 1);
-		writeLine("private static final GenericType<Model<Boolean>> TYPE_BOOLEAN = new GenericType<Model<Boolean>>() {};", 1);
-		writeLine("private static final GenericType<List<NameValue>> TYPE_LIST_NAME_VALUE = new GenericType<List<NameValue>>() {};", 1);
+		writeLine("private static final GenericType<List<" + valueName + ">> TYPE_LIST_VALUE = new GenericType<List<" + valueName + ">>() {};", 1);
 		writeLine("private static final GenericType<QueryResults<" + valueName + ", " + filterName + ">> TYPE_QUERY_RESULTS =", 1);
 		writeLine("new GenericType<QueryResults<" + valueName + ", " + filterName + ">>() {};", 2);
 		writeLine();
 		writeLine("@BeforeClass", 1);
 		writeLine("public static void up()", 1);
 		writeLine("{", 1);
-		writeLine("final SessionFactory factory = DAO_RULE.getSessionFactory();", 2);
+		writeLine("var factory = DAO_RULE.getSessionFactory();", 2);
 		writeLine("dao = new " + daoName + "(factory);", 2);
 		writeLine("}", 1);
 	}
@@ -185,15 +183,15 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 	/** Output method - writes the accessor methods. */
 	private void writeMethods() throws IOException
 	{
-		final String name = getObjectName();
-		final String pkTypeName = getPkJavaType();
-		final String filterName = EntityBeanFilter.getClassName(name);
-		final String valueName = EntityBeanValueObject.getClassName(name);
-		final String to_s = "String".equals(pkTypeName) ? "" : ".toString()";
+		var name = getObjectName();
+		var pkTypeName = getPkJavaType();
+		var filterName = EntityBeanFilter.getClassName(name);
+		var valueName = EntityBeanValueObject.getClassName(name);
+		var to_s = "String".equals(pkTypeName) ? "" : ".toString()";
 
 		// For testing non-existence, use a value to add to the primary key.
-		String invalidId = "\"INVALID\"";
-		for (final ColumnInfo i : columnInfo)
+		var invalidId = "\"INVALID\"";
+		for (var i : columnInfo)
 		{
 			if (i.isPartOfPrimaryKey)
 			{
@@ -209,11 +207,11 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("public void add()", 1);
 		writeLine("{", 1);
 		writeLine("// TODO: populate the VALUE with data.", 2);
-		writeLine("final Response response = request()", 2);
-		writeLine(".post(Entity.entity(VALUE = new " + valueName + "(), JerseyUtils.APPLICATION_JSON_TYPE));", 3);
-		writeLine();
+		writeLine("var response = request()", 2);
+		writeLine(".post(Entity.entity(VALUE = new " + valueName + "(), UTF8MediaType.APPLICATION_JSON_TYPE));", 3);
 		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
-		writeLine("final " + valueName + " value = response.readEntity(" + valueName + ".class);", 2);
+		writeLine();
+		writeLine("var value = response.readEntity(" + valueName + ".class);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
@@ -222,12 +220,12 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void find()", 1);
 		writeLine("{", 1);
-		writeLine("final Response response = target().queryParam(\"name\", \"\")", 2);
-		writeLine(".request(JerseyUtils.APPLICATION_JSON_TYPE)", 3);
+		writeLine("var response = target().queryParam(\"name\", \"\")", 2);
+		writeLine(".request(UTF8MediaType.APPLICATION_JSON_TYPE)", 3);
 		writeLine(".get();", 3);
 		writeLine();
 		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
-		writeLine("final List<NameValue> values = response.readEntity(TYPE_LIST_NAME_VALUE);", 2);
+		writeLine("var values = response.readEntity(TYPE_LIST_VALUE);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", values);", 2);
 		writeLine();
 		writeLine("// TODO: do other checks.", 2);
@@ -237,10 +235,10 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void get()", 1);
 		writeLine("{", 1);
-		writeLine("final Response response = get(VALUE.id);", 2);
-		writeLine();
+		writeLine("var response = get(VALUE.id);", 2);
 		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
-		writeLine("final " + valueName + " value = response.readEntity(" + valueName + ".class);", 2);
+		writeLine();
+		writeLine("var value = response.readEntity(" + valueName + ".class);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
@@ -267,13 +265,18 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 0L);", 2);
 		writeLine();
 		writeLine("// TODO: provide a change to the VALUE.", 2);
-		writeLine("final Response response = request().put(Entity.entity(VALUE, JerseyUtils.APPLICATION_JSON_TYPE));", 2);
-		writeLine();
+		writeLine("var response = request().put(Entity.entity(VALUE, UTF8MediaType.APPLICATION_JSON_TYPE));", 2);
 		writeLine("Assert.assertEquals(\"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
-		writeLine("final " + valueName + " value = response.readEntity(" + valueName + ".class);", 2);
+		writeLine();
+		writeLine("var value = response.readEntity(" + valueName + ".class);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);
+		writeLine("}", 1);
+
 		writeLine();
+		writeLine("@Test", 1);
+		writeLine("public void modify_count()", 1);
+		writeLine("{", 1);
 		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 0L);", 2);
 		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 1L);", 2);
 		writeLine("}", 1);
@@ -282,7 +285,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void modify_get()", 1);
 		writeLine("{", 1);
-		writeLine("final " + valueName + " value = get(VALUE.id).readEntity(" + valueName + ".class);", 2);
+		writeLine("var value = get(VALUE.id).readEntity(" + valueName + ".class);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("// TODO: check the changed property.", 2);
 		writeLine("check(VALUE, value);", 2);
@@ -292,7 +295,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void search()", 1);
 		writeLine("{", 1);
-		for (ColumnInfo i : columnInfo)
+		for (var i : columnInfo)
 		{
 			writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 1L);", 2);
 			if (i.isRange())
@@ -307,12 +310,12 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("/** Helper method - calls the search endpoint and verifies the counts and records. */", 1);
 		writeLine("private void search(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
-		writeLine("final Response response = request(\"search\")", 2);
-		writeLine(".post(Entity.entity(filter, JerseyUtils.APPLICATION_JSON_TYPE));", 3);
-		writeLine();
-		writeLine("final String assertId = \"SEARCH \" + filter + \": \";", 2);
+		writeLine("var response = request(\"search\")", 2);
+		writeLine(".post(Entity.entity(filter, UTF8MediaType.APPLICATION_JSON_TYPE));", 3);
+		writeLine("var assertId = \"SEARCH \" + filter + \": \";", 2);
 		writeLine("Assert.assertEquals(assertId + \"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
-		writeLine("final QueryResults<" + valueName + ", " + filterName + "> results = response.readEntity(TYPE_QUERY_RESULTS);", 2);
+		writeLine();
+		writeLine("var results = response.readEntity(TYPE_QUERY_RESULTS);", 2);
 		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
 		writeLine("Assert.assertEquals(assertId + \"Check total\", expectedTotal, results.getTotal());", 2);
 		writeLine("if (0L == expectedTotal)", 2);
@@ -346,13 +349,13 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("/** Helper method - call the DELETE endpoint. */", 1);
 		writeLine("private void remove(final " + pkTypeName + " id, boolean success)", 1);
 		writeLine("{", 1);
-		writeLine("final Response response = request(id" + to_s + ").delete();", 2);
-		writeLine();
-		writeLine("final String assertId = \"DELETE (\" + id + \", \" + success + \"): \";", 2);
+		writeLine("var response = request(id" + to_s + ").delete();", 2);
+		writeLine("var assertId = \"DELETE (\" + id + \", \" + success + \"): \";", 2);
 		writeLine("Assert.assertEquals(assertId + \"Status\", TestingUtils.HTTP_STATUS_OK, response.getStatus());", 2);
-		writeLine("final Model<Boolean> results = response.readEntity(TYPE_BOOLEAN);", 2);
+		writeLine();
+		writeLine("var results = response.readEntity(OperationResponse.class);", 2);
 		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
-		writeLine("Assert.assertEquals(assertId + \"Check value\", success, results.getValue());", 2);
+		writeLine("Assert.assertEquals(assertId + \"Check value\", success, results.operation);", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -375,10 +378,9 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("private WebTarget target() { return RULE.client().target(TARGET); }", 1);
 		writeLine();
 		writeLine("/** Helper method - creates the request from the WebTarget. */", 1);
-		writeLine("private Invocation.Builder request() { return target().request(JerseyUtils.APPLICATION_JSON_TYPE); }", 1);
-		writeLine();
-		writeLine("/** Helper method - creates the request from the WebTarget. */", 1);
-		writeLine("private Invocation.Builder request(final String path) { return target().path(path).request(JerseyUtils.APPLICATION_JSON_TYPE); }", 1);
+		writeLine("private Invocation.Builder request() { return request(target()); }", 1);
+		writeLine("private Invocation.Builder request(final String path) { return request(target().path(path)); }", 1);
+		writeLine("private Invocation.Builder request(final WebTarget target) { return target.request(UTF8MediaType.APPLICATION_JSON_TYPE); }", 1);
 
 		writeLine();
 		writeLine("/** Helper method - calls the DAO count call and compares the expected total value.", 1);
@@ -395,12 +397,22 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("/** Helper method - checks an expected value against a supplied value object. */", 1);
 		writeLine("private void check(final " + valueName + " expected, final " + valueName + " value)", 1);
 		writeLine("{", 1);
-		writeLine("final String assertId = \"ID (\" + expected.id + \"): \";", 2);
+		writeLine("var assertId = \"ID (\" + expected.id + \"): \";", 2);
 		for (ColumnInfo i : columnInfo)
 		{
-			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", value." + i.memberVariableName + ");", 2);
-			if (i.isImportedKey)
-				writeLine("Assert.assertEquals(assertId + \"Check " + i.importedKeyMemberName + "Name\", expected." + i.importedKeyMemberName + "Name, value." + i.importedKeyMemberName + "Name);", 2);
+			if (i.isTime)
+			{
+				writeLine("if (null == expected." + i.memberVariableName + ")", 2);
+				writeLine("Assert.assertNull(assertId + \"Check " + i.memberVariableName + "\", value." + i.memberVariableName + ");", 3);
+				writeLine("else", 2);
+				writeLine("assertThat(value." + i.memberVariableName + ").as(assertId + \"Check " + i.memberVariableName + "\").isCloseTo(expected." + i.memberVariableName + ", 500L);", 3);
+			}
+			else
+			{
+				writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", value." + i.memberVariableName + ");", 2);
+				if (i.isImportedKey)
+					writeLine("Assert.assertEquals(assertId + \"Check " + i.importedKeyMemberName + "Name\", expected." + i.importedKeyMemberName + "Name, value." + i.importedKeyMemberName + "Name);", 2);
+			}
 		}
 		writeLine("}", 1);
 	}
@@ -436,13 +448,13 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 				throw new IllegalArgumentException("Please supply at least 3 arguments.");
 
 			// Local variables
-			final File dir = extractOutputDirectory(args, 0);
-			final String author = extractAuthor(args, 5);
-			final String packageName = extractArgument(args, 6, null);
-			final String version = extractArgument(args, 7, null);
+			var dir = extractOutputDirectory(args, 0);
+			var author = extractAuthor(args, 5);
+			var packageName = extractArgument(args, 6, null);
+			var version = extractArgument(args, 7, null);
 
 			// Create and load the tables object.
-			final List<Table> tables = extractTables(args, 1, 8);
+			var tables = extractTables(args, 1, 8);
 
 			// Call the BaseTable method to handle the outputting.
 			generateTableResources(new EntityJerseyResourceTest(author, packageName, version), tables, dir);
@@ -450,7 +462,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 
 		catch (final IllegalArgumentException ex)
 		{
-			final String message = ex.getMessage();
+			var message = ex.getMessage();
 
 			if (null != message)
 			{

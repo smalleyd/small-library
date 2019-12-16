@@ -113,12 +113,15 @@ public class EntityBeanJPA extends EntityBeanBase
 		writeLine("import java.io.Serializable;");
 		writeLine("import java.math.BigDecimal;");
 		writeLine("import java.util.Date;");
+		writeLine("import java.util.Objects;");
 		writeLine();
 		writeLine("import javax.persistence.*;");
 		writeLine();
 		writeLine("import org.hibernate.annotations.Cache;");
 		writeLine("import org.hibernate.annotations.CacheConcurrencyStrategy;");
 		writeLine("import org.hibernate.annotations.DynamicUpdate;");
+		writeLine();
+		writeLine("import " + getBasePackageName() + ".value." + EntityBeanValueObject.getClassName(getObjectName()) + ";");
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");
@@ -252,14 +255,37 @@ public class EntityBeanJPA extends EntityBeanBase
 	/** Output method - writes the transient helper methods. */
 	private void writeTransients() throws IOException
 	{
+		var clazz = getClassName();
 		var valueName = EntityBeanValueObject.getClassName(getObjectName());
 
+		// Write the equals method. */
+		writeLine();
+		writeLine("@Override", 1);
+		writeLine("public boolean equals(final Object o)", 1);
+		writeLine("{", 1);
+		writeLine("if (!(o instanceof " + clazz + ")) return false;", 2);
+		writeLine();
+		writeLine("var v = (" + clazz + ") o;", 2);
+		ColumnInfo item = columnInfo[0];
+		writeLine("return " + writeEquals(item) + " &&", 2);
+		int last = columnInfo.length - 1;
+		for (int i = 1; i < columnInfo.length; i++)
+		{
+			final String term = (last > i) ? " &&" : ";";
+			writeLine(writeEquals(item = columnInfo[i]) + term, 3);
+			if (null != item.importedKeyMemberName)
+				writeLine("Objects.equals(" + item.importedKeyMemberName + "Name, v." + item.importedKeyMemberName + "Name)" + term, 3);
+		}
+		writeLine("}", 1);
+		
+		// Write the toString method. */
 		writeLine();
 		writeLine("@Transient", 1);
 		writeLine("public " + valueName + " toValue()", 1);
 		writeLine("{", 1);
 			writeLine("var value = new " + valueName + "(", 2);
-		int i = 0, last = columnInfo.length - 1;
+		int i = 0;
+		last = columnInfo.length - 1;
 		for (var info : columnInfo)
 			writeLine(info.accessorMethodName + "()" + ((i++ < last) ? "," : ");"), 3);
 		writeLine();

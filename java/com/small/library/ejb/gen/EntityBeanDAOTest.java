@@ -102,14 +102,12 @@ public class EntityBeanDAOTest extends EntityBeanBase
 
 		final String name = getObjectName();
 		writeLine("import org.apache.commons.lang3.StringUtils;");
-		writeLine("import org.hibernate.SessionFactory;");
 		writeLine("import org.junit.*;");
 		writeLine("import org.junit.runners.MethodSorters;");
 		writeLine();
 		writeLine("import " + domainPackageName + ".junit.hibernate.*;");
-		writeLine("import " + domainPackageName + ".common.dao.QueryResults;");
-		writeLine("import " + domainPackageName + ".common.error.ValidationException;");
-		writeLine("import " + basePackageName + "." + getAppName() + "Application;");
+		writeLine("import " + domainPackageName + ".dwservice.errors.ValidationException;");
+		writeLine("import " + basePackageName + "." + getAppName() + "App;");
 		writeLine("import " + basePackageName + ".entity." + name + ";");
 		writeLine("import " + basePackageName + ".filter." + EntityBeanFilter.getClassName(name) + ";");
 		writeLine("import " + basePackageName + ".value." + EntityBeanValueObject.getClassName(name) + ";");
@@ -137,7 +135,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("public class " + name);
 		writeLine("{");
 		writeLine("@ClassRule", 1);
-		writeLine("public static final HibernateRule DAO_RULE = new HibernateRule(" + getAppName() + "Application.ENTITIES);", 1);
+		writeLine("public static final HibernateRule DAO_RULE = new HibernateRule(" + getAppName() + "App.ENTITIES);", 1);
 		writeLine();
 		writeLine("@Rule", 1);
 		writeLine("public final HibernateTransactionRule transRule = new HibernateTransactionRule(DAO_RULE);", 1);
@@ -148,7 +146,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@BeforeClass", 1);
 		writeLine("public static void up()", 1);
 		writeLine("{", 1);
-		writeLine("final SessionFactory factory = DAO_RULE.getSessionFactory();", 2);
+		writeLine("var factory = DAO_RULE.getSessionFactory();", 2);
 		writeLine("dao = new " + daoName + "(factory);", 2);
 		writeLine("}", 1);
 	}
@@ -157,7 +155,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 	private void writeMethods() throws IOException
 	{
 		final String name = getObjectName();
-		final String entityName = EntityBeanCMP3.getClassName(name);
+		// final String entityName = EntityBeanCMP3.getClassName(name);
 		final String filterName = EntityBeanFilter.getClassName(name);
 		final String valueName = EntityBeanValueObject.getClassName(name);
 
@@ -179,7 +177,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("public void add()", 1);
 		writeLine("{", 1);
 		writeLine("// TODO: populate the VALUE with data.", 2);
-		writeLine("final " + valueName + " value = dao.add(VALUE = new " + valueName + "());", 2);
+		writeLine("var value = dao.add(VALUE = new " + valueName + "());", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
@@ -195,7 +193,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		// Add validation checks.
-		for (final ColumnInfo i : columnInfo)
+		for (var i : columnInfo)
 		{
 			if (i.isAutoIncrementing)
 				continue;
@@ -236,7 +234,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void find()", 1);
 		writeLine("{", 1);
-		writeLine("final " + entityName + " record = dao.findWithException(VALUE.id);", 2);
+		writeLine("var record = dao.findWithException(VALUE.id);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", record);", 2);
 		writeLine("check(VALUE, record);", 2);
 		writeLine("}", 1);
@@ -252,7 +250,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void get()", 1);
 		writeLine("{", 1);
-		writeLine("final " + valueName + " value = dao.getByIdWithException(VALUE.id);", 2);
+		writeLine("var value = dao.getByIdWithException(VALUE.id);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
@@ -272,7 +270,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 0L);", 2);
 		writeLine();
 		writeLine("// TODO: provide a change to the VALUE.", 2);
-		writeLine("final " + valueName + " value = dao.update(VALUE);", 2);
+		writeLine("var value = dao.update(VALUE);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine();
@@ -284,7 +282,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void modify_find()", 1);
 		writeLine("{", 1);
-		writeLine("final " + entityName + " record = dao.findWithException(VALUE.id);", 2);
+		writeLine("var record = dao.findWithException(VALUE.id);", 2);
 		writeLine("Assert.assertNotNull(\"Exists\", record);", 2);
 		writeLine("// TODO: check the changed property.", 2);
 		writeLine("check(VALUE, record);", 2);
@@ -309,8 +307,8 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("/** Helper method: performs the search and checks the counts. */", 1);
 		writeLine("private void search(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
-		writeLine("final QueryResults<" + valueName + ", " + filterName + "> results = dao.search(filter);", 2);
-		writeLine("final String assertId = \"SEARCH \" + filter + \": \";", 2);
+		writeLine("var results = dao.search(filter);", 2);
+		writeLine("var assertId = \"SEARCH \" + filter + \": \";", 2);
 		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
 		writeLine("Assert.assertEquals(assertId + \"Check total\", expectedTotal, results.getTotal());", 2);
 		writeLine("if (0L == expectedTotal)", 2);
@@ -365,8 +363,8 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("/** Helper method: performs the search and checks sort option fields. */", 1);
 		writeLine("private void search_sort(final " + filterName + " filter, final String expectedSortOn, final String expectedSortDir)", 1);
 		writeLine("{", 1);
-		writeLine("QueryResults<" + valueName + ", " + filterName + "> results = dao.search(filter);", 2);
-		writeLine("String assertId = \"SEARCH_SORT (\" + filter.getSortOn() + \", \" + filter.getSortDir() + \"): \";", 2);
+		writeLine("var results = dao.search(filter);", 2);
+		writeLine("var assertId = \"SEARCH_SORT (\" + filter.getSortOn() + \", \" + filter.getSortDir() + \"): \";", 2);
 		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
 		writeLine("Assert.assertEquals(assertId + \"Check sortOn\", expectedSortOn, results.getSortOn());", 2);
 		writeLine("Assert.assertEquals(assertId + \"Check sortDir\", expectedSortDir, results.getSortDir());", 2);
@@ -414,7 +412,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("/** Helper method - checks an expected value against a supplied entity record. */", 1);
 		writeLine("private void check(final " + valueName + " expected, final " + name + " record)", 1);
 		writeLine("{", 1);
-		writeLine("final String assertId = \"ID (\" + expected.id + \"): \";", 2);
+		writeLine("var assertId = \"ID (\" + expected.id + \"): \";", 2);
 		for (ColumnInfo i : columnInfo)
 			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", record." + i.accessorMethodName + "());", 2);
 		writeLine("}", 1);
@@ -423,7 +421,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("/** Helper method - checks an expected value against a supplied value object. */", 1);
 		writeLine("private void check(final " + valueName + " expected, final " + valueName + " value)", 1);
 		writeLine("{", 1);
-		writeLine("final String assertId = \"ID (\" + expected.id + \"): \";", 2);
+		writeLine("var assertId = \"ID (\" + expected.id + \"): \";", 2);
 		for (ColumnInfo i : columnInfo)
 		{
 			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", value." + i.memberVariableName + ");", 2);

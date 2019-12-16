@@ -145,4 +145,12 @@ public abstract class EntityBeanBase extends BaseTable
 
 		return JAVA_OBJECT_TYPE_LONG;
 	}
+
+	protected String writeEquals(final ColumnInfo item)
+	{
+		if (item.isPrimitive)
+			return "(" + item.memberVariableName + " == v." + item.memberVariableName + ")";
+
+		return "Objects.equals(" + item.memberVariableName + ", v." + item.memberVariableName + ")";
+	}
 }

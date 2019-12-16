@@ -248,7 +248,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 	/** Output method - writes Object class override methods. */
 	private void writeObjectMethods() throws IOException
 	{
-		final String clazz = getClassName();
+		var clazz = getClassName();
 
 		// Write the equals method. */
 		writeLine();
@@ -286,14 +286,6 @@ public class EntityBeanValueObject extends EntityBeanBase
 		}
 		writeLine(".append(\" }\").toString();", 3);
 		writeLine("}", 1);
-	}
-
-	private String writeEquals(final ColumnInfo item)
-	{
-		if (item.isPrimitive)
-			return "(" + item.memberVariableName + " == v." + item.memberVariableName + ")";
-
-		return "Objects.equals(" + item.memberVariableName + ", v." + item.memberVariableName + ")";
 	}
 
 	/** Output method - writes the class footer. */

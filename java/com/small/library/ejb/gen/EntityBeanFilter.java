@@ -103,7 +103,7 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine();
 		writeLine("import org.apache.commons.lang3.StringUtils;");
 		writeLine();
-		writeLine("import " + domainPackageName + ".common.dao.QueryFilter;");
+		writeLine("import " + domainPackageName + ".dwservice.dao.QueryFilter;");
 		writeLine();
 		writeLine("/********************************************************************************************************************");
 		writeLine("*");

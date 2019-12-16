@@ -102,7 +102,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		}
 
 		String name = getObjectName();
-		writeLine("import static " + domainPackageName + ".common.dao.OrderByBuilder.*;");
+		writeLine("import static " + domainPackageName + ".dwservice.dao.OrderByBuilder.*;");
 		writeLine();
 		writeLine("import java.util.stream.Collectors;");
 		writeLine();
@@ -113,14 +113,13 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("import org.jdbi.v3.sqlobject.customizer.Bind;");
 		writeLine("import org.jdbi.v3.sqlobject.statement.SqlQuery;"); 
 		writeLine();
-		writeLine("import io.dropwizard.hibernate.AbstractDAO;");
-		writeLine();
-		writeLine("import " + domainPackageName + ".common.dao.OrderByBuilder;");
-		writeLine("import " + domainPackageName + ".common.dao.QueryResults;");
-		writeLine("import " + domainPackageName + ".common.error.ValidationException;");
-		writeLine("import " + domainPackageName + ".common.error.Validator;");
-		writeLine("import " + domainPackageName + ".common.hibernate.QueryBuilder;");
-		writeLine("import " + domainPackageName + ".common.jdbi.*;");
+		writeLine("import " + domainPackageName + ".dwservice.dao.OrderByBuilder;");
+		writeLine("import " + domainPackageName + ".dwservice.dao.QueryResults;");
+		writeLine("import " + domainPackageName + ".dwservice.errors.ValidationException;");
+		writeLine("import " + domainPackageName + ".dwservice.errors.Validator;");
+		writeLine("import " + domainPackageName + ".dwservice.hibernate.AbstractDAO;");
+		writeLine("import " + domainPackageName + ".dwservice.hibernate.HibernateQueryBuilder;");
+		writeLine("import " + domainPackageName + ".dwservice.jdbi.*;");
 		writeLine("import " + basePackageName + ".entity.*;");
 		writeLine("import " + basePackageName + ".filter." + EntityBeanFilter.getClassName(name) + ";");
 		writeLine("import " + basePackageName + ".mapper." + JDBiMapper.getClassName(name) + ";");
@@ -214,8 +213,8 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" */", 1);
 		writeLine("public " + valueName + " update(final " + valueName + " value) throws ValidationException", 1);
 		writeLine("{", 1);
-			writeLine("final Object[] cmrs = _validate(value);", 2);
-			writeLine(name + " record = (" + name + ") cmrs[0];", 2);
+			writeLine("var cmrs = _validate(value);", 2);
+			writeLine("var record = (" + name + ") cmrs[0];", 2);
 			writeLine("if (null == record)", 2);
 			writeLine("record = findWithException(value.id);", 3);
 			writeLine();
@@ -241,7 +240,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("private Object[] _validate(final " + valueName + " value) throws ValidationException", 1);
 		writeLine("{", 1);
 		writeLine("value.clean();", 2);
-		writeLine("final Validator validator = new Validator();", 2);
+		writeLine("var validator = new Validator();", 2);
 		writeLine();
 		boolean first = true;
 		writeLine("// Throw exception after field existence checks and before FK checks.", 2);
@@ -267,7 +266,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(".check();", 3);
 		writeLine();
 		writeLine("// Validation foreign keys.", 2);
-		writeLine("final Session session = currentSession();", 2);
+		writeLine("var session = currentSession();", 2);
 		List<String> cmrVars = new LinkedList<>();
 		for (ColumnInfo i : columnInfo)
 		{
@@ -281,8 +280,7 @@ public class EntityBeanDAO extends EntityBeanBase
 				writeLine("{", tabs++);
 			}
 
-			writeLine("final " + i.importedObjectName + " " + i.importedKeyMemberName + " = (" + i.importedObjectName +
-				") session.get(" + i.importedObjectName + ".class, value." + i.memberVariableName + ");", tabs);
+			writeLine("var " + i.importedKeyMemberName + " = session.get(" + i.importedObjectName + ".class, value." + i.memberVariableName + ");", tabs);
 			writeLine("if (null == " + i.importedKeyMemberName + ")", tabs);
 			writeLine("validator.add(\"" + i.memberVariableName + "\", \"The " + i.name + ", %" + (i.isString ? "s" : "d") + ", is invalid.\", value." + i.memberVariableName + ");", tabs + 1);
 
@@ -304,7 +302,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" */", 1);
 		writeLine("public boolean remove(final " + primaryKeyType + " id) throws ValidationException", 1);
 		writeLine("{", 1);
-			writeLine("final " + name + " record = get(id);", 2);
+			writeLine("var record = get(id);", 2);
 			writeLine("if (null == record)", 2);
 				writeLine("return false;", 3);
 			writeLine();
@@ -321,7 +319,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" */", 1);
 		writeLine("public " + name + " findWithException(final " + primaryKeyType + " id) throws ValidationException", 1);
 		writeLine("{", 1);
-		writeLine("final " + name + " record = get(id);", 2);
+		writeLine("var record = get(id);", 2);
 		writeLine("if (null == record)", 2);
 			writeLine("throw new ValidationException(\"id\", \"Could not find the " + name + " because id '\" + id + \"' is invalid.\");", 3);
 		writeLine();
@@ -335,9 +333,8 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" */", 1);
 		writeLine("public " + valueName + " getById(final " + primaryKeyType + " id)", 1);
 		writeLine("{", 1);
-		writeLine("final " + name + " record = get(id);", 2);
-		writeLine("if (null == record)", 2);
-			writeLine("return null;", 3);
+		writeLine("var record = get(id);", 2);
+		writeLine("if (null == record) return null;", 2);
 		writeLine();
 		writeLine("return toValue(record);", 2);
 		writeLine("}", 1);
@@ -361,8 +358,8 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine(" */", 1);
 		writeLine("public QueryResults<" + valueName + ", " + filterName + "> search(final " + name + "Filter filter) throws ValidationException", 1);
 		writeLine("{", 1);
-			writeLine("final QueryBuilder<" + name + "> builder = createQueryBuilder(filter.clean(), SELECT);", 2);
-			writeLine("final QueryResults<" + valueName + ", " + filterName + "> v = new QueryResults<>(builder.aggregate(COUNT), filter);", 2);
+			writeLine("var builder = createQueryBuilder(filter.clean(), SELECT);", 2);
+			writeLine("var v = new QueryResults<" + valueName + ", " + filterName + ">(builder.aggregate(COUNT), filter);", 2);
 			writeLine("if (v.isEmpty())", 2);
 			writeLine("return v;", 3);
 			writeLine();
@@ -407,7 +404,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("private QueryBuilder<" + name + "> createQueryBuilder(final " + filterName + " filter, final String select)", 1);
 			writeLine("throws ValidationException", 2);
 		writeLine("{", 1);
-			writeLine("return new QueryBuilder<" + name + ">(currentSession(), select, " + name + ".class)", 2);
+			writeLine("return new HibernateQueryBuilder<" + name + ">(currentSession(), select, " + name + ".class)", 2);
 			int size = columnInfo.length;
 			for (ColumnInfo info : columnInfo)
 			{
@@ -551,7 +548,7 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("/** Helper method - creates a DynamoDB Item from a non-transactional value. */", 1);
 		writeLine("public Item toItem(final " + valueName + " value)", 1);
 		writeLine("{", 1);
-			write("Item item = new Item().withPrimaryKey(", 2);
+			write("var item = new Item().withPrimaryKey(", 2);
 
 		// First do the primary keys.
 		i = -1;
