@@ -101,10 +101,10 @@ public class EntityBeanValueObject extends EntityBeanBase
 
 		writeLine("import java.io.Serializable;");
 		writeLine("import java.math.BigDecimal;");
-		writeLine("import java.util.Date;");
-		writeLine("import java.util.Objects;");
+		writeLine("import java.util.*;");
 		writeLine();
 		writeLine("import org.apache.commons.lang3.StringUtils;");
+		writeLine("import org.apache.commons.lang3.time.DateUtils;");
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");

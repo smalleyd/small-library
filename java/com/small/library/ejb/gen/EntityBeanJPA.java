@@ -112,11 +112,11 @@ public class EntityBeanJPA extends EntityBeanBase
 
 		writeLine("import java.io.Serializable;");
 		writeLine("import java.math.BigDecimal;");
-		writeLine("import java.util.Date;");
-		writeLine("import java.util.Objects;");
+		writeLine("import java.util.*;");
 		writeLine();
 		writeLine("import javax.persistence.*;");
 		writeLine();
+		writeLine("import org.apache.commons.lang3.time.DateUtils;");
 		writeLine("import org.hibernate.annotations.Cache;");
 		writeLine("import org.hibernate.annotations.CacheConcurrencyStrategy;");
 		writeLine("import org.hibernate.annotations.DynamicUpdate;");
@@ -271,10 +271,8 @@ public class EntityBeanJPA extends EntityBeanBase
 		int last = columnInfo.length - 1;
 		for (int i = 1; i < columnInfo.length; i++)
 		{
-			final String term = (last > i) ? " &&" : ";";
+			var term = (last > i) ? " &&" : ";";
 			writeLine(writeEquals(item = columnInfo[i]) + term, 3);
-			if (null != item.importedKeyMemberName)
-				writeLine("Objects.equals(" + item.importedKeyMemberName + "Name, v." + item.importedKeyMemberName + "Name)" + term, 3);
 		}
 		writeLine("}", 1);
 		

@@ -148,6 +148,9 @@ public abstract class EntityBeanBase extends BaseTable
 
 	protected String writeEquals(final ColumnInfo item)
 	{
+		if (item.isTime)
+			return "DateUtils.truncatedEquals(" + item.memberVariableName + ", v." + item.memberVariableName + ", Calendar.SECOND)";
+
 		if (item.isPrimitive)
 			return "(" + item.memberVariableName + " == v." + item.memberVariableName + ")";
 
