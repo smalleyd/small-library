@@ -156,9 +156,9 @@ public class EntityBeanJPA extends EntityBeanBase
 			return;
 
 		// Write accessors.
-		for (final ColumnInfo item : columnInfo)
+		for (var item : columnInfo)
 		{
-			final String nullable = Boolean.toString(item.isNullable);
+			var nullable = Boolean.toString(item.isNullable);
 
 			writeLine();
 			write("\t@Column(name=\"" + item.columnName + "\", ");
@@ -187,14 +187,14 @@ public class EntityBeanJPA extends EntityBeanBase
 	private void writeImportedKeysAccessorMethods() throws IOException
 	{
 		// Write accessors.
-		for (final ColumnInfo info : columnInfo)
+		for (var info : columnInfo)
 		{
 			if (!info.isImportedKey)
 				continue;
 
-			final String name = info.importedKeyName;
-			final String memberName = info.importedKeyMemberName;
-			final String objectName = info.importedObjectName;
+			var name = info.importedKeyName;
+			var memberName = info.importedKeyMemberName;
+			var objectName = info.importedObjectName;
 
 			writeLine();
 			writeLine("@ManyToOne(cascade={}, fetch=FetchType.LAZY)", 1);
@@ -206,6 +206,13 @@ public class EntityBeanJPA extends EntityBeanBase
 			writeLine("public " + objectName + " " + memberName + ";", 1);
 			write("public void set" + name + "(final " + objectName + " newValue)", 1);
 			writeLine(" { " + memberName + " = newValue; }");
+			write("public void put" + name + "(final " + objectName + " newValue)", 1);
+			write(" { " + info.memberVariableName + " = (");
+			if (info.isNullable)
+				writeLine("null != (" + memberName + " = newValue)) ? newValue.getId() : null; }");
+			else
+				writeLine(memberName + " = newValue).getId(); }");
+			
 		}
 	}
 

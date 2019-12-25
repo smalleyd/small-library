@@ -535,9 +535,10 @@ public class EntityBeanDAO extends EntityBeanBase
 			if (info.isPartOfPrimaryKey)
 				continue;
 
-			writeLine("record." + info.mutatorMethodName + "(value." + info.memberVariableName + ");", 2);
 			if (info.isImportedKey)
-				writeLine("record.set" + info.importedKeyName + "((" + info.importedObjectName + ") cmrs[" + cmrs++ + "]);", 2);
+				writeLine("record.put" + info.importedKeyName + "((" + info.importedObjectName + ") cmrs[" + cmrs++ + "]);", 2);
+			else
+				writeLine("record." + info.mutatorMethodName + "(value." + info.memberVariableName + ");", 2);
 		}
 		writeLine();
 		writeLine("return record;", 2);
