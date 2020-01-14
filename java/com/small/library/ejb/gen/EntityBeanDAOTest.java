@@ -101,11 +101,15 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		}
 
 		final String name = getObjectName();
+		writeLine("import static org.junit.jupiter.api.Assertions.assertThrows;");
 		writeLine("import static com.jibe.dwtesting.TestingUtils.*;");
 		writeLine();
 		writeLine("import org.apache.commons.lang3.StringUtils;");
-		writeLine("import org.junit.*;");
-		writeLine("import org.junit.runners.MethodSorters;");
+		writeLine("import org.junit.Assert;");
+		writeLine("import org.junit.jupiter.api.*;");
+		writeLine("import org.junit.jupiter.api.extension.ExtendWith;");
+		writeLine();
+		writeLine("import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;");
 		writeLine();
 		writeLine("import " + domainPackageName + ".junit.hibernate.*;");
 		writeLine("import " + domainPackageName + ".dwservice.errors.ValidationException;");
@@ -133,19 +137,17 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		final String valueName = EntityBeanValueObject.getClassName(getObjectName());
 
 		writeLine();
-		writeLine("@FixMethodOrder(MethodSorters.NAME_ASCENDING)	// Ensure that the methods are executed in order listed.");
+		writeLine("@TestMethodOrder(MethodOrderer.Alphanumeric.class)	// Ensure that the methods are executed in order listed.");
+		writeLine("@ExtendWith(DropwizardExtensionsSupport.class)");
 		writeLine("public class " + name);
 		writeLine("{");
-		writeLine("@ClassRule", 1);
 		writeLine("public static final HibernateRule DAO_RULE = new HibernateRule(" + getAppName() + "App.ENTITIES);", 1);
-		writeLine();
-		writeLine("@Rule", 1);
 		writeLine("public final HibernateTransactionRule transRule = new HibernateTransactionRule(DAO_RULE);", 1);
 		writeLine();
 		writeLine("private static " + daoName + " dao = null;", 1);
 		writeLine("private static " + valueName + " VALUE = null;", 1);
 		writeLine();
-		writeLine("@BeforeClass", 1);
+		writeLine("@BeforeAll", 1);
 		writeLine("public static void up()", 1);
 		writeLine("{", 1);
 		writeLine("var factory = DAO_RULE.getSessionFactory();", 2);
@@ -203,10 +205,10 @@ public class EntityBeanDAOTest extends EntityBeanBase
 			if (!i.isNullable && !i.isPrimitive)
 			{
 				writeLine();
-				writeLine("@Test(expected=ValidationException.class)", 1);
+				writeLine("@Test", 1);
 				writeLine("public void add_missing" + i.name + "()", 1);
 				writeLine("{", 1);
-				writeLine("dao.add(createValid()." + i.withMethodName + "(null));", 2);
+				writeLine("assertThrows(ValidationException.class, () -> dao.add(createValid()." + i.withMethodName + "(null)));", 2);
 				writeLine("}", 1);
 			}
 			if (i.isString)
@@ -214,20 +216,20 @@ public class EntityBeanDAOTest extends EntityBeanBase
 				var maxLenName = valueName + ".MAX_LEN_" + i.columnName.toUpperCase();
 
 				writeLine();
-				writeLine("@Test(expected=ValidationException.class)", 1);
+				writeLine("@Test", 1);
 				writeLine("public void add_long" + i.name + "()", 1);
 				writeLine("{", 1);
-				writeLine("dao.add(createValid()." + i.withMethodName + "(StringUtils.repeat(\"A\", " + maxLenName + " + 1)));", 2);
+				writeLine("assertThrows(ValidationException.class, () -> dao.add(createValid()." + i.withMethodName + "(StringUtils.repeat(\"A\", " + maxLenName + " + 1))));", 2);
 				writeLine("}", 1);
 			}
 			if (i.isImportedKey)
 			{
 				var invalidId_ = i.isCharacter ? "\"INVALID\"" : (10 < i.size) ? "1000L" : "1000";
 				writeLine();
-				writeLine("@Test(expected=ValidationException.class)", 1);
+				writeLine("@Test", 1);
 				writeLine("public void add_invalid" + i.name + "()", 1);
 				writeLine("{", 1);
-				writeLine("dao.add(createValid()." + i.withMethodName + "(VALUE.id + " + invalidId_ + "));", 2);
+				writeLine("assertThrows(ValidationException.class, () -> dao.add(createValid()." + i.withMethodName + "(VALUE.id + " + invalidId_ + ")));", 2);
 				writeLine("}", 1);
 			}
 		}
@@ -242,10 +244,10 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@Test(expected=ValidationException.class)", 1);
+		writeLine("@Test", 1);
 		writeLine("public void findWithException()", 1);
 		writeLine("{", 1);
-		writeLine("dao.findWithException(VALUE.id + " + invalidId + ");", 2);
+		writeLine("assertThrows(ValidationException.class, () -> dao.findWithException(VALUE.id + " + invalidId + "));", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -258,10 +260,10 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@Test(expected=ValidationException.class)", 1);
+		writeLine("@Test", 1);
 		writeLine("public void getWithException()", 1);
 		writeLine("{", 1);
-		writeLine("dao.getByIdWithException(VALUE.id + " + invalidId + ");", 2);
+		writeLine("assertThrows(ValidationException.class, () -> dao.getByIdWithException(VALUE.id + " + invalidId + "));", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -423,10 +425,10 @@ public class EntityBeanDAOTest extends EntityBeanBase
 
 		writeLine();
 		writeLine("/** Test removal after the search. */", 1);
-		writeLine("@Test(expected=ValidationException.class)", 1);
+		writeLine("@Test", 1);
 		writeLine("public void testRemove_find()", 1);
 		writeLine("{", 1);
-		writeLine("dao.findWithException(VALUE.id);", 2);
+		writeLine("assertThrows(ValidationException.class, () -> dao.findWithException(VALUE.id));", 2);
 		writeLine("}", 1);
 
 		writeLine();

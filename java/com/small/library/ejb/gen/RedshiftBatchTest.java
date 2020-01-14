@@ -102,9 +102,12 @@ public class RedshiftBatchTest extends EntityBeanBase
 		String name = getObjectName();
 		writeLine("import java.util.*;");
 		writeLine();
-		writeLine("import org.junit.*;");
-		writeLine("import org.junit.runners.MethodSorters;");
 		writeLine("import org.jdbi.v3.core.Jdbi;");
+		writeLine("import org.junit.Assert;");
+		writeLine("import org.junit.jupiter.api.*;");
+		writeLine("import org.junit.jupiter.api.extension.ExtendWith;");
+		writeLine();
+		writeLine("import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;");
 		writeLine();
 		writeLine("import " + domainPackageName + ".junit.dropwizard.LifecycleRule;");
 		writeLine("import " + domainPackageName + ".dwservice.aws.AWSManager;");
@@ -132,7 +135,8 @@ public class RedshiftBatchTest extends EntityBeanBase
 		String tableName = getTable().name;
 
 		writeLine();
-		writeLine("@FixMethodOrder(MethodSorters.NAME_ASCENDING)	// Ensure that the methods are executed in order listed.");
+		writeLine("@TestMethodOrder(MethodOrderer.Alphanumeric.class)	// Ensure that the methods are executed in order listed.");
+		writeLine("@ExtendWith(DropwizardExtensionsSupport.class)");
 		writeLine("public class " + getClassName());
 		writeLine("{");
 		writeLine("private static final " + columnInfo[0].javaType + " ID = 1L;", 1);
@@ -146,10 +150,9 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("private static " + valueName + " INSERT = null;", 1);
 		writeLine("private static " + valueName + " UPDATE = null;", 1);
 		writeLine();
-		writeLine("@ClassRule", 1);
 		writeLine("public static final LifecycleRule RULE = new LifecycleRule();", 1);
 		writeLine();
-		writeLine("@BeforeClass", 1);
+		writeLine("@BeforeAll", 1);
 		writeLine("public static void up() throws Exception", 1);
 		writeLine("{", 1);
 		writeLine("conf = AnalyticsBatchConfigTest.load(\"test.json\");", 2);

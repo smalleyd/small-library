@@ -108,10 +108,12 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("import javax.ws.rs.core.GenericType;");
 		writeLine("import javax.ws.rs.core.Response;");
 		writeLine();
-		writeLine("import org.junit.*;");
-		writeLine("import org.junit.runners.MethodSorters;");
+		writeLine("import org.junit.Assert;");
+		writeLine("import org.junit.jupiter.api.*;");
+		writeLine("import org.junit.jupiter.api.extension.ExtendWith;");
 		writeLine();
-		writeLine("import io.dropwizard.testing.junit.ResourceTestRule;");
+		writeLine("import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;");
+		writeLine("import io.dropwizard.testing.junit5.ResourceExtension;");
 		writeLine();
 		writeLine("import " + domainPackageName + ".junit.hibernate.*;");
 		writeLine("import " + domainPackageName + ".dwservice.dao.QueryResults;");
@@ -146,20 +148,17 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		var resourceName = EntityJerseyResource.getClassName(objectName);
 
 		writeLine();
-		writeLine("@FixMethodOrder(MethodSorters.NAME_ASCENDING)	// Ensure that the methods are executed in order listed.");
+		writeLine("@TestMethodOrder(MethodOrderer.Alphanumeric.class)	// Ensure that the methods are executed in order listed.");
+		writeLine("@ExtendWith(DropwizardExtensionsSupport.class)");
 		writeLine("public class " + name);
 		writeLine("{");
-		writeLine("@ClassRule", 1);
 		writeLine("public static final HibernateRule DAO_RULE = new HibernateRule(" + getAppName() + "App.ENTITIES);", 1);
-		writeLine();
-		writeLine("@Rule", 1);
 		writeLine("public final HibernateTransactionRule transRule = new HibernateTransactionRule(DAO_RULE);", 1);
 		writeLine();
 		writeLine("private static " + daoName + " dao = null;", 1);
 		writeLine("private static " + valueName + " VALUE = null;", 1);
 		writeLine();
-		writeLine("@Rule", 1);
-		writeLine("public final ResourceTestRule RULE = ResourceTestRule.builder()", 1);
+		writeLine("public final ResourceExtension RULE = ResourceExtension.builder()", 1);
 		writeLine(".addResource(new ValidationExceptionMapper())", 2);
 		writeLine(".addResource(new " + resourceName + "(dao)).build();", 2);
 		writeLine();
@@ -171,7 +170,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("private static final GenericType<QueryResults<" + valueName + ", " + filterName + ">> TYPE_QUERY_RESULTS =", 1);
 		writeLine("new GenericType<QueryResults<" + valueName + ", " + filterName + ">>() {};", 2);
 		writeLine();
-		writeLine("@BeforeClass", 1);
+		writeLine("@BeforeAll", 1);
 		writeLine("public static void up()", 1);
 		writeLine("{", 1);
 		writeLine("var factory = DAO_RULE.getSessionFactory();", 2);
