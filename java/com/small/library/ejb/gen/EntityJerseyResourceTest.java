@@ -108,7 +108,6 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("import javax.ws.rs.core.GenericType;");
 		writeLine("import javax.ws.rs.core.Response;");
 		writeLine();
-		writeLine("import org.junit.Assert;");
 		writeLine("import org.junit.jupiter.api.*;");
 		writeLine("import org.junit.jupiter.api.extension.ExtendWith;");
 		writeLine();
@@ -207,10 +206,10 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("// TODO: populate the VALUE with data.", 2);
 		writeLine("var response = request()", 2);
 		writeLine(".post(Entity.entity(VALUE = new " + valueName + "(), UTF8MediaType.APPLICATION_JSON_TYPE));", 3);
-		writeLine("Assert.assertEquals(\"Status\", HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine("Assertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");", 2);
 		writeLine();
 		writeLine("var value = response.readEntity(" + valueName + ".class);", 2);
-		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
+		writeLine("Assertions.assertNotNull(value, \"Exists\");", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
 
@@ -219,10 +218,10 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("public void find()", 1);
 		writeLine("{", 1);
 		writeLine("var response = request(target().queryParam(\"name\", \"\")).get();", 2);
-		writeLine("Assert.assertEquals(\"Status\", HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine("Assertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");", 2);
 		writeLine();
 		writeLine("var values = response.readEntity(TYPE_LIST_VALUE);", 2);
-		writeLine("Assert.assertNotNull(\"Exists\", values);", 2);
+		writeLine("Assertions.assertNotNull(values, \"Exists\");", 2);
 		writeLine();
 		writeLine("// TODO: do other checks.", 2);
 		writeLine("}", 1);
@@ -232,10 +231,10 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("public void get()", 1);
 		writeLine("{", 1);
 		writeLine("var response = get(VALUE.id);", 2);
-		writeLine("Assert.assertEquals(\"Status\", HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine("Assertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");", 2);
 		writeLine();
 		writeLine("var value = response.readEntity(" + valueName + ".class);", 2);
-		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
+		writeLine("Assertions.assertNotNull(value, \"Exists\");", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
 
@@ -250,7 +249,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("@Test", 1);
 		writeLine("public void getWithException()", 1);
 		writeLine("{", 1);
-		writeLine("Assert.assertEquals(\"Status\", HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.id + " + invalidId + ").getStatus());", 2);
+		writeLine("Assertions.assertEquals(HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.id + " + invalidId + ").getStatus(), \"Status\");", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -262,10 +261,10 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine();
 		writeLine("// TODO: provide a change to the VALUE.", 2);
 		writeLine("var response = request().put(Entity.entity(VALUE, UTF8MediaType.APPLICATION_JSON_TYPE));", 2);
-		writeLine("Assert.assertEquals(\"Status\", HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine("Assertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");", 2);
 		writeLine();
 		writeLine("var value = response.readEntity(" + valueName + ".class);", 2);
-		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
+		writeLine("Assertions.assertNotNull(value, \"Exists\");", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
 
@@ -282,7 +281,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("public void modify_get()", 1);
 		writeLine("{", 1);
 		writeLine("var value = get(VALUE.id).readEntity(" + valueName + ".class);", 2);
-		writeLine("Assert.assertNotNull(\"Exists\", value);", 2);
+		writeLine("Assertions.assertNotNull(value, \"Exists\");", 2);
 		writeLine("// TODO: check the changed property.", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
@@ -343,16 +342,16 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("var response = request(\"search\")", 2);
 		writeLine(".post(Entity.entity(filter, UTF8MediaType.APPLICATION_JSON_TYPE));", 3);
 		writeLine("var assertId = \"SEARCH \" + filter + \": \";", 2);
-		writeLine("Assert.assertEquals(assertId + \"Status\", HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine("Assertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), assertId + \"Status\");", 2);
 		writeLine();
 		writeLine("var results = response.readEntity(TYPE_QUERY_RESULTS);", 2);
-		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
-		writeLine("Assert.assertEquals(assertId + \"Check total\", expectedTotal, results.getTotal());", 2);
+		writeLine("Assertions.assertNotNull(results, assertId + \"Exists\");", 2);
+		writeLine("Assertions.assertEquals(expectedTotal, results.getTotal(), assertId + \"Check total\");", 2);
 		writeLine("if (0L == expectedTotal)", 2);
-		writeLine("Assert.assertNull(assertId + \"Records exist\", results.getRecords());", 3);
+		writeLine("Assertions.assertNull(results.getRecords(), assertId + \"Records exist\");", 3);
 		writeLine("else", 2);
 		writeLine("{", 2);
-		writeLine("Assert.assertNotNull(assertId + \"Records exist\", results.getRecords());", 3);
+		writeLine("Assertions.assertNotNull(results.getRecords(), assertId + \"Records exist\");", 3);
 		writeLine("int total = (int) expectedTotal;", 3);
 		writeLine("if (total > results.getPageSize())", 3);
 		writeLine("{", 3);
@@ -361,7 +360,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("else", 4);
 		writeLine("total = results.getPageSize();", 5);
 		writeLine("}", 3);
-		writeLine("Assert.assertEquals(assertId + \"Check records.size\", total, results.getRecords().size());", 3);
+		writeLine("Assertions.assertEquals(total, results.getRecords().size(), assertId + \"Check records.size\");", 3);
 		writeLine("}", 2);
 		writeLine("}", 1);
 
@@ -381,18 +380,18 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("{", 1);
 		writeLine("var response = request(id" + to_s + ").delete();", 2);
 		writeLine("var assertId = \"DELETE (\" + id + \", \" + success + \"): \";", 2);
-		writeLine("Assert.assertEquals(assertId + \"Status\", HTTP_STATUS_OK, response.getStatus());", 2);
+		writeLine("Assertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), assertId + \"Status\");", 2);
 		writeLine();
 		writeLine("var results = response.readEntity(OperationResponse.class);", 2);
-		writeLine("Assert.assertNotNull(assertId + \"Exists\", results);", 2);
-		writeLine("Assert.assertEquals(assertId + \"Check value\", success, results.operation);", 2);
+		writeLine("Assertions.assertNotNull(results, assertId + \"Exists\");", 2);
+		writeLine("Assertions.assertEquals(success, results.operation, assertId + \"Check value\");", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void testRemove_get()", 1);
 		writeLine("{", 1);
-		writeLine("Assert.assertEquals(\"Status\", HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.id).getStatus());", 2);
+		writeLine("Assertions.assertEquals(HTTP_STATUS_VALIDATION_EXCEPTION, get(VALUE.id).getStatus(), \"Status\");", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -420,7 +419,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine(" */", 1);
 		writeLine("private void count(final " + filterName + " filter, long expectedTotal)", 1);
 		writeLine("{", 1);
-		writeLine("Assert.assertEquals(\"COUNT \" + filter + \": Check total\", expectedTotal, dao.count(filter));", 2);
+		writeLine("Assertions.assertEquals(expectedTotal, dao.count(filter), \"COUNT \" + filter + \": Check total\");", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -433,15 +432,15 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 			if (i.isTime)
 			{
 				writeLine("if (null == expected." + i.memberVariableName + ")", 2);
-				writeLine("Assert.assertNull(assertId + \"Check " + i.memberVariableName + "\", value." + i.memberVariableName + ");", 3);
+				writeLine("Assertions.assertNull(value." + i.memberVariableName + ", assertId + \"Check " + i.memberVariableName + "\");", 3);
 				writeLine("else", 2);
 				writeLine("assertThat(value." + i.memberVariableName + ").as(assertId + \"Check " + i.memberVariableName + "\").isCloseTo(expected." + i.memberVariableName + ", 500L);", 3);
 			}
 			else
 			{
-				writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", value." + i.memberVariableName + ");", 2);
+				writeLine("Assertions.assertEquals(expected." + i.memberVariableName + ", value." + i.memberVariableName + ", assertId + \"Check " + i.memberVariableName + "\");", 2);
 				if (i.isImportedKey)
-					writeLine("Assert.assertEquals(assertId + \"Check " + i.importedKeyMemberName + "Name\", expected." + i.importedKeyMemberName + "Name, value." + i.importedKeyMemberName + "Name);", 2);
+					writeLine("Assertions.assertEquals(expected." + i.importedKeyMemberName + "Name, value." + i.importedKeyMemberName + "Name, assertId + \"Check " + i.importedKeyMemberName + "Name\");", 2);
 			}
 		}
 		writeLine("}", 1);
