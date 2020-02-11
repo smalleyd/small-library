@@ -102,11 +102,17 @@ public class EntityBeanDAOTest extends EntityBeanBase
 
 		final String name = getObjectName();
 		writeLine("import static org.junit.jupiter.api.Assertions.assertThrows;");
+		writeLine("import static org.junit.jupiter.params.provider.Arguments.arguments;");
 		writeLine("import static com.jibe.dwtesting.TestingUtils.*;");
+		writeLine();
+		writeLine("import java.util.stream.Stream;");
 		writeLine();
 		writeLine("import org.apache.commons.lang3.StringUtils;");
 		writeLine("import org.junit.jupiter.api.*;");
 		writeLine("import org.junit.jupiter.api.extension.ExtendWith;");
+		writeLine("import org.junit.jupiter.params.ParameterizedTest;");
+		writeLine("import org.junit.jupiter.params.provider.Arguments;");
+		writeLine("import org.junit.jupiter.params.provider.MethodSource;");
 		writeLine();
 		writeLine("import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;");
 		writeLine();
@@ -297,67 +303,68 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@Test", 1);
-		writeLine("public void search()", 1);
+		writeLine("public static Stream<Arguments> search()", 1);
 		writeLine("{", 1);
 		writeLine("var hourAgo = hourAgo();", 2);
 		writeLine("var hourAhead = hourAhead();", 2);
 		writeLine();
+		writeLine("return Stream.of(", 2);
 		for (var i : columnInfo)
 		{
-			writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 1L);", 2);
+			writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 1L),", 3);
 			if (i.isTime)
 			{
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAgo), 1L);", 2);
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(hourAhead), 1L);", 2);
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAgo)." + i.withMethodName + "To(hourAhead), 1L);", 2);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAgo), 1L),", 3);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "To(hourAhead), 1L),", 3);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAgo)." + i.withMethodName + "To(hourAhead), 1L),", 3);
 			}
 			else if (i.isRange())
 			{
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.memberVariableName + "), 1L);", 2);
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.memberVariableName + "), 1L);", 2);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.memberVariableName + "), 1L),", 3);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.memberVariableName + "), 1L),", 3);
 			}
 		}
 
 		writeLine();
-		writeLine("// Negative tests", 2);
+		writeLine("// Negative tests", 3);
 		for (var i : columnInfo)
 		{
 			if (i.isCharacter)
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(\"invalid\"), 0L);", 2);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(\"invalid\"), 0L),", 3);
 			else if (i.isBoolean)
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(!VALUE." + i.memberVariableName + "), 0L);", 2);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(!VALUE." + i.memberVariableName + "), 0L),", 3);
 			else
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + " + 1000" + ((10 < i.size) ? "L" : "") + "), 0L);", 2);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + " + 1000" + ((10 < i.size) ? "L" : "") + "), 0L),", 3);
 				
 			if (i.isTime)
 			{
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAhead), 0L);", 2);
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(hourAgo), 0L);", 2);
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAhead)." + i.withMethodName + "To(hourAgo), 0L);", 2);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAhead), 0L),", 3);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "To(hourAgo), 0L),", 3);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAhead)." + i.withMethodName + "To(hourAgo), 0L),", 3);
 			}
 			else if (i.isRange())
 			{
 				var l = ((10 < i.size) ? "L" : "");
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.memberVariableName + " + 1" + l + "), 0L);", 2);
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.memberVariableName + " - 1" + l + "), 0L);", 2);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.memberVariableName + " + 1" + l + "), 0L),", 3);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.memberVariableName + " - 1" + l + "), 0L),", 3);
 			}
 		}
+		writeLine(");", 2);
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("/** Helper method: performs the search and checks the counts. */", 1);
-		writeLine("private void search(final " + filterName + " filter, final long expectedTotal)", 1);
+		writeLine("@ParameterizedTest", 1);
+		writeLine("@MethodSource", 1);
+		writeLine("public void search(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
 		writeLine("var results = dao.search(filter);", 2);
-		writeLine("var assertId = \"SEARCH \" + filter + \": \";", 2);
-		writeLine("Assertions.assertNotNull(results, assertId + \"Exists\");", 2);
-		writeLine("Assertions.assertEquals(expectedTotal, results.getTotal(), assertId + \"Check total\");", 2);
+		writeLine("Assertions.assertNotNull(results, \"Exists\");", 2);
+		writeLine("Assertions.assertEquals(expectedTotal, results.getTotal(), \"Check total\");", 2);
 		writeLine("if (0L == expectedTotal)", 2);
-		writeLine("Assertions.assertNull(results.getRecords(), assertId + \"Records exist\");", 3);
+		writeLine("Assertions.assertNull(results.getRecords(), \"Records exist\");", 3);
 		writeLine("else", 2);
 		writeLine("{", 2);
-		writeLine("Assertions.assertNotNull(results.getRecords(), assertId + \"Records exists\");", 3);
+		writeLine("Assertions.assertNotNull(results.getRecords(), \"Records exists\");", 3);
 		writeLine("int total = (int) expectedTotal;", 3);
 		writeLine("if (total > results.getPageSize())", 3);
 		writeLine("{", 3);
@@ -366,50 +373,53 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("else", 4);
 		writeLine("total = results.getPageSize();", 5);
 		writeLine("}", 3);
-		writeLine("Assertions.assertEquals(total, results.getRecords().size(), assertId + \"Check records.size\");", 3);
+		writeLine("Assertions.assertEquals(total, results.getRecords().size(), \"Check records.size\");", 3);
 		writeLine("}", 2);
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@Test", 1);
-		writeLine("public void search_sort()", 1);
+		writeLine("public static Stream<Arguments> search_sort()", 1);
 		writeLine("{", 1);
+		writeLine("return Stream.of(", 2);
 		int size = columnInfo.length;
 		for (var i : columnInfo)
 		{
-			String defaultDir = (i.isAutoIncrementing || i.isBoolean || i.isRange()) ? "DESC" : "ASC";
-			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", null), \"" + i.memberVariableName + "\", \"" + defaultDir + "\"); // Missing sort direction is converted to the default.", 2);
-			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", \"ASC\"), \"" + i.memberVariableName + "\", \"ASC\");", 2);
-			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", \"asc\"), \"" + i.memberVariableName + "\", \"ASC\");", 2);
-			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", \"invalid\"), \"" + i.memberVariableName + "\", \"" + defaultDir + "\");	// Invalid sort direction is converted to the default.", 2);
-			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", \"DESC\"), \"" + i.memberVariableName + "\", \"DESC\");", 2);
-			writeLine("search_sort(new " + filterName + "(\"" + i.memberVariableName + "\", \"desc\"), \"" + i.memberVariableName + "\", \"DESC\");", 2);
+			var last = (0 == --size);
+			var defaultDir = (i.isAutoIncrementing || i.isBoolean || i.isRange()) ? "DESC" : "ASC";
+			var lastTerm = last && !i.isImportedKey ? "" : ",";
+			writeLine("arguments(new " + filterName + "(\"" + i.memberVariableName + "\", null), \"" + i.memberVariableName + "\", \"" + defaultDir + "\"), // Missing sort direction is converted to the default.", 3);
+			writeLine("arguments(new " + filterName + "(\"" + i.memberVariableName + "\", \"ASC\"), \"" + i.memberVariableName + "\", \"ASC\"),", 3);
+			writeLine("arguments(new " + filterName + "(\"" + i.memberVariableName + "\", \"asc\"), \"" + i.memberVariableName + "\", \"ASC\"),", 3);
+			writeLine("arguments(new " + filterName + "(\"" + i.memberVariableName + "\", \"invalid\"), \"" + i.memberVariableName + "\", \"" + defaultDir + "\"),	// Invalid sort direction is converted to the default.", 3);
+			writeLine("arguments(new " + filterName + "(\"" + i.memberVariableName + "\", \"DESC\"), \"" + i.memberVariableName + "\", \"DESC\"),", 3);
+			writeLine("arguments(new " + filterName + "(\"" + i.memberVariableName + "\", \"desc\"), \"" + i.memberVariableName + "\", \"DESC\")" + lastTerm, 3);
 
 			if (i.isImportedKey)
 			{
+				lastTerm = last ? "" : ",";
 				writeLine();
-				writeLine("search_sort(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", null), \"" + i.importedKeyMemberName + "Name\", \"" + defaultDir + "\"); // Missing sort direction is converted to the default.", 2);
-				writeLine("search_sort(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"ASC\"), \"" + i.importedKeyMemberName + "Name\", \"ASC\");", 2);
-				writeLine("search_sort(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"asc\"), \"" + i.importedKeyMemberName + "Name\", \"ASC\");", 2);
-				writeLine("search_sort(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"invalid\"), \"" + i.importedKeyMemberName + "Name\", \"" + defaultDir + "\");	// Invalid sort direction is converted to the default.", 2);
-				writeLine("search_sort(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"DESC\"), \"" + i.importedKeyMemberName + "Name\", \"DESC\");", 2);
-				writeLine("search_sort(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"desc\"), \"" + i.importedKeyMemberName + "Name\", \"DESC\");", 2);
+				writeLine("arguments(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", null), \"" + i.importedKeyMemberName + "Name\", \"" + defaultDir + "\"), // Missing sort direction is converted to the default.", 3);
+				writeLine("arguments(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"ASC\"), \"" + i.importedKeyMemberName + "Name\", \"ASC\"),", 3);
+				writeLine("arguments(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"asc\"), \"" + i.importedKeyMemberName + "Name\", \"ASC\"),", 3);
+				writeLine("arguments(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"invalid\"), \"" + i.importedKeyMemberName + "Name\", \"" + defaultDir + "\"),	// Invalid sort direction is converted to the default.", 3);
+				writeLine("arguments(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"DESC\"), \"" + i.importedKeyMemberName + "Name\", \"DESC\"),", 3);
+				writeLine("arguments(new " + filterName + "(\"" + i.importedKeyMemberName + "Name\", \"desc\"), \"" + i.importedKeyMemberName + "Name\", \"DESC\")" + lastTerm, 3);
 			}
 
-			if (0 < --size)
-				writeLine();
+			if (!last) writeLine();
 		}
+		writeLine(");", 2);
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("/** Helper method: performs the search and checks sort option fields. */", 1);
+		writeLine("@ParameterizedTest", 1);
+		writeLine("@MethodSource", 1);
 		writeLine("private void search_sort(final " + filterName + " filter, final String expectedSortOn, final String expectedSortDir)", 1);
 		writeLine("{", 1);
 		writeLine("var results = dao.search(filter);", 2);
-		writeLine("var assertId = \"SEARCH_SORT (\" + filter.getSortOn() + \", \" + filter.getSortDir() + \"): \";", 2);
-		writeLine("Assertions.assertNotNull(results, assertId + \"Exists\");", 2);
-		writeLine("Assertions.assertEquals(expectedSortOn, results.getSortOn(), assertId + \"Check sortOn\");", 2);
-		writeLine("Assertions.assertEquals(expectedSortDir, results.getSortDir(), assertId + \"Check sortDir\");", 2);
+		writeLine("Assertions.assertNotNull(results, \"Exists\");", 2);
+		writeLine("Assertions.assertEquals(expectedSortOn, results.getSortOn(), \"Check sortOn\");", 2);
+		writeLine("Assertions.assertEquals(expectedSortDir, results.getSortDir(), \"Check sortDir\");", 2);
 		writeLine("}", 1);
 
 		writeLine();
