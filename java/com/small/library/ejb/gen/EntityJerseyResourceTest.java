@@ -101,15 +101,20 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 
 		var name = getObjectName();
 		writeLine("import static org.fest.assertions.api.Assertions.assertThat;");
+		writeLine("import static org.junit.jupiter.params.provider.Arguments.arguments;");
 		writeLine("import static " + domainPackageName + ".dwtesting.TestingUtils.*;");
 		writeLine();
 		writeLine("import java.util.*;");
+		writeLine("import java.util.stream.Stream;");
 		writeLine("import javax.ws.rs.client.*;");
 		writeLine("import javax.ws.rs.core.GenericType;");
 		writeLine("import javax.ws.rs.core.Response;");
 		writeLine();
 		writeLine("import org.junit.jupiter.api.*;");
 		writeLine("import org.junit.jupiter.api.extension.ExtendWith;");
+		writeLine("import org.junit.jupiter.params.ParameterizedTest;");
+		writeLine("import org.junit.jupiter.params.provider.Arguments;");
+		writeLine("import org.junit.jupiter.params.provider.MethodSource;");
 		writeLine();
 		writeLine("import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;");
 		writeLine("import io.dropwizard.testing.junit5.ResourceExtension;");
@@ -287,57 +292,59 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@Test", 1);
-		writeLine("public void search()", 1);
+		writeLine("public static Stream<Arguments> search()", 1);
 		writeLine("{", 1);
 		writeLine("var hourAgo = hourAgo();", 2);
 		writeLine("var hourAhead = hourAhead();", 2);
 		writeLine();
+		writeLine("return Stream.of(", 2);
 		for (var i : columnInfo)
 		{
-			writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 1L);", 2);
+			writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 1L),", 3);
 			if (i.isTime)
 			{
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAgo), 1L);", 2);
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(hourAhead), 1L);", 2);
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAgo)." + i.withMethodName + "To(hourAhead), 1L);", 2);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAgo), 1L),", 3);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "To(hourAhead), 1L),", 3);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAgo)." + i.withMethodName + "To(hourAhead), 1L),", 3);
 			}
 			else if (i.isRange())
 			{
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.memberVariableName + "), 1L);", 2);
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.memberVariableName + "), 1L);", 2);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.memberVariableName + "), 1L),", 3);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.memberVariableName + "), 1L),", 3);
 			}
 		}
 
 		writeLine();
-		writeLine("// Negative tests", 2);
+		writeLine("// Negative tests", 3);
 		for (var i : columnInfo)
 		{
 			if (i.isCharacter)
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(\"invalid\"), 0L);", 2);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(\"invalid\"), 0L),", 3);
 			else if (i.isBoolean)
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(!VALUE." + i.memberVariableName + "), 0L);", 2);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(!VALUE." + i.memberVariableName + "), 0L),", 3);
 			else
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + " + 1000" + ((10 < i.size) ? "L" : "") + "), 0L);", 2);
-				
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + " + 1000" + ((10 < i.size) ? "L" : "") + "), 0L),", 3);
+
 			if (i.isTime)
 			{
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAhead), 0L);", 2);
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(hourAgo), 0L);", 2);
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAhead)." + i.withMethodName + "To(hourAgo), 0L);", 2);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAhead), 0L),", 3);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "To(hourAgo), 0L),", 3);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAhead)." + i.withMethodName + "To(hourAgo), 0L),", 3);
 			}
 			else if (i.isRange())
 			{
 				var l = ((10 < i.size) ? "L" : "");
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.memberVariableName + " + 1" + l + "), 0L);", 2);
-				writeLine("search(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.memberVariableName + " - 1" + l + "), 0L);", 2);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "From(VALUE." + i.memberVariableName + " + 1" + l + "), 0L),", 3);
+				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "To(VALUE." + i.memberVariableName + " - 1" + l + "), 0L),", 3);
 			}
 		}
+		writeLine(");", 2);
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("/** Helper method - calls the search endpoint and verifies the counts and records. */", 1);
-		writeLine("private void search(final " + filterName + " filter, final long expectedTotal)", 1);
+		writeLine("@ParameterizedTest", 1);
+		writeLine("@MethodSource", 1);
+		writeLine("public void search(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
 		writeLine("var response = request(\"search\")", 2);
 		writeLine(".post(Entity.entity(filter, UTF8MediaType.APPLICATION_JSON_TYPE));", 3);
