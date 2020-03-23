@@ -405,12 +405,19 @@ public class EntityBeanDAO extends EntityBeanBase
 		writeLine("{", 1);
 			writeLine("return new HibernateQueryBuilder<" + name + ">(currentSession(), select, " + name + ".class)", 2);
 			int size = columnInfo.length;
-			for (ColumnInfo info : columnInfo)
+			for (var info : columnInfo)
 			{
 				if (info.isString)
 					write(".addContains(\"" + info.memberVariableName + "\", \"o." + info.memberVariableName + " LIKE :" + info.memberVariableName + "\", filter." + info.memberVariableName + ")", 3);
 				else
 					write(".add(\"" + info.memberVariableName + "\", \"o." + info.memberVariableName + " = :" + info.memberVariableName + "\", filter." + info.memberVariableName + ")", 3);
+
+				// If NULLable, add a NULL check filter option.
+				if (info.isNullable)
+				{
+					writeLine();
+					write(".addNotNull(\"o." + info.memberVariableName + "\", filter.has" + info.name + ")", 3);
+				}
 
 				// For values that have ranges, also add greater-than (>=) and less-than (<=) searches. DLS on 6/11/2015.
 				if (info.isRange())

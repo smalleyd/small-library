@@ -3,6 +3,8 @@ package com.small.library.ejb.gen;
 import java.io.*;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.small.library.generator.*;
 import com.small.library.metadata.*;
 
@@ -176,6 +178,10 @@ public class EntityBeanFilter extends EntityBeanBase
 
 		writeLine("public " + type + " " + i.memberVariableName + suffix + " = null;", 1);
 
+		// If NULLable, add a NULL check filter option.
+		if (i.isNullable && StringUtils.isEmpty(suffix))
+			writeLine("public Boolean has" + i.name + " = null;", 1);
+
 		/* Write the setter.
 		write("public void " + i.mutatorMethodName + suffix + "(final " + type + " newValue)", 1);
 		writeLine(" { " + i.memberVariableName + suffix + " = newValue; }"); */
@@ -222,6 +228,13 @@ public class EntityBeanFilter extends EntityBeanBase
 		// Write the "with" method.
 		write("\tpublic " + getClassName() + " " + i.withMethodName + suffix + "(final " + type + " newValue)");
 		writeLine(" { " + i.memberVariableName + suffix + " = newValue; return this; }");
+
+		// If NULLable, add a NULL check filter option.
+		if (i.isNullable && StringUtils.isEmpty(suffix))
+		{
+			write("\tpublic " + getClassName() + " withHas" + i.name + "(final Boolean newValue)");
+			writeLine(" { has" + i.name + " = newValue; return this; }");
+		}
 	}
 
 	/** Output method - writes the <CODE>constructors</CODE>. */
@@ -387,6 +400,10 @@ public class EntityBeanFilter extends EntityBeanBase
 		for (int i = 1; i < columnInfo.length; i++)
 		{
 			writeLine(".append(\", " + (item = columnInfo[i]).memberVariableName + ": \").append(" + item.memberVariableName + ")", 3);
+
+			// If NULLable, add a NULL check filter option.
+			if (item.isNullable)
+				writeLine(".append(\", has" + item.name + ": \").append(has" + item.name + ")", 3);
 
 			// Integer and date fields filter by range so need an additional "lower boundary" property and an "upper boundary" property.
 			if (item.isRange())

@@ -312,6 +312,8 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		for (var i : columnInfo)
 		{
 			writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 1L),", 3);
+			if (i.isNullable)
+				writeLine("arguments(new " + filterName + "(1, 20).withHas" + i.name + "(true), 1L),", 3);
 			if (i.isTime)
 			{
 				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAgo), 1L),", 3);
@@ -335,7 +337,10 @@ public class EntityBeanDAOTest extends EntityBeanBase
 				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(!VALUE." + i.memberVariableName + "), 0L),", 3);
 			else
 				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + " + 1000" + ((10 < i.size) ? "L" : "") + "), 0L),", 3);
-				
+
+			if (i.isNullable)
+				writeLine("arguments(new " + filterName + "(1, 20).withHas" + i.name + "(false), 0L),", 3);
+
 			if (i.isTime)
 			{
 				writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "From(hourAhead), 0L),", 3);
