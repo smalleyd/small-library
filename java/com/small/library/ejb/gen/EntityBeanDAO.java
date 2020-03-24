@@ -445,6 +445,13 @@ public class EntityBeanDAO extends EntityBeanBase
 				else
 					write(".add(\"" + info.memberVariableName + "\", \"o." + info.columnName + " = :" + info.memberVariableName + "\", filter." + info.memberVariableName + ")", 3);
 
+				// If NULLable, add a NULL check filter option.
+				if (info.isNullable)
+				{
+					writeLine();
+					write(".addNotNull(\"o." + info.columnName + "\", filter.has" + info.name + ")", 3);
+				}
+
 				// For values that have ranges, also add greater-than (>=) and less-than (<=) searches. DLS on 6/11/2015.
 				if (info.isRange())
 				{
