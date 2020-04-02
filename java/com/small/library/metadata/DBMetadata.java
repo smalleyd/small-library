@@ -152,7 +152,7 @@ public class DBMetadata
 	public List<Table> getTables(final String tableNamePattern, final String... types) throws SQLException
 	{
 		try (var connection = dataSource.getConnection();
-		     var rs = connection.getMetaData().getTables(null, null, tableNamePattern, types))
+		     var rs = connection.getMetaData().getTables(connection.getCatalog(), null, tableNamePattern, types))
 		{
 			return toList(r -> new Table(r, this), rs, Table.class);
 		}
