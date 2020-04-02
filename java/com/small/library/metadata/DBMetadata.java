@@ -137,8 +137,8 @@ public class DBMetadata
 
 	public List<Procedure> getProcedures() throws SQLException
 	{
-		try (final Connection connection = dataSource.getConnection();
-		     final ResultSet rs = connection.getMetaData().getProcedures(null, null, null))
+		try (var connection = dataSource.getConnection();
+		     var rs = connection.getMetaData().getProcedures(null, null, null))
 		{
 			return toList(r -> new Procedure(r), rs, Procedure.class);
 		}
@@ -151,8 +151,8 @@ public class DBMetadata
 
 	public List<Table> getTables(final String tableNamePattern, final String... types) throws SQLException
 	{
-		try (final Connection connection = dataSource.getConnection();
-		     final ResultSet rs = connection.getMetaData().getTables(null, null, tableNamePattern, types))
+		try (var connection = dataSource.getConnection();
+		     var rs = connection.getMetaData().getTables(null, null, tableNamePattern, types))
 		{
 			return toList(r -> new Table(r, this), rs, Table.class);
 		}
@@ -160,8 +160,8 @@ public class DBMetadata
 
 	public List<TypeInfo> getTypeInfo() throws SQLException
 	{
-		try (final Connection connection = dataSource.getConnection();
-		     final ResultSet rs = connection.getMetaData().getTypeInfo())
+		try (var connection = dataSource.getConnection();
+		     var rs = connection.getMetaData().getTypeInfo())
 		{
 			return toList(r -> new TypeInfo(r), rs, TypeInfo.class);
 		}

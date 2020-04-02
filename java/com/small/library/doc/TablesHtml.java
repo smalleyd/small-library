@@ -36,52 +36,38 @@ public class TablesHtml
 		@param strSchemaName Schema Name pattern to filter the tables list by.
 			Use <CODE>null</CODE> for no filter.
 	*/
-	public TablesHtml(DataSource dataSource, PrintWriter writer,
-		String schemaNamePattern)
+	public TablesHtml(final DataSource dataSource, final PrintWriter writer,
+		final String schemaNamePattern)
 	{
 		this.dataSource = dataSource;
 		out = writer;
 		this.schemaNamePattern = schemaNamePattern;
 	}
 
-	public void write(String strValue) throws IOException { out.print(strValue); }
+	public void write(final String strValue) throws IOException { out.print(strValue); }
 	public void writeLine() throws IOException { out.println(); }
-	public void writeLine(String strValue) throws IOException { out.println(strValue); }
+	public void writeLine(final String strValue) throws IOException { out.println(strValue); }
 	public void writeBreak() throws IOException { write("<BR>"); }
 
-	public void writeDetail(String strValue) throws IOException
+	public void writeDetail(final String value) throws IOException
 	{
-		if (null == strValue)
-			strValue = "&nbsp;";
-
-		write("<TD CLASS=\"detail\">" + strValue + "</TD>");
+		write("<TD CLASS=\"detail\">" + ((null != value) ? value : "&nbsp;") + "</TD>");
 	}
 
-	public void writeDetail(boolean bValue) throws IOException
+	public void writeDetail(final boolean yes) throws IOException
 	{
-		String strValue = null;
-
-		if (bValue)
-			strValue = "Yes";
-		else
-			strValue = "No";
-
-		writeDetail(strValue);
+		writeDetail(yes ? "Yes" : "No");
 	}
 
-	public void writeDetail(int nValue) throws IOException
+	public void writeDetail(final int value) throws IOException
 	{
-		Integer pValue = Integer.valueOf(nValue);
-		writeDetail(pValue.toString());
+		writeDetail(value + "");
 	}
 
-	public void writeDetailColSpan(String strValue, int nColSpan) throws IOException
+	public void writeDetailColSpan(final String value, final int nColSpan) throws IOException
 	{
-		if (null == strValue)
-			strValue = "&nbsp;";
-
 		openRow();
-		write("<TD CLASS=\"detail-center\" COLSPAN=\"" + nColSpan + "\">" + strValue + "</TD>");
+		write("<TD CLASS=\"detail-center\" COLSPAN=\"" + nColSpan + "\">" + ((null != value) ? value : "&nbsp;") + "</TD>");
 		closeRow();
 	}
 
@@ -114,8 +100,8 @@ public class TablesHtml
 	public void run()
 		throws SQLException, IOException
 	{
-		final DBMetadata metadata = new DBMetadata(dataSource);
-		final List<Table> tables = metadata.getTables(schemaNamePattern);
+		var metadata = new DBMetadata(dataSource);
+		var tables = metadata.getTables(schemaNamePattern, "TABLE");
 		
 		writeHeader(metadata.getCatalog());
 		writeContents(tables);
