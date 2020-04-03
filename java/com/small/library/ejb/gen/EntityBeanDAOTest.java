@@ -103,7 +103,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		final String name = getObjectName();
 		writeLine("import static org.junit.jupiter.api.Assertions.assertThrows;");
 		writeLine("import static org.junit.jupiter.params.provider.Arguments.arguments;");
-		writeLine("import static com.jibe.dwtesting.TestingUtils.*;");
+		writeLine("import static " + domainPackageName + ".dwtesting.TestingUtils.*;");
 		writeLine();
 		writeLine("import java.util.stream.Stream;");
 		writeLine();
