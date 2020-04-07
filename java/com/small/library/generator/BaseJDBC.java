@@ -481,7 +481,7 @@ public abstract class BaseJDBC extends Base
 			strReturn+= "(" + column.size;
 
 			if (doesTypeRequireScale(column))
-				strReturn+= ", " + column.decimalDigits;
+				strReturn+= "," + column.decimalDigits;
 
 			strReturn+= ")";
 		}
