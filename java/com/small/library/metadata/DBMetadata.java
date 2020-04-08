@@ -24,7 +24,7 @@ public class DBMetadata
 
 	public String getCatalog() throws SQLException
 	{
-		try (final Connection connection = dataSource.getConnection())
+		try (var connection = dataSource.getConnection())
 		{
 			return connection.getCatalog();
 		}
@@ -37,8 +37,8 @@ public class DBMetadata
 
 	public List<Column> getColumns(final String schema, final String table) throws SQLException
 	{
-		try (final Connection connection = dataSource.getConnection();
-		     final ResultSet rs = connection.getMetaData().getColumns(null, schema, table, null))
+		try (var connection = dataSource.getConnection();
+		     var rs = connection.getMetaData().getColumns(connection.getCatalog(), schema, table, null))
 		{
 			return toList(r -> new Column(r), rs, Column.class);
 		}
@@ -51,8 +51,8 @@ public class DBMetadata
 
 	public List<ForeignKey> getExportedKeys(final String schema, final String table) throws SQLException
 	{
-		try (final Connection connection = dataSource.getConnection();
-			 final ResultSet rs = connection.getMetaData().getExportedKeys(null, schema, table))
+		try (var connection = dataSource.getConnection();
+			 var rs = connection.getMetaData().getExportedKeys(connection.getCatalog(), schema, table))
 		{
 			return toForeignKeys(rs);
 		}
@@ -65,8 +65,8 @@ public class DBMetadata
 
 	public List<ForeignKey> getImportedKeys(final String schema, final String table) throws SQLException
 	{
-		try (final Connection connection = dataSource.getConnection();
-			 final ResultSet rs = connection.getMetaData().getImportedKeys(null, schema, table))
+		try (var connection = dataSource.getConnection();
+			 var rs = connection.getMetaData().getImportedKeys(connection.getCatalog(), schema, table))
 		{
 			return toForeignKeys(rs);
 		}
@@ -79,8 +79,8 @@ public class DBMetadata
 
 	public List<Index> getIndexes(final String schema, final String table) throws SQLException
 	{
-		try (final Connection connection = dataSource.getConnection();
-		     final ResultSet rs = connection.getMetaData().getIndexInfo(null, schema, table, false, true))
+		try (var connection = dataSource.getConnection();
+		     var rs = connection.getMetaData().getIndexInfo(connection.getCatalog(), schema, table, false, true))
 		{
 			Index last = null;
 			final List<Index> values = new LinkedList<>();
@@ -106,8 +106,8 @@ public class DBMetadata
 
 	public List<Parameter> getParameters(final String schema, final String procedure) throws SQLException
 	{
-		try (final Connection connection = dataSource.getConnection();
-		     final ResultSet rs = connection.getMetaData().getProcedureColumns(null, schema, procedure, null))
+		try (var connection = dataSource.getConnection();
+		     var rs = connection.getMetaData().getProcedureColumns(connection.getCatalog(), schema, procedure, null))
 		{
 			return toList(r -> new Parameter(r), rs, Parameter.class);
 		}
@@ -121,8 +121,8 @@ public class DBMetadata
 	@SuppressWarnings("unchecked")
 	public List<PrimaryKey> getPrimaryKeys(final String schema, final String table) throws SQLException
 	{
-		try (final Connection connection = dataSource.getConnection();
-		     final ResultSet rs = connection.getMetaData().getPrimaryKeys(null, schema, table))
+		try (var connection = dataSource.getConnection();
+		     var rs = connection.getMetaData().getPrimaryKeys(connection.getCatalog(), schema, table))
 		{
 			return toList(r -> new PrimaryKey(r), rs, PrimaryKey.class);
 		}
@@ -138,7 +138,7 @@ public class DBMetadata
 	public List<Procedure> getProcedures() throws SQLException
 	{
 		try (var connection = dataSource.getConnection();
-		     var rs = connection.getMetaData().getProcedures(null, null, null))
+		     var rs = connection.getMetaData().getProcedures(connection.getCatalog(), null, null))
 		{
 			return toList(r -> new Procedure(r), rs, Procedure.class);
 		}
@@ -170,7 +170,7 @@ public class DBMetadata
 	private <T> List<T> toList(final SQLFunction<ResultSet, T> fx, final ResultSet rs, final Class<T> clazz)
 		throws SQLException
 	{
-		List<T> values = new LinkedList<>();
+		var values = new LinkedList<T>();
 		while (rs.next())
 			values.add(fx.apply(rs));
 
@@ -180,7 +180,7 @@ public class DBMetadata
 	private List<ForeignKey> toForeignKeys(final ResultSet rs) throws SQLException
 	{
 		ForeignKey last = null;
-		final List<ForeignKey> values = new LinkedList<>();
+		var values = new LinkedList<ForeignKey>();
 		while (rs.next())
 		{
 			if ((null != last) && last.name.equals(rs.getString(12)))
