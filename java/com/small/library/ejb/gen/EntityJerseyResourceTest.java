@@ -131,7 +131,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");
-		writeLine("*\tFunctional test for the data access object that handles access to the " + name + " entity.");
+		writeLine("*\tFunctional test for the RESTful resource that handles access to the " + name + " entity.");
 		writeLine("*");
 		writeLine("*\t@author " + getAuthor());
 		writeLine("*\t@version " + getVersion());
