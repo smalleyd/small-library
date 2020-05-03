@@ -1,6 +1,10 @@
 package com.small.library.ejb.gen;
 
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
 import java.io.*;
+import java.util.Arrays;
 import java.util.List;
 
 import com.small.library.generator.*;
@@ -282,7 +286,22 @@ public class EntityBeanJPA extends EntityBeanBase
 			writeLine(writeEquals(item = columnInfo[i]) + term, 3);
 		}
 		writeLine("}", 1);
-		
+
+		// Write the equals method. */
+		var pks = Arrays.stream(columnInfo).filter(c -> c.isPartOfPrimaryKey).collect(toList());
+
+		writeLine();
+		writeLine("@Override", 1);
+		writeLine("public int hashCode()", 1);
+		writeLine("{", 1);
+		if (1 == pks.size())
+			writeLine("return Objects.hashCode(" + pks.get(0).memberVariableName + ");", 2);
+		else if (1 < pks.size())
+			writeLine("return Objects.hash(" + pks.stream().map(c -> c.memberVariableName).collect(joining(", ")) + ");", 2);
+		else
+			writeLine("return 0;", 2);
+		writeLine("}", 1);
+
 		// Write the toString method. */
 		writeLine();
 		writeLine("@Transient", 1);
