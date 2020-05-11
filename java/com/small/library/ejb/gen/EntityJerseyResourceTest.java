@@ -429,7 +429,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine(" * @param filter", 1);
 		writeLine(" * @param expectedTotal", 1);
 		writeLine(" */", 1);
-		writeLine("private void count(final " + filterName + " filter, long expectedTotal)", 1);
+		writeLine("private void count(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
 		writeLine("Assertions.assertEquals(expectedTotal, dao.count(filter), \"COUNT \" + filter + \": Check total\");", 2);
 		writeLine("}", 1);
