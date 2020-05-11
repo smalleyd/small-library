@@ -149,7 +149,7 @@ public class EntityBeanJPA extends EntityBeanBase
 		writeLine("@Cache(usage=CacheConcurrencyStrategy.READ_WRITE, region=\"" + getTable().name + "\")");
 		writeLine("public class " + getClassName() + " implements Serializable");
 		writeLine("{");
-		writeLine("\tprivate final static long serialVersionUID = 1L;");
+		writeLine("\tprivate static final long serialVersionUID = 1L;");
 	}
 
 	/** Output method - writes the accessor methods. */
