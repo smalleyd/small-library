@@ -211,7 +211,7 @@ public class EntityJerseyResource extends EntityBeanBase
 		writeLine();
 		writeLine("@DELETE", 1);
 		writeLine("@Path(\"/{id}\") @Timed @UnitOfWork", 1);
-		writeLine("@ApiOperation(value=\"remove\", notes=\"Removes/deactivates a single " + name + " by its primary key.\")", 1);
+		writeLine("@ApiOperation(value=\"remove\", notes=\"Removes/deactivates a single " + name + " by its primary key.\", response=OperationResponse.class)", 1);
 		writeLine("public OperationResponse remove(@PathParam(\"id\") final " + primaryKeyType + " id) throws ValidationException", 1);
 		writeLine("{", 1);
 			writeLine("return new OperationResponse(dao.remove(id));", 2);
