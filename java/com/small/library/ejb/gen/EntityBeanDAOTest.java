@@ -419,7 +419,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine();
 		writeLine("@ParameterizedTest", 1);
 		writeLine("@MethodSource", 1);
-		writeLine("private void search_sort(final " + filterName + " filter, final String expectedSortOn, final String expectedSortDir)", 1);
+		writeLine("public void search_sort(final " + filterName + " filter, final String expectedSortOn, final String expectedSortDir)", 1);
 		writeLine("{", 1);
 		writeLine("var results = dao.search(filter);", 2);
 		writeLine("Assertions.assertNotNull(results, \"Exists\");", 2);
