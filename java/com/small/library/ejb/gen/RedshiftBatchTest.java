@@ -103,7 +103,6 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("import java.util.*;");
 		writeLine();
 		writeLine("import org.jdbi.v3.core.Jdbi;");
-		writeLine("import org.junit.Assert;");
 		writeLine("import org.junit.jupiter.api.*;");
 		writeLine("import org.junit.jupiter.api.extension.ExtendWith;");
 		writeLine();
@@ -163,10 +162,10 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("insertQueueUrl = conf.aws.insertQueueUrl(batch.getEntityName());", 2);
 		writeLine("updateQueueUrl = conf.aws.updateQueueUrl(batch.getEntityName());", 2);
 		writeLine();
-		writeLine("Assert.assertEquals(\"Check tableName\", \"" + tableName + "\", batch.getTableName());", 2);
-		writeLine("Assert.assertFalse(\"Check useParallelQueue\", batch.isUseParallelQueue());", 2);
-		writeLine("Assert.assertNull(\"Check nextInsertQueueUrls\", batch.nextInsertQueueUrls);", 2);
-		writeLine("Assert.assertNull(\"Check nextUpdateQueueUrls\", batch.nextUpdateQueueUrls);", 2);
+		writeLine("Assertions.assertEquals(\"" + tableName + "\", batch.getTableName(), \"Check tableName\");", 2);
+		writeLine("Assertions.assertFalse(batch.isUseParallelQueue(), \"Check useParallelQueue\");", 2);
+		writeLine("Assertions.assertNull(batch.nextInsertQueueUrls, \"Check nextInsertQueueUrls\");", 2);
+		writeLine("Assertions.assertNull(batch.nextUpdateQueueUrls, \"Check nextUpdateQueueUrls\");", 2);
 		writeLine();
 		writeLine("/* TODO: placeholder for the INSERT object.", 2);
 		write("INSERT = new " + valueName + "(ID", 2);
@@ -232,7 +231,7 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("public void verify() throws Exception", 1);
 		writeLine("{", 1);
 		writeLine("final List<Map<String, Object>> records = dest.withHandle(h -> h.select(\"SELECT * FROM " + getTable().name + " WHERE id = ?\", ID).mapToMap().list());", 2);
-		writeLine("Assert.assertEquals(\"Check size\", 1, records.size());", 2);
+		writeLine("Assertions.assertEquals(1, records.size(), \"Check size\");", 2);
 		writeLine("final Map<String, Object> rs = records.get(0);", 2);
 		writeLine();
 		write("check(UPDATE, new " + valueName + "((" + columnInfo[0].javaType + ") rs.get(\"" + columnInfo[0].columnName + "\")", 2);
@@ -248,12 +247,12 @@ public class RedshiftBatchTest extends EntityBeanBase
 		writeLine("/** Helper method - checks an expected value against a supplied value object. */", 1);
 		writeLine("private void check(final " + valueName + " expected, final " + valueName + " value)", 1);
 		writeLine("{", 1);
-		writeLine("final String assertId = \"ID (\" + expected.id + \"): \";", 2);
+		writeLine("var assertId = \"ID (\" + expected.id + \"): \";", 2);
 		for (ColumnInfo i : columnInfo)
 		{
-			writeLine("Assert.assertEquals(assertId + \"Check " + i.memberVariableName + "\", expected." + i.memberVariableName + ", value." + i.memberVariableName + ");", 2);
+			writeLine("Assertions.assertEquals(expected." + i.memberVariableName + ", value." + i.memberVariableName + ", assertId + \"Check " + i.memberVariableName + "\");", 2);
 			if (i.isImportedKey)
-				writeLine("Assert.assertEquals(assertId + \"Check " + i.importedKeyMemberName + " name\", expected.get" + i.importedKeyName + "Name(), value.get" + i.importedKeyName + "Name());", 2);
+				writeLine("Assertions.assertEquals(expected.get" + i.importedKeyName + "Name(), value.get" + i.importedKeyName + "Name(), assertId + \"Check " + i.importedKeyMemberName + "Name\");", 2);
 		}
 		writeLine("}", 1);
 	}
