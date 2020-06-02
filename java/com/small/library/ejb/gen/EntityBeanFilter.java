@@ -105,6 +105,7 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine();
 		writeLine("import org.apache.commons.lang3.StringUtils;");
 		writeLine();
+		writeLine("import " + domainPackageName + ".dwservice.ObjectUtils;");
 		writeLine("import " + domainPackageName + ".dwservice.dao.QueryFilter;");
 		writeLine();
 		writeLine("/********************************************************************************************************************");
@@ -383,10 +384,11 @@ public class EntityBeanFilter extends EntityBeanBase
 		writeLine("**************************************************************************/", 1);
 
 		// Write the toString method. */
-		ColumnInfo item = columnInfo[0];
+		// ColumnInfo item = columnInfo[0];
 		writeLine();
 		writeLine("@Override", 1);
-		writeLine("public String toString()", 1);
+		writeLine("public String toString() { return ObjectUtils.toString(this); }", 1);
+		/* Alternate toString implementation.
 		writeLine("{", 1);
 		writeLine("return new StringBuilder(\"{ " + item.memberVariableName + ": \").append(" + item.memberVariableName + ")", 2);
 
@@ -414,6 +416,7 @@ public class EntityBeanFilter extends EntityBeanBase
 		}
 		writeLine(".append(\" }\").toString();", 3);
 		writeLine("}", 1);
+		*/
 	}
 
 	/** Output method - writes the class footer. */

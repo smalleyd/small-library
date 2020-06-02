@@ -109,6 +109,8 @@ public class EntityBeanValueObject extends EntityBeanBase
 		writeLine("import org.apache.commons.lang3.StringUtils;");
 		writeLine("import org.apache.commons.lang3.time.DateUtils;");
 		writeLine();
+		writeLine("import " + getDomainPackageName() + ".dwservice.ObjectUtils;");
+		writeLine();
 		writeLine("/**********************************************************************************");
 		writeLine("*");
 		writeLine("*\tValue object class that represents the " + getTable().name + " table.");
@@ -292,7 +294,8 @@ public class EntityBeanValueObject extends EntityBeanBase
 		item = columnInfo[0];
 		writeLine();
 		writeLine("@Override", 1);
-		writeLine("public String toString()", 1);
+		writeLine("public String toString() { return ObjectUtils.toString(this); }", 1);
+		/* Alternate toString implementation.
 		writeLine("{", 1);
 		writeLine("return new StringBuilder(\"{ " + item.memberVariableName + ": \").append(" + item.memberVariableName + ")", 2);
 
@@ -304,6 +307,7 @@ public class EntityBeanValueObject extends EntityBeanBase
 		}
 		writeLine(".append(\" }\").toString();", 3);
 		writeLine("}", 1);
+		*/
 	}
 
 	/** Output method - writes the class footer. */
