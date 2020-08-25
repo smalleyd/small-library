@@ -65,9 +65,9 @@ public class RedshiftLoader extends EntityBeanBase
 		@param table A table record object to base the output on.
 		@param packageName Package name of the wrapper class.
 	*/
-	public RedshiftLoader(PrintWriter writer,
-		String author, Table table, String packageName,
-		String version)
+	public RedshiftLoader(final PrintWriter writer,
+		final String author, final Table table, final String packageName,
+		final String version)
 	{
 		super(writer, author, table, packageName, version);
 	}
@@ -106,9 +106,9 @@ public class RedshiftLoader extends EntityBeanBase
 	/** Output method - writes the file header. */
 	private void writeHeader() throws IOException
 	{
-		final String packageName = getPackageName();
-		final String basePackageName = getBasePackageName();
-		final String domainPackageName = getDomainPackageName();
+		var packageName = getPackageName();
+		var basePackageName = getBasePackageName();
+		var domainPackageName = getDomainPackageName();
 
 		if (null != packageName)
 		{
@@ -147,8 +147,8 @@ public class RedshiftLoader extends EntityBeanBase
 	/** Output method - writes the SQS and SQL constants. */
 	private void writeConstants() throws IOException
 	{
-		final String name = getObjectName();
-		final String tableName = getTable().name;
+		var name = getObjectName();
+		var tableName = getTable().name;
 
 		writeLine("/** Name of process. */", 1);
 		writeLine("public static final String NAME = \"" + name + "\";", 1);
@@ -190,15 +190,15 @@ public class RedshiftLoader extends EntityBeanBase
 	/** Output method - writes the <CODE>constructors</CODE>. */
 	private void writeConstructors() throws IOException
 	{
-		final String name = getObjectName();
-		final String className = getClassName(name);
+		var name = getObjectName();
+		var className = getClassName(name);
 
 		// Start section.
 		writeLine();
 		writeLine("/** Application entry point. */", 1);
 		writeLine("public static void main(final String... args) throws Exception", 1);
 		writeLine("{", 1);
-		writeLine("final LoaderConfig conf = LoaderApp.load(args);", 2);
+		writeLine("var conf = LoaderApp.load(args);", 2);
 		writeLine();
 		writeLine("new " + className + "(conf).run();", 2);
 		writeLine();
@@ -248,7 +248,7 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine("protected Item writeLine(final Map<String, Object> rs, final CSVWriter out) throws IOException", 1);
 		writeLine("{", 1);
 		writeLine("out", 2);
-		for (final ColumnInfo i : columnInfo)
+		for (var i : columnInfo)
 		{
 			if (i.isPartOfPrimaryKey)
 				writeLine(".add(lastId = (" + i.javaType + ") rs.get(\"" + i.columnName + "\"))", 3);
@@ -292,13 +292,13 @@ public class RedshiftLoader extends EntityBeanBase
 				throw new IllegalArgumentException("Please supply at least 3 arguments.");
 
 			// Local variables
-			final File dir = extractOutputDirectory(args, 0);
-			final String author = extractAuthor(args, 5);
-			final String packageName = extractArgument(args, 6, null);
-			final String version = extractArgument(args, 7, VERSION_DEFAULT);
+			var dir = extractOutputDirectory(args, 0);
+			var author = extractAuthor(args, 5);
+			var packageName = extractArgument(args, 6, null);
+			var version = extractArgument(args, 7, VERSION_DEFAULT);
 
 			// Create and load the tables object.
-			final List<Table> tables = extractTables(args, 1, 8);
+			var tables = extractTables(args, 1, 8);
 
 			// Call the BaseTable method to handle the outputting.
 			generateTableResources(new RedshiftLoader(author, packageName, version), tables, dir);
@@ -306,7 +306,7 @@ public class RedshiftLoader extends EntityBeanBase
 
 		catch (final IllegalArgumentException ex)
 		{
-			final String message = ex.getMessage();
+			var message = ex.getMessage();
 
 			if (null != message)
 			{
