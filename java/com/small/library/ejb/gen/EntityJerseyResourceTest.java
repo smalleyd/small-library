@@ -219,6 +219,16 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
+		writeLine("/** Creates a valid " + name + " value for the validation tests.", 1);
+		writeLine(" *\t@return never NULL.", 1);
+		writeLine("*/", 1);
+		writeLine("private static " + valueName + " createValid()", 1);
+		writeLine("{", 1);
+		writeLine("// TODO: populate the valid value with data.", 2);
+		writeLine("return new " + valueName + "();", 2);
+		writeLine("}", 1);
+
+		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void find()", 1);
 		writeLine("{", 1);
@@ -258,12 +268,37 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
+		writeLine("public static Stream<Arguments> modif()", 1);
+		writeLine("{", 1);
+		writeLine("var valid = createValid();", 2);
+		writeLine();
+		writeLine("return Stream.of(", 2);
+		for (var i : columnInfo)
+		{
+			writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 1L),", 3);
+		}
+
+		writeLine();
+		writeLine("// Negative tests", 3);
+		for (var i : columnInfo)
+		{
+			writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(valid." + i.memberVariableName + "), 0L),", 3);
+		}
+		writeLine(");", 2);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("@ParameterizedTest", 1);
+		writeLine("@MethodSource", 1);
+		writeLine("public void modif(final " + filterName + " filter, final long expectedTotal)", 1);
+		writeLine("{", 1);
+		writeLine("count(filter, expectedTotal);", 2);
+		writeLine("}", 1);
+
+		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void modify()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 1L);", 2);
-		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 0L);", 2);
-		writeLine();
 		writeLine("// TODO: provide a change to the VALUE.", 2);
 		writeLine("var response = request().put(Entity.entity(VALUE, UTF8MediaType.APPLICATION_JSON_TYPE));", 2);
 		writeLine("Assertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");", 2);
@@ -274,20 +309,43 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@Test", 1);
-		writeLine("public void modify_count()", 1);
+		writeLine("public static Stream<Arguments> modify_count()", 1);
 		writeLine("{", 1);
-		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 0L);", 2);
-		writeLine("// TODO: fill in search details // count(new " + filterName + "(), 1L);", 2);
+		writeLine("var valid = createValid();", 2);
+		writeLine();
+		writeLine("return Stream.of(", 2);
+		for (var i : columnInfo)
+		{
+			writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 0L),", 3);
+		}
+
+		writeLine();
+		writeLine("// Negative tests", 3);
+		for (var i : columnInfo)
+		{
+			writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(valid." + i.memberVariableName + "), 1L),", 3);
+		}
+		writeLine(");", 2);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("@ParameterizedTest", 1);
+		writeLine("@MethodSource", 1);
+		writeLine("public void modify_count(final " + filterName + " filter, final long expectedTotal)", 1);
+		writeLine("{", 1);
+		writeLine("count(filter, expectedTotal);", 2);
 		writeLine("}", 1);
 
 		writeLine();
 		writeLine("@Test", 1);
 		writeLine("public void modify_get()", 1);
 		writeLine("{", 1);
+		writeLine("var valid = createValid();", 2);
 		writeLine("var value = get(VALUE.id).readEntity(" + valueName + ".class);", 2);
 		writeLine("Assertions.assertNotNull(value, \"Exists\");", 2);
 		writeLine("// TODO: check the changed property.", 2);
+		for (var i : columnInfo)
+			writeLine("Assertions.assertEquals(valid." + i.memberVariableName + ", value." + i.memberVariableName + ", \"Check " + i.memberVariableName + "\");", 2);
 		writeLine("check(VALUE, value);", 2);
 		writeLine("}", 1);
 
@@ -407,11 +465,22 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@Test", 1);
-		writeLine("public void testRemove_search()", 1);
+		writeLine("public static Stream<Arguments> testRemove_search()", 1);
 		writeLine("{", 1);
-		writeLine("count(new " + filterName + "().withId(VALUE.id), 0L);", 2);
-		writeLine("// TODO: provide secondary test count.", 2);
+		writeLine("return Stream.of(", 2);
+		for (var i : columnInfo)
+		{
+			writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 0L),", 3);
+		}
+		writeLine(");", 2);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("@ParameterizedTest", 1);
+		writeLine("@MethodSource", 1);
+		writeLine("public void testRemove_search(final " + filterName + " filter, final long expectedTotal)", 1);
+		writeLine("{", 1);
+		writeLine("count(filter, expectedTotal);", 2);
 		writeLine("}", 1);
 
 		writeLine();
@@ -439,7 +508,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("private void check(final " + valueName + " expected, final " + valueName + " value)", 1);
 		writeLine("{", 1);
 		writeLine("var assertId = \"ID (\" + expected.id + \"): \";", 2);
-		for (ColumnInfo i : columnInfo)
+		for (var i : columnInfo)
 		{
 			if (i.isTime)
 			{
