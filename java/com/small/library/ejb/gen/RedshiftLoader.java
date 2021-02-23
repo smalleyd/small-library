@@ -179,7 +179,7 @@ public class RedshiftLoader extends EntityBeanBase
 		writeLine(") \" +");
 		writeLine("\"FROM '%s' \" +", 2);
 		writeLine("\"credentials 'aws_access_key_id=%s;aws_secret_access_key=%s' \" +", 2);
-		writeLine("\"emptyasnull \" +", 2);
+		writeLine("\"emptyasnull ACCEPTINVCHARS AS ' ' TRUNCATECOLUMNS \" +", 2);
 		writeLine("\"gzip \" +", 2);
 		writeLine("\"delimiter '\\t'\";", 2);
 		writeLine();

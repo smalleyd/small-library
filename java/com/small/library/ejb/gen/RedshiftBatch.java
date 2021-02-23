@@ -164,7 +164,7 @@ public class RedshiftBatch extends EntityBeanBase
 		writeLine(") \" +");
 		writeLine("\"FROM '%s' \" +", 3);
 		writeLine("\"credentials 'aws_access_key_id=%s;aws_secret_access_key=%s' \" +", 3);
-		writeLine("\"emptyasnull \" +", 3);
+		writeLine("\"emptyasnull ACCEPTINVCHARS AS ' ' TRUNCATECOLUMNS \" +", 3);
 		writeLine("\"gzip \" +", 3);
 		writeLine("\"delimiter '\\t'\").toString();", 3);
 		writeLine("}", 1);
