@@ -477,12 +477,20 @@ public class EntityBeanDAOTest extends EntityBeanBase
 
 		writeLine();
 		writeLine("/** Test removal after the search. */", 1);
-		writeLine("@Test", 1);
-		writeLine("public void testRemove()", 1);
+		writeLine("public static Stream<Arguments> testRemove()", 1);
 		writeLine("{", 1);
-		writeLine("Assertions.assertFalse(dao.remove(VALUE.id + " + invalidId + "), \"Invalid\");", 2);
-		writeLine("Assertions.assertTrue(dao.remove(VALUE.id), \"Removed\");", 2);
-		writeLine("Assertions.assertFalse(dao.remove(VALUE.id), \"Already removed\");", 2);
+		writeLine("return Stream.of(", 2);
+		writeLine("arguments(VALUE.id + " + invalidId + ", false),", 3);
+		writeLine("arguments(VALUE.id, true),", 3);
+		writeLine("arguments(VALUE.id, false));	// Already removed", 3);
+		writeLine("}", 1);
+
+		writeLine();
+		writeLine("@ParameterizedTest", 1);
+		writeLine("@MethodSource", 1);
+		writeLine("public void testRemove(final " + getPkJavaType() + " id, boolean success)", 1);
+		writeLine("{", 1);
+		writeLine("Assertions.assertEquals(success, dao.remove(id));", 2);
 		writeLine("}", 1);
 
 		writeLine();
