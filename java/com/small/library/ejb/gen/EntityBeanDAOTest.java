@@ -279,14 +279,14 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("return Stream.of(", 2);
 		for (var i : columnInfo)
 		{
-			writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 1L),", 3);
+			writeLine("arguments(new " + filterName + "()." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 1L),", 3);
 		}
 
 		writeLine();
 		writeLine("// Negative tests", 3);
 		for (var i : columnInfo)
 		{
-			writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(valid." + i.memberVariableName + "), 0L),", 3);
+			writeLine("arguments(new " + filterName + "()." + i.withMethodName + "(valid." + i.memberVariableName + "), 0L),", 3);
 		}
 		writeLine(");", 2);
 		writeLine("}", 1);
@@ -317,14 +317,14 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("return Stream.of(", 2);
 		for (var i : columnInfo)
 		{
-			writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 0L),", 3);
+			writeLine("arguments(new " + filterName + "()." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 0L),", 3);
 		}
 
 		writeLine();
 		writeLine("// Negative tests", 3);
 		for (var i : columnInfo)
 		{
-			writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(valid." + i.memberVariableName + "), 1L),", 3);
+			writeLine("arguments(new " + filterName + "()." + i.withMethodName + "(valid." + i.memberVariableName + "), 1L),", 3);
 		}
 		writeLine(");", 2);
 		writeLine("}", 1);
@@ -507,7 +507,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("return Stream.of(", 2);
 		for (var i : columnInfo)
 		{
-			writeLine("arguments(new " + filterName + "(1, 20)." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 0L),", 3);
+			writeLine("arguments(new " + filterName + "()." + i.withMethodName + "(VALUE." + i.memberVariableName + "), 0L),", 3);
 		}
 		writeLine(");", 2);
 		writeLine("}", 1);
