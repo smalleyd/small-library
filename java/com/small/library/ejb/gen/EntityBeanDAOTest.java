@@ -292,7 +292,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@ParameterizedTest", 1);
+		writeLine("@ParameterizedTest(name=\"modif(filter={0}, expectedTotal={1})\")", 1);
 		writeLine("@MethodSource", 1);
 		writeLine("public void modif(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
@@ -330,7 +330,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@ParameterizedTest", 1);
+		writeLine("@ParameterizedTest(name=\"modify_count(filter={0}, expectedTotal={1})\")", 1);
 		writeLine("@MethodSource", 1);
 		writeLine("public void modify_count(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
@@ -406,7 +406,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@ParameterizedTest", 1);
+		writeLine("@ParameterizedTest(name=\"search(filter={0}, expectedTotal={1})\")", 1);
 		writeLine("@MethodSource", 1);
 		writeLine("public void search(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
@@ -465,7 +465,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@ParameterizedTest", 1);
+		writeLine("@ParameterizedTest(name=\"search_sort(filter={0}, expectedSortOn={1}, expectedSortDir={2})\")", 1);
 		writeLine("@MethodSource", 1);
 		writeLine("public void search_sort(final " + filterName + " filter, final String expectedSortOn, final String expectedSortDir)", 1);
 		writeLine("{", 1);
@@ -486,7 +486,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@ParameterizedTest", 1);
+		writeLine("@ParameterizedTest(name=\"testRemove(id={0}, success={1})\")", 1);
 		writeLine("@MethodSource", 1);
 		writeLine("public void testRemove(final " + getPkJavaType() + " id, boolean success)", 1);
 		writeLine("{", 1);
@@ -513,7 +513,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@ParameterizedTest", 1);
+		writeLine("@ParameterizedTest(name=\"testRemove_search(filter={0}, expectedTotal={1})\")", 1);
 		writeLine("@MethodSource", 1);
 		writeLine("public void testRemove_search(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);

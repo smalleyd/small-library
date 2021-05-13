@@ -288,7 +288,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@ParameterizedTest", 1);
+		writeLine("@ParameterizedTest(name=\"modif(filter={0}, expectedTotal={1})\")", 1);
 		writeLine("@MethodSource", 1);
 		writeLine("public void modif(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
@@ -329,7 +329,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@ParameterizedTest", 1);
+		writeLine("@ParameterizedTest(name=\"modify_count(filter={0}, expectedTotal={1})\")", 1);
 		writeLine("@MethodSource", 1);
 		writeLine("public void modify_count(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
@@ -405,7 +405,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@ParameterizedTest", 1);
+		writeLine("@ParameterizedTest(name=\"search(filter={0}, expectedTotal={1})\")", 1);
 		writeLine("@MethodSource", 1);
 		writeLine("public void search(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
@@ -444,7 +444,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@ParameterizedTest", 1);
+		writeLine("@ParameterizedTest(name=\"testRemove(id={0}, success={1})\")", 1);
 		writeLine("@MethodSource", 1);
 		writeLine("public void testRemove(final " + pkTypeName + " id, boolean success)", 1);
 		writeLine("{", 1);
@@ -475,7 +475,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("}", 1);
 
 		writeLine();
-		writeLine("@ParameterizedTest", 1);
+		writeLine("@ParameterizedTest(name=\"testRemove_search(filter={0}, expectedTotal={1})\")", 1);
 		writeLine("@MethodSource", 1);
 		writeLine("public void testRemove_search(final " + filterName + " filter, final long expectedTotal)", 1);
 		writeLine("{", 1);
