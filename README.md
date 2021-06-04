@@ -1,5 +1,9 @@
 # small-library
 
+### Build
+
+- gradle shadowJar
+
 ### Documentation Generator
 
 - java -cp $DB_CLASSPATH:$SMALL_LIBRARY_JAR com.small.library.doc.TablesHtml tables.html "${URL}" $DBUSER $DBPWD $DRIVER
@@ -39,3 +43,7 @@
 - java -cp $DB_CLASSPATH:$SMALL_LIBRARY_JAR com.small.library.ejb.gen.RedshiftBatch out "${URL}" $DBUSER $DBPWD $DRIVER "$AUTHOR" $PACKAGE.batch $VERSION $TABLE_NAME
 - java -cp $DB_CLASSPATH:$SMALL_LIBRARY_JAR com.small.library.ejb.gen.RedshiftBatchTest out "${URL}" $DBUSER $DBPWD $DRIVER "$AUTHOR" $PACKAGE.batch $VERSION $TABLE_NAME
 - java -cp $DB_CLASSPATH:$SMALL_LIBRARY_JAR com.small.library.ejb.gen.RedshiftLoader out "${URL}" $DBUSER $DBPWD $DRIVER "$AUTHOR" $PACKAGE.loader $VERSION $TABLE_NAME
+
+---
+
+*$TABLE_NAME* is optional. If omitted, all the tables are generated.
