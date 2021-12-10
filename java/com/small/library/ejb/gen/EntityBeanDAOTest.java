@@ -488,7 +488,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		writeLine();
 		writeLine("@ParameterizedTest(name=\"testRemove(id={0}, success={1})\")", 1);
 		writeLine("@MethodSource", 1);
-		writeLine("public void testRemove(final " + getPkJavaType() + " id, boolean success)", 1);
+		writeLine("public void testRemove(final " + getPkJavaType() + " id, final boolean success)", 1);
 		writeLine("{", 1);
 		writeLine("Assertions.assertEquals(success, dao.remove(id));", 2);
 		writeLine("}", 1);

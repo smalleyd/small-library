@@ -446,7 +446,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine();
 		writeLine("@ParameterizedTest(name=\"testRemove(id={0}, success={1})\")", 1);
 		writeLine("@MethodSource", 1);
-		writeLine("public void testRemove(final " + pkTypeName + " id, boolean success)", 1);
+		writeLine("public void testRemove(final " + pkTypeName + " id, final boolean success)", 1);
 		writeLine("{", 1);
 		writeLine("var response = request(id" + to_s + ").delete();", 2);
 		writeLine("Assertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");", 2);
