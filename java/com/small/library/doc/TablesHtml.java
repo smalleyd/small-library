@@ -198,7 +198,7 @@ public class TablesHtml
 			long time = System.currentTimeMillis();
 			System.out.println("Starting output of table - " + record.name + " ...");
 			run(record, i++);
-			System.out.println("Finished output of table = " + record.name + " in " + (((float) (System.currentTimeMillis() - time)) / 1000f) + " seconds.");
+			System.out.println("Finished output of table - " + record.name + " in " + (((float) (System.currentTimeMillis() - time)) / 1000f) + " seconds.");
 			out.flush();
 		}
 	}
