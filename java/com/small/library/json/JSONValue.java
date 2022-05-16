@@ -52,6 +52,7 @@ public class JSONValue implements Runnable
 		}
 		out.println();
 		out.println("import com.fasterxml.jackson.annotation.JsonProperty;");
+		out.println("import com.jibe.dwservice.ObjectUtils;");
 		out.println();
 		out.print("/** Value object that represents the "); out.print(conf.caption); out.println(".");
 		out.println(" * ");
@@ -103,16 +104,7 @@ public class JSONValue implements Runnable
 		out.println("\t}");
 		out.println();
 		out.println("\t@Override");
-		out.println("\tpublic String toString()");
-		out.println("\t{");
-		out.print("\t\treturn new StringBuilder(\"{ ");
-		index[0] = 0;
-		conf.fields.forEach((k, v) -> {
-			if (1 < ++index[0]) out.print("\t\t\t.append(\", ");
-			out.print(k); out.print(": \").append("); out.print(k); out.println(")");
-		});
-		out.println("\t\t\t.append(\" }\").toString();");
-		out.println("\t}");
+		out.println("\tpublic String toString() { return ObjectUtils.toString(this); }");
 		out.println("}");
 	}
 
