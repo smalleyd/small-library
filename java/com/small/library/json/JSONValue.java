@@ -1,5 +1,7 @@
 package com.small.library.json;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Date;
@@ -26,18 +28,20 @@ public class JSONValue implements Runnable
 	public static final String FORMAT_EQUALS_OBJECT = "Objects.equals(%s, v.%s)%s";
 
 	private final JSONConfig conf;
+	private final JSONClass clazz;
 	private final PrintStream out;
 
-	public JSONValue(final JSONConfig conf, final PrintStream out)
+	public JSONValue(final JSONConfig conf, final JSONClass clazz, final PrintStream out)
 	{
 		this.conf = conf;
+		this.clazz = clazz;
 		this.out = out;
 	}
 
 	public void run()
 	{
-		final int size = conf.fields.size();
-		final int[] index = new int[1];
+		var size = clazz.fields.size();
+		var index = new int[1];
 
 		out.print("package "); out.print(conf.packageName); out.println(";");
 		out.println();
@@ -54,7 +58,7 @@ public class JSONValue implements Runnable
 		out.println("import com.fasterxml.jackson.annotation.JsonProperty;");
 		out.println("import com.jibe.dwservice.ObjectUtils;");
 		out.println();
-		out.print("/** Value object that represents the "); out.print(conf.caption); out.println(".");
+		out.print("/** Value object that represents the "); out.print(clazz.caption); out.println(".");
 		out.println(" * ");
 		if (null != conf.author)
 		{
@@ -68,22 +72,22 @@ public class JSONValue implements Runnable
 		out.println(" * ");
 		out.println(" */");
 		out.println();
-		out.print("public class "); out.print(conf.className); out.println(" implements Serializable");
+		out.print("public class "); out.print(clazz.name); out.println(" implements Serializable");
 		out.println("{");
 		out.println("\tprivate static final long serialVersionUID = 1L;");
 		out.println();
-		conf.fields.forEach((k, v) -> {
+		clazz.fields.forEach((k, v) -> {
 			out.print("\tpublic final "); out.print(v); out.print(" "); out.print(k); out.println(";");
 		});
 		out.println();
-		out.print("\tpublic "); out.print(conf.className); out.println("(");
+		out.print("\tpublic "); out.print(clazz.name); out.println("(");
 		index[0] = 0;
-		conf.fields.forEach((k, v) -> {
+		clazz.fields.forEach((k, v) -> {
 			out.print("\t\t@JsonProperty(\""); out.print(k); out.print("\") final "); out.print(v); out.print(" "); out.print(k);
 			out.println((size > ++index[0]) ? "," : ")");
 		});
 		out.println("\t{");
-		conf.fields.forEach((k, v) -> {
+		clazz.fields.forEach((k, v) -> {
 			out.print("\t\tthis."); out.print(k); out.print(" = "); out.print(k); out.println(";");
 		});
 		out.println("\t}");
@@ -91,16 +95,24 @@ public class JSONValue implements Runnable
 		out.println("\t@Override");
 		out.println("\tpublic boolean equals(final Object o)");
 		out.println("\t{");
-		out.print("\t\tif (!(o instanceof "); out.print(conf.className); out.println(")) return false;");
+		out.print("\t\tif (!(o instanceof "); out.print(clazz.name); out.println(")) return false;");
 		out.println();
-		out.print("\t\tvar v = ("); out.print(conf.className); out.println(") o;");
+		out.print("\t\tvar v = ("); out.print(clazz.name); out.println(") o;");
 		index[0] = 0;
-		conf.fields.forEach((k, v) -> {
+		clazz.fields.forEach((k, v) -> {
 			var term = (size > ++index[0]) ? " &&" : ";";
 			out.print("\t\t");
 			out.print((1 == index[0]) ? "return " : "\t");
 			out.println(toEquals(k, v, term));
 		});
+		out.println("\t}");
+		out.println();
+		out.println("\t@Override");
+		out.println("\tpublic int hashCode()");
+		out.println("\t{");
+		out.print("\t\treturn Objects.hash(");
+		out.print(clazz.fields.entrySet().stream().map(e -> e.getKey()).collect(joining(", ")));
+		out.println(");");
 		out.println("\t}");
 		out.println();
 		out.println("\t@Override");
@@ -119,53 +131,46 @@ public class JSONValue implements Runnable
 			throw new IllegalArgumentException("Please provide at least the configuration file(s) and output directory.");
 
 		// Get references to the configuration file(s).
-		File[] files = null;
-		final File path = new File(args[0]);
-		if (path.isDirectory())
-		{
-			files = path.listFiles((f, n) -> n.endsWith(".json"));
-			if ((null == files) || (0 == files.length))
-				throw new IllegalArgumentException("The directory '" + path.getAbsolutePath() + "' does not have any JSON (*.json) files.");
-		}
-		else if (!path.isFile())
-			throw new IllegalArgumentException("'" + args[0] + "' is not a file nor a directory.");
-		else
-			files = new File[] { path };
+		var file = new File(args[0]);
+		if (!file.isFile())
+			throw new IllegalArgumentException("'" + args[0] + "' is not a file.");
 
 		// Get a reference to the output directory.
-		final File output = new File(args[1]);
+		var output = new File(args[1]);
 		if (!output.isDirectory())
 			throw new IllegalArgumentException("'" + args[1] + "' is not a directory.");
 
 		// Load each configuration file and create the output.
-		final ObjectMapper mapper = new ObjectMapper();
-		for (final File file : files)
+		var mapper = new ObjectMapper();
+		var conf = mapper.readValue(file, JSONConfig.class);
+		if (null == conf.packageName)
 		{
-			final JSONConfig conf = mapper.readValue(file, JSONConfig.class);
-			if (null == conf.packageName)
+			throw new IllegalArgumentException("Configuration file '" + file.getAbsolutePath() + "' is missing the packageName property.");
+		}
+
+		int i = 0;
+		for (var clazz : conf.classes)
+		{
+			i++;
+			if (null == clazz.name)
 			{
-				log.warn("Configuration file '{}' is missing the packageName property.", file.getAbsolutePath());
+				log.warn("Item '{}' is missing the name property in '{}'.", i, file.getAbsolutePath());
 				continue;	// Skip this file.
 			}
-			if (null == conf.className)
+			if (null == clazz.caption)
 			{
-				log.warn("Configuration file '{}' is missing the className property.", file.getAbsolutePath());
+				log.warn("Item '{}' is missing the caption property in '{}'.", i, file.getAbsolutePath());
 				continue;	// Skip this file.
 			}
-			if (null == conf.caption)
+			if (MapUtils.isEmpty(clazz.fields))
 			{
-				log.warn("Configuration file '{}' is missing the caption property.", file.getAbsolutePath());
-				continue;	// Skip this file.
-			}
-			if (MapUtils.isEmpty(conf.fields))
-			{
-				log.warn("Configuration file '{}' has not specified any fields.", file.getAbsolutePath());
+				log.warn("Item '{}' has not specified any fields in '{}'.", i, file.getAbsolutePath());
 				continue;	// Skip this file.
 			}
 
-			try (final PrintStream out = new PrintStream(new File(output, conf.className + ".java")))
+			try (var out = new PrintStream(new File(output, clazz.name + ".java")))
 			{
-				new JSONValue(conf, out).run();
+				new JSONValue(conf, clazz, out).run();
 				out.flush();
 			}
 		}
