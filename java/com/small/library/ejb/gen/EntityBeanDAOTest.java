@@ -142,7 +142,7 @@ public class EntityBeanDAOTest extends EntityBeanBase
 		final String valueName = EntityBeanValueObject.getClassName(getObjectName());
 
 		writeLine();
-		writeLine("@TestMethodOrder(MethodOrderer.Alphanumeric.class)	// Ensure that the methods are executed in order listed.");
+		writeLine("@TestMethodOrder(MethodOrderer.MethodName.class)	// Ensure that the methods are executed in order listed.");
 		writeLine("@ExtendWith(DropwizardExtensionsSupport.class)");
 		writeLine("public class " + name);
 		writeLine("{");

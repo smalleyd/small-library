@@ -152,7 +152,7 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		var resourceName = EntityJerseyResource.getClassName(objectName);
 
 		writeLine();
-		writeLine("@TestMethodOrder(MethodOrderer.Alphanumeric.class)	// Ensure that the methods are executed in order listed.");
+		writeLine("@TestMethodOrder(MethodOrderer.MethodName.class)	// Ensure that the methods are executed in order listed.");
 		writeLine("@ExtendWith(DropwizardExtensionsSupport.class)");
 		writeLine("public class " + name);
 		writeLine("{");
