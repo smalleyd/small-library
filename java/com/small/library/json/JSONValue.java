@@ -2,15 +2,10 @@ package com.small.library.json;
 
 import static java.util.stream.Collectors.joining;
 
-import java.io.File;
 import java.io.PrintStream;
 import java.util.Date;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.slf4j.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /** Generates a Java value object from a JSON document.
  * 
@@ -20,22 +15,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 
-public class JSONValue implements Runnable
+public class JSONValue extends JSONBase
 {
-	private static final Logger log = LoggerFactory.getLogger(JSONValue.class);
-
 	public static final String FORMAT_EQUALS_PRIMITIVE = "(%s == v.%s)%s";
 	public static final String FORMAT_EQUALS_OBJECT = "Objects.equals(%s, v.%s)%s";
 
-	private final JSONConfig conf;
-	private final JSONClass clazz;
-	private final PrintStream out;
-
 	public JSONValue(final JSONConfig conf, final JSONClass clazz, final PrintStream out)
 	{
-		this.conf = conf;
-		this.clazz = clazz;
-		this.out = out;
+		super(conf, clazz, out);
 	}
 
 	public void run()
@@ -47,6 +34,7 @@ public class JSONValue implements Runnable
 		out.println();
 		out.println("import java.io.Serializable;");
 		out.println("import java.util.Objects;");
+		out.println("import javax.validation.constraints.*;");
 		if (CollectionUtils.isNotEmpty(conf.imports))
 		{
 			out.println();
@@ -55,6 +43,7 @@ public class JSONValue implements Runnable
 			});
 		}
 		out.println();
+		out.println("import org.apache.commons.lang3.StringUtils;");
 		out.println("import org.apache.commons.lang3.builder.ToStringBuilder;");
 		out.println("import org.apache.commons.lang3.builder.ToStringStyle;");
 		out.println();
@@ -74,23 +63,34 @@ public class JSONValue implements Runnable
 		out.println(" * ");
 		out.println(" */");
 		out.println();
-		out.print("public class "); out.print(clazz.name); out.println(" implements Serializable");
-		out.println("{");
+		out.print("public class "); out.print(clazz.name); out.print(" implements Serializable");
+		if (CollectionUtils.isNotEmpty(clazz.implements_))
+			clazz.implements_.forEach(v -> { out.print(", "); out.print(v); });
+		out.println("\n{");
 		out.println("\tprivate static final long serialVersionUID = 1L;");
 		out.println();
-		clazz.fields.forEach((k, v) -> {
-			out.print("\tpublic final "); out.print(v); out.print(" "); out.print(k); out.println(";");
+		clazz.fields.forEach(v -> {
+			out.print("\t"); annotate(v); out.print("public final "); out.print(v.type); out.print(" "); out.print(v.name); out.println(";");
 		});
 		out.println();
 		out.print("\tpublic "); out.print(clazz.name); out.println("(");
 		index[0] = 0;
-		clazz.fields.forEach((k, v) -> {
-			out.print("\t\t@JsonProperty(\""); out.print(k); out.print("\") final "); out.print(v); out.print(" "); out.print(k);
+		clazz.fields.forEach(v -> {
+			out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("\") final "); out.print(v.type); out.print(" "); out.print(v.name);
 			out.println((size > ++index[0]) ? "," : ")");
 		});
 		out.println("\t{");
-		clazz.fields.forEach((k, v) -> {
-			out.print("\t\tthis."); out.print(k); out.print(" = "); out.print(k); out.println(";");
+		clazz.fields.forEach(v -> {
+			out.print("\t\tthis.");
+			out.print(v.name);
+			out.print(" = ");
+
+			var wrap = v.string();
+
+			if (wrap) out.print("StringUtils.trimToNull(");
+			out.print(v.name); 
+			if (wrap) out.print(")");
+			out.println(";");
 		});
 		out.println("\t}");
 		out.println();
@@ -101,11 +101,11 @@ public class JSONValue implements Runnable
 		out.println();
 		out.print("\t\tvar v = ("); out.print(clazz.name); out.println(") o;");
 		index[0] = 0;
-		clazz.fields.forEach((k, v) -> {
+		clazz.fields.forEach(v -> {
 			var term = (size > ++index[0]) ? " &&" : ";";
 			out.print("\t\t");
 			out.print((1 == index[0]) ? "return " : "\t");
-			out.println(toEquals(k, v, term));
+			out.println(toEquals(v.name, v.type, term));
 		});
 		out.println("\t}");
 		out.println();
@@ -113,7 +113,7 @@ public class JSONValue implements Runnable
 		out.println("\tpublic int hashCode()");
 		out.println("\t{");
 		out.print("\t\treturn Objects.hash(");
-		out.print(clazz.fields.entrySet().stream().map(e -> e.getKey()).collect(joining(", ")));
+		out.print(clazz.fields.stream().map(v -> v.name).collect(joining(", ")));
 		out.println(");");
 		out.println("\t}");
 		out.println();
@@ -122,59 +122,32 @@ public class JSONValue implements Runnable
 		out.println("}");
 	}
 
+	private void annotate(final JSONField v)
+	{
+		if (v.notBlank) out.print("@NotBlank ");
+		if (v.notEmpty) out.print("@NotEmpty ");
+		if (v.notNull) out.print("@NotNull ");
+		if (v.email) out.print("@Email ");
+		if (null != v.min) { out.print("@Min("); out.print(v.min); out.print(") "); }
+		if (null != v.max) { out.print("@Max("); out.print(v.max); out.print(") "); }
+		if (null != v.decimalMin) { out.print("@DecimalMin("); out.print(v.decimalMin); out.print(") "); }
+		if (null != v.decimalMax) { out.print("@DecimalMax("); out.print(v.decimalMax); out.print(") "); }
+
+		var sizeMin = (null != v.sizeMin);
+		var sizeMax = (null != v.sizeMax);
+		if (sizeMin || sizeMax)
+		{
+			out.print("@Size(");
+			if (sizeMin) { out.print("min="); out.print(v.sizeMin); if (sizeMax) out.print(", "); }
+			if (sizeMax) { out.print("max="); out.print(v.sizeMax); }
+			out.print(") ");
+		}
+
+		if (null != v.pattern) { out.print("@Pattern(regexp=\""); out.print(v.pattern); out.print("\") "); }
+	}
+
 	private String toEquals(final String name, final String type, final String term)
 	{
 		return String.format(Character.isLowerCase(type.charAt(0)) ? FORMAT_EQUALS_PRIMITIVE : FORMAT_EQUALS_OBJECT, name, name, term);
-	}
-
-	public static void main(final String... args) throws Exception
-	{
-		if (2 > args.length)
-			throw new IllegalArgumentException("Please provide at least the configuration file(s) and output directory.");
-
-		// Get references to the configuration file(s).
-		var file = new File(args[0]);
-		if (!file.isFile())
-			throw new IllegalArgumentException("'" + args[0] + "' is not a file.");
-
-		// Get a reference to the output directory.
-		var output = new File(args[1]);
-		if (!output.isDirectory())
-			throw new IllegalArgumentException("'" + args[1] + "' is not a directory.");
-
-		// Load each configuration file and create the output.
-		var mapper = new ObjectMapper();
-		var conf = mapper.readValue(file, JSONConfig.class);
-		if (null == conf.packageName)
-		{
-			throw new IllegalArgumentException("Configuration file '" + file.getAbsolutePath() + "' is missing the packageName property.");
-		}
-
-		int i = 0;
-		for (var clazz : conf.classes)
-		{
-			i++;
-			if (null == clazz.name)
-			{
-				log.warn("Item '{}' is missing the name property in '{}'.", i, file.getAbsolutePath());
-				continue;	// Skip this file.
-			}
-			if (null == clazz.caption)
-			{
-				log.warn("Item '{}' is missing the caption property in '{}'.", i, file.getAbsolutePath());
-				continue;	// Skip this file.
-			}
-			if (MapUtils.isEmpty(clazz.fields))
-			{
-				log.warn("Item '{}' has not specified any fields in '{}'.", i, file.getAbsolutePath());
-				continue;	// Skip this file.
-			}
-
-			try (var out = new PrintStream(new File(output, clazz.name + ".java")))
-			{
-				new JSONValue(conf, clazz, out).run();
-				out.flush();
-			}
-		}
 	}
 }

@@ -1,7 +1,7 @@
 package com.small.library.json;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -19,14 +19,20 @@ public class JSONClass implements Serializable
 
 	public final String name;
 	public final String caption;
-	public final Map<String, String> fields;
+	@JsonProperty("implements") public final List<String> implements_;
+	public final boolean generateFilter;
+	public final List<JSONField> fields;
 
 	public JSONClass(@JsonProperty("name") final String name,
 		@JsonProperty("caption") final String caption,
-		@JsonProperty("fields") final Map<String, String> fields)
+		@JsonProperty("implements") final List<String> implements_,
+		@JsonProperty("generateFilter") final Boolean generateFilter,
+		@JsonProperty("fields") final List<JSONField> fields)
 	{
 		this.name = name;
 		this.caption = caption;
+		this.implements_ = implements_;
+		this.generateFilter = Boolean.TRUE.equals(generateFilter);
 		this.fields = fields;
 	}
 }
