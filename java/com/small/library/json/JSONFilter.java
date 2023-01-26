@@ -33,6 +33,7 @@ public class JSONFilter extends JSONBase
 
 		writeMembers();
 		writeConstructors();
+		writeEmpty();
 		writeToString();
 
 		writeFooter();
@@ -78,7 +79,7 @@ public class JSONFilter extends JSONBase
 		// Write member variables.
 		for (var i : clazz.fields)
 		{
-			out.println("\tpublic final " + i.type + " " + i.name + ";");
+			out.println("\tpublic final " + i.objectify() + " " + i.name + ";");
 
 			if (i.nullable())
 				out.println("\tpublic final Boolean has_" + i.name + ";");
@@ -101,7 +102,7 @@ public class JSONFilter extends JSONBase
 		var size = clazz.fields.size();
 		for (var v : clazz.fields)
 		{
-			out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("\") final "); out.print(v.type); out.print(" "); out.print(v.name);
+			out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("\") final "); out.print(v.objectify()); out.print(" "); out.print(v.name);
 
 			if (v.nullable())
 			{
@@ -112,9 +113,9 @@ public class JSONFilter extends JSONBase
 			if (v.range)
 			{
 				out.println(",");
-				out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("_from\") final "); out.print(v.type); out.print(" "); out.print(v.name); out.print("From");
+				out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("_from\") final "); out.print(v.type); out.print(" "); out.print(v.name); out.print("_from");
 				out.println(",");
-				out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("_to\") final "); out.print(v.type); out.print(" "); out.print(v.name); out.print("To");
+				out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("_to\") final "); out.print(v.type); out.print(" "); out.print(v.name); out.print("_to");
 			}
 
 			out.println((size > ++i) ? "," : ")");
@@ -137,6 +138,38 @@ public class JSONFilter extends JSONBase
 				out.println("\t\tthis." + v.name + "_from = " + v.name + "_from" + ";");
 				out.println("\t\tthis." + v.name + "_to = " + v.name + "_to" + ";");
 			}
+		}
+		out.println("\t}");
+	}
+
+	private void writeEmpty()
+	{
+		out.println();
+		out.println("\t@Override");
+		out.println("\tpublic boolean empty()");
+		out.println("\t{");
+		out.println("\t\treturn");
+
+		var i = 0;
+		var size = clazz.fields.size();
+		for (var v : clazz.fields)
+		{
+			out.print("\t\t\t(null == " + v.name + ")");
+
+			if (v.nullable())
+			{
+				out.println(" &&");
+				out.print("\t\t\t(null == has_" + v.name + ")");
+			}
+
+			if (v.range)
+			{
+				out.println(" &&");
+				out.println("\t\t\t(null == " + v.name + "_from) &&");
+				out.print("\t\t\t(null == " + v.name + "_to)");
+			}
+
+			out.println((++i < size) ? " &&" : ";");
 		}
 		out.println("\t}");
 	}

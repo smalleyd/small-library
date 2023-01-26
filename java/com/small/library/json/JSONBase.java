@@ -24,6 +24,7 @@ public abstract class JSONBase implements Runnable
 	protected final JSONClass clazz;
 	protected final PrintStream out;
 	protected final String domainPackage;
+	protected final String appPackage;
 
 	public JSONBase(final JSONConfig conf, final JSONClass clazz, final PrintStream out)
 	{
@@ -35,10 +36,16 @@ public abstract class JSONBase implements Runnable
 		if (0 < i)
 		{
 			var ii = conf.packageName.indexOf('.', i + 1);
-			if (0 < ii) domainPackage = conf.packageName.substring(0, ii);
-			else domainPackage = conf.packageName.substring(0, i);
+			if (0 < ii)
+			{
+				domainPackage = conf.packageName.substring(0, ii);
+				var iii = conf.packageName.indexOf('.', ii + 1);
+				if (0 < iii) appPackage = conf.packageName.substring(0, iii);
+				else appPackage = conf.packageName.substring(0, ii);
+			}
+			else appPackage = domainPackage = conf.packageName.substring(0, i);
 		}
-		else domainPackage = "";
+		else appPackage = domainPackage = "";
 	}
 
 	public static void main(final String... args) throws Exception
@@ -95,6 +102,15 @@ public abstract class JSONBase implements Runnable
 				try (var out = new PrintStream(new File(output, JSONFilter.getClassName(clazz.name) + ".java")))
 				{
 					new JSONFilter(conf, clazz, out).run();
+					out.flush();
+				}
+			}
+
+			if (clazz.generateDao)
+			{
+				try (var out = new PrintStream(new File(output, JSONDao.getClassName(clazz.name) + ".java")))
+				{
+					new JSONDao(conf, clazz, out).run();
 					out.flush();
 				}
 			}

@@ -69,6 +69,11 @@ public class JSONField implements Serializable
 		this.range = Boolean.TRUE.equals(range);
 	}
 
+	public String objectify()
+	{
+		return primitive() ? type.substring(0, 1).toUpperCase() + type.substring(1) : type;
+	}
+
 	public boolean primitive() { return PRIMITIVES.contains(type); }
 	public boolean nullable() { return !primitive(); }
 	public boolean string() { return "String".equals(type); }
