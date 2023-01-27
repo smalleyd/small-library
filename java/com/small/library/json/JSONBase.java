@@ -114,6 +114,15 @@ public abstract class JSONBase implements Runnable
 					out.flush();
 				}
 			}
+
+			if (clazz.generateResource)
+			{
+				try (var out = new PrintStream(new File(output, JSONResource.getClassName(clazz.name) + ".java")))
+				{
+					new JSONResource(conf, clazz, out).run();
+					out.flush();
+				}
+			}
 		}
 	}
 }

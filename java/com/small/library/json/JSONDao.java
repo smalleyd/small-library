@@ -3,11 +3,11 @@ package com.small.library.json;
 import java.io.*;
 import java.util.Date;
 
-/** Generates an entity search-request/filter object from a JSON document.
+/** Generates an Elasticsearch data access object from a JSON document.
  * 
  * @author smalleyd
  * @version 3.0
- * @since 1/25/2023
+ * @since 1/26/2023
  *
  */
 
@@ -45,7 +45,7 @@ public class JSONDao extends JSONBase
 
 	private void writeHeader()
 	{
-		out.print("package "); out.print(conf.packageName); out.println(";");
+		out.print("package "); out.print(appPackage); out.print(".dao"); out.println(";");
 
 		out.println();
 		out.println("import static " + domainPackage + ".common.model.Entity.*;");

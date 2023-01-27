@@ -41,7 +41,7 @@ public class JSONFilter extends JSONBase
 
 	private void writeHeader()
 	{
-		out.print("package "); out.print(conf.packageName); out.println(";");
+		out.print("package "); out.print(appPackage); out.print(".filter"); out.println(";");
 
 		out.println("import java.math.BigDecimal;");
 		out.println("import java.util.Date;");
