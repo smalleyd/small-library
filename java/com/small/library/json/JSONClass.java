@@ -23,7 +23,7 @@ public class JSONClass implements Serializable
 	public final String caption;
 	@JsonProperty("implements") public final List<String> implements_;
 	public final boolean generateFilter;
-	public final boolean generateDao;
+	public final boolean generateElastic;
 	public final boolean generateResource;
 	public final List<JSONField> fields;
 
@@ -33,7 +33,7 @@ public class JSONClass implements Serializable
 		@JsonProperty("caption") final String caption,
 		@JsonProperty("implements") final List<String> implements_,
 		@JsonProperty("generateFilter") final Boolean generateFilter,
-		@JsonProperty("generateDao") final Boolean generateDao,
+		@JsonProperty("generateElastic") final Boolean generateElastic,
 		@JsonProperty("generateResource") final Boolean generateResource,
 		@JsonProperty("fields") final List<JSONField> fields)
 	{
@@ -43,7 +43,7 @@ public class JSONClass implements Serializable
 		this.caption = caption;
 		this.implements_ = implements_;
 		this.generateFilter = Boolean.TRUE.equals(generateFilter);
-		this.generateDao = Boolean.TRUE.equals(generateDao);
+		this.generateElastic = Boolean.TRUE.equals(generateElastic);
 		this.generateResource = Boolean.TRUE.equals(generateResource);
 		this.fields = fields;
 	}

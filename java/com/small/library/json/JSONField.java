@@ -21,6 +21,7 @@ public class JSONField implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
+	public static final Set<String> DATES = Set.of("Date", "ZonedDateTime");
 	public static final Set<String> PRIMITIVES = Set.of("boolean", "byte", "char", "double", "float", "int", "long", "short");
 
 	public final String name;
@@ -68,6 +69,8 @@ public class JSONField implements Serializable
 		this.pattern = StringUtils.trimToNull(pattern);
 		this.range = Boolean.TRUE.equals(range);
 	}
+
+	public boolean date() { return DATES.contains(type); }
 
 	public String objectify()
 	{

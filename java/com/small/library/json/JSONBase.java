@@ -106,7 +106,7 @@ public abstract class JSONBase implements Runnable
 				}
 			}
 
-			if (clazz.generateDao)
+			if (clazz.generateElastic)
 			{
 				try (var out = new PrintStream(new File(output, JSONElastic.getClassName(clazz.name) + ".java")))
 				{
@@ -116,6 +116,11 @@ public abstract class JSONBase implements Runnable
 				try (var out = new PrintStream(new File(output, JSONElasticTest.getClassName(clazz.name) + ".java")))
 				{
 					new JSONElasticTest(conf, clazz, out).run();
+					out.flush();
+				}
+				try (var out = new PrintStream(new File(output, clazz.name.toLowerCase() + ".json")))
+				{
+					new JSONElasticMapping(conf, clazz, out).run();
 					out.flush();
 				}
 			}
