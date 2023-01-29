@@ -21,7 +21,7 @@ public class JSONField implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	public static final Set<String> PRIMITIVES = Set.of("boolean", "double", "float", "int", "long");
+	public static final Set<String> PRIMITIVES = Set.of("boolean", "byte", "char", "double", "float", "int", "long", "short");
 
 	public final String name;
 	public final String type;

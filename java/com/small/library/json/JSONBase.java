@@ -108,9 +108,14 @@ public abstract class JSONBase implements Runnable
 
 			if (clazz.generateDao)
 			{
-				try (var out = new PrintStream(new File(output, JSONDao.getClassName(clazz.name) + ".java")))
+				try (var out = new PrintStream(new File(output, JSONElastic.getClassName(clazz.name) + ".java")))
 				{
-					new JSONDao(conf, clazz, out).run();
+					new JSONElastic(conf, clazz, out).run();
+					out.flush();
+				}
+				try (var out = new PrintStream(new File(output, JSONElasticTest.getClassName(clazz.name) + ".java")))
+				{
+					new JSONElasticTest(conf, clazz, out).run();
 					out.flush();
 				}
 			}
@@ -120,6 +125,12 @@ public abstract class JSONBase implements Runnable
 				try (var out = new PrintStream(new File(output, JSONResource.getClassName(clazz.name) + ".java")))
 				{
 					new JSONResource(conf, clazz, out).run();
+					out.flush();
+				}
+
+				try (var out = new PrintStream(new File(output, JSONResourceTest.getClassName(clazz.name) + ".java")))
+				{
+					new JSONResourceTest(conf, clazz, out).run();
 					out.flush();
 				}
 			}

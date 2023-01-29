@@ -30,7 +30,7 @@ public class JSONResource extends JSONBase
 
 		className = getClassName(clazz.name);
 		filterName = JSONFilter.getClassName(clazz.name);
-		daoName = JSONDao.getClassName(clazz.name);
+		daoName = JSONElastic.getClassName(clazz.name);
 	}
 
 	@Override
@@ -122,10 +122,10 @@ public class JSONResource extends JSONBase
 		out.println();
 		out.println("\t@GET");
 		out.println("\t@Timed");
-		out.println("\t@Operation(summary=\"find\", description=\"Finds " + clazz.name + " values by name match.\")");
-		out.println("\tpublic List<" + clazz.name + "> find(@QueryParam(\"name\") @Parameter(name=\"name\", description=\"Represents the term on which to match.\", required=true) @NotBlank final String name) throws IOException");
+		out.println("\t@Operation(summary=\"find\", description=\"Finds " + clazz.name + " values by term match.\")");
+		out.println("\tpublic List<" + clazz.name + "> find(@QueryParam(\"term\") @Parameter(name=\"term\", description=\"Represents the term on which to match.\", required=true) @NotBlank final String term) throws IOException");
 		out.println("\t{");
-		out.println("\t\treturn dao.getByName(name);");
+		out.println("\t\treturn dao.getByTerm(term);");
 		out.println("\t}");
 
 		out.println();
@@ -134,7 +134,7 @@ public class JSONResource extends JSONBase
 		out.println("\t@Operation(summary=\"add\", description=\"Adds a new single " + clazz.name + " value.\")");
 		out.println("\tpublic " + clazz.name + " add(@NotNull @Valid @Validated({Default.class, OnlyAdd.class}) final " + clazz.name + " value) throws IOException");
 		out.println("\t{");
-		out.println("\t\treturn dao.add(value);");
+		out.println("\t\treturn dao.index(value);");
 		out.println("\t}");
 
 		out.println();
@@ -143,7 +143,7 @@ public class JSONResource extends JSONBase
 		out.println("\t@Operation(summary=\"set\", description=\"Updates an existing single " + clazz.name + " value.\")");
 		out.println("\tpublic " + clazz.name + " set(@NotNull @Valid final " + clazz.name + " value) throws IOException");
 		out.println("\t{");
-		out.println("\t\treturn dao.update(value);");
+		out.println("\t\treturn dao.index(value);");
 		out.println("\t}");
 
 		out.println();
@@ -152,7 +152,7 @@ public class JSONResource extends JSONBase
 		out.println("\t@Operation(summary=\"patch\", description=\"Patches/merges an existing single " + clazz.name + " value.\")");
 		out.println("\tpublic " + clazz.name + " patch(@NotNull @Valid final " + clazz.name + " value) throws IOException");
 		out.println("\t{");
-		out.println("\t\treturn dao.patch(value);");
+		out.println("\t\treturn dao.update(value);");
 		out.println("\t}");
 
 		out.println();
@@ -164,7 +164,7 @@ public class JSONResource extends JSONBase
 		out.print("\tpublic Response patch(@PathParam(\"id\") final String id,");
 		out.println(" @NotNull final Map<String, Object> value) throws IOException");
 		out.println("\t{");
-		out.println("\t\tdao.patch(id, value);");
+		out.println("\t\tdao.update(id, value);");
 		out.println();
 		out.println("\t\treturn Response.ok().build();");
 		out.println("\t}");

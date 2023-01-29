@@ -11,7 +11,7 @@ import java.util.Date;
  *
  */
 
-public class JSONDao extends JSONBase
+public class JSONElastic extends JSONBase
 {
 	public static final String CLASS_NAME_SUFFIX = "ES";
 
@@ -23,7 +23,7 @@ public class JSONDao extends JSONBase
 		return value + CLASS_NAME_SUFFIX;
 	}
 
-	public JSONDao(final JSONConfig conf, final JSONClass clazz, final PrintStream out)
+	public JSONElastic(final JSONConfig conf, final JSONClass clazz, final PrintStream out)
 	{
 		super(conf, clazz, out);
 
