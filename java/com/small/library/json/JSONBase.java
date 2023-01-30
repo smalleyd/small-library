@@ -20,6 +20,9 @@ public abstract class JSONBase implements Runnable
 {
 	private static final Logger log = LoggerFactory.getLogger(JSONBase.class);
 
+	public static final char CHAR_QUOTE = '`';
+	public static final int NUM_OF_TESTS = 10;
+
 	protected final JSONConfig conf;
 	protected final JSONClass clazz;
 	protected final PrintStream out;
@@ -108,6 +111,8 @@ public abstract class JSONBase implements Runnable
 
 			if (clazz.generateElastic)
 			{
+				var lowerCase = clazz.name.toLowerCase();
+
 				try (var out = new PrintStream(new File(output, JSONElastic.getClassName(clazz.name) + ".java")))
 				{
 					new JSONElastic(conf, clazz, out).run();
@@ -118,9 +123,19 @@ public abstract class JSONBase implements Runnable
 					new JSONElasticTest(conf, clazz, out).run();
 					out.flush();
 				}
-				try (var out = new PrintStream(new File(output, clazz.name.toLowerCase() + ".json")))
+				try (var out = new PrintStream(new File(output, lowerCase + ".json")))
 				{
 					new JSONElasticMapping(conf, clazz, out).run();
+					out.flush();
+				}
+				try (var out = new PrintStream(new File(output, lowerCase + "-index.json")))
+				{
+					new JSONIndexTest(conf, clazz, out).run();
+					out.flush();
+				}
+				try (var out = new PrintStream(new File(output, lowerCase + "-update.json")))
+				{
+					new JSONIndexTest(conf, clazz, out).run();
 					out.flush();
 				}
 			}

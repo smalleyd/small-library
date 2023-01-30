@@ -166,7 +166,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t@Order(20)");
 		out.println("\tpublic void after_post_count() throws Exception");
 		out.println("\t{");
-		out.println("\t\tcount(10L);");
+		out.println("\t\tcount(" + NUM_OF_TESTS + "L);");
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"after_post_exists(" + indexParams + ")\")");
@@ -343,7 +343,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t@Order(210)");
 		out.println("\tpublic void remove_fail_count() throws Exception");
 		out.println("\t{");
-		out.println("\t\tcount(10L);");
+		out.println("\t\tcount(" + NUM_OF_TESTS + "L);");
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"remove_success(" + indexParams + ")\")");
