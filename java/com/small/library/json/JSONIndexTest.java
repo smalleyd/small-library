@@ -3,7 +3,9 @@ package com.small.library.json;
 import static java.util.stream.Collectors.joining;
 
 import java.io.*;
-import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Generates a test fixture for indexing and testing values.
  * 
@@ -15,14 +17,22 @@ import java.time.Instant;
 
 public class JSONIndexTest extends JSONBase
 {
-	public JSONIndexTest(final JSONConfig conf, final JSONClass clazz, final PrintStream out)
+	private final int multiplyer;
+	private final ZonedDateTime now = ZonedDateTime.now();
+	List<Object[]> sampleData = new ArrayList<>(NUM_OF_TESTS);	// Holds generated sample data for use in other test fixtures.
+
+	public JSONIndexTest(final JSONConfig conf, final JSONClass clazz, final PrintStream out, final int multiplyer)
 	{
 		super(conf, clazz, out);
+
+		this.multiplyer = multiplyer;
 	}
 
 	@Override
 	public void run()
 	{
+		sampleData.clear();
+
 		var payload = clazz.fields.stream().map(v -> "\"" + v.name + "\":%s").collect(joining(",", "{", "}"));
 		var columns = clazz.fields.stream().map(v -> "%s").collect(joining(","));
 
@@ -37,31 +47,39 @@ public class JSONIndexTest extends JSONBase
 			out.print(",");
 
 			out.println(String.format(columns, values).replace('"', '`'));
+
+			sampleData.add(values);
 		}
 	}
 
 	public String value(final JSONField field, final int row)
 	{
+		var nano = System.nanoTime();
+		var multiplied = (row + 1) * multiplyer;	// Must increase 'row' to at least one otherwise the multiplier will return the same value for zero.
+
 		if (field.bool())
 			return (0 == (System.currentTimeMillis() % 2)) ? "true" : "false";
 		else if (field.date())
-			return '"' + Instant.now().toString() + '"';
+		{
+			var dt = now.withMinute(multiplied % 60).withHour((int) (nano % 24L));
+			return '"' + dt.toInstant().toString() + '"';
+		}
 		else if (field.number())
 		{
 			if ((null != field.min) && (null != field.max))
-				return "" + (((long) field.min) + (System.nanoTime() % ((long) (field.max - field.min))) + 1L);
+				return "" + (((long) field.min) + (nano % ((long) (field.max - field.min))) + 1L);
 			else if ((null != field.decimalMin) && (null != field.decimalMax))
 			{
-				var per = ((double) (System.nanoTime() % 100L)) / 100d; 
+				var per = ((double) (nano % 100L)) / 100d; 
 				var min = Double.parseDouble(field.decimalMin);
 				var max = Double.parseDouble(field.decimalMax);
 
 				return "" + (min + ((max - min) * per));
 			}
 			else
-				return "" + System.nanoTime();
+				return "" + nano;
 		}
 		else
-			return '"' + field.name + "_" + row + '"';
+			return '"' + field.name + "_" + multiplied + '"';
 	}
 }
