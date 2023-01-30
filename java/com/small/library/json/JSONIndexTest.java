@@ -61,7 +61,7 @@ public class JSONIndexTest extends JSONBase
 			return (0 == (System.currentTimeMillis() % 2)) ? "true" : "false";
 		else if (field.date())
 		{
-			var dt = now.withMinute(multiplied % 60).withHour((int) (nano % 24L));
+			var dt = now.withHour((int) (nano % 24L)).withMinute(multiplied % 60);
 			return '"' + dt.toInstant().toString() + '"';
 		}
 		else if (field.number())
