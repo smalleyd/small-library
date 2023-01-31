@@ -170,9 +170,8 @@ public class EntityJerseyResourceTest extends EntityBeanBase
 		writeLine("private static final String TARGET = \"/" + mapping + "\";", 1);
 		writeLine();
 		writeLine("/** Generic types for reading values from responses. */", 1);
-		writeLine("private static final GenericType<List<" + valueName + ">> TYPE_LIST_VALUE = new GenericType<List<" + valueName + ">>() {};", 1);
-		writeLine("private static final GenericType<QueryResults<" + valueName + ", " + filterName + ">> TYPE_QUERY_RESULTS =", 1);
-		writeLine("new GenericType<QueryResults<" + valueName + ", " + filterName + ">>() {};", 2);
+		writeLine("private static final GenericType<List<" + valueName + ">> TYPE_LIST_VALUE = new GenericType<>() {};", 1);
+		writeLine("private static final GenericType<QueryResults<" + valueName + ", " + filterName + ">> TYPE_QUERY_RESULTS = new GenericType<>() {};", 1);
 		writeLine();
 		writeLine("@BeforeAll", 1);
 		writeLine("public static void up()", 1);
