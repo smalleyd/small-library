@@ -123,7 +123,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"before_index_exists(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(0)");
 		out.println("\tpublic void before_index_exists(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -131,7 +131,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"index(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(10)");
 		out.println("\tpublic void index(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -154,7 +154,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"after_index_exists(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(20)");
 		out.println("\tpublic void after_index_exists(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -162,7 +162,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"after_index_exists_fail(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(20)");
 		out.println("\tpublic void after_index_exists_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -170,7 +170,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"getById(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(20)");
 		out.println("\tpublic void getById(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -179,7 +179,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"getById_fail(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(20)");
 		out.println("\tpublic void getById_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -189,7 +189,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"getFirst(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(20)");
 		out.println("\tpublic void getFirst(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -199,7 +199,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"getFirst_fail(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(20)");
 		out.println("\tpublic void getFirst_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -207,7 +207,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"search(input={0}, size={1}, ids={2})\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/search.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/search.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(20)");
 		out.println("\tpublic void search(final String input, final int size, final String ids) throws Exception");
 		out.println("\t{");
@@ -223,7 +223,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"count(input={0}, size={1})\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/search.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/search.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(20)");
 		out.println("\tpublic void count(final String input, final int size) throws Exception");
 		out.println("\t{");
@@ -231,7 +231,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"update_fail(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(100)");
 		out.println("\tpublic void update_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -246,7 +246,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"update_fail_get(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(110)");
 		out.println("\tpublic void update_fail_get(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -255,7 +255,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"update(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(115)");
 		out.println("\tpublic void update(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -271,7 +271,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"update_check(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(125)");
 		out.println("\tpublic void update_check(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -280,7 +280,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"remove_fail(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(200)");
 		out.println("\tpublic void remove_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -304,7 +304,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"remove_success(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(215)");
 		out.println("\tpublic void remove_success(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -327,7 +327,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"remove_success_get(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(230)");
 		out.println("\tpublic void remove_success_get(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -336,7 +336,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"remove_again(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(235)");
 		out.println("\tpublic void remove_again(" + indexArgs + ") throws Exception");
 		out.println("\t{");

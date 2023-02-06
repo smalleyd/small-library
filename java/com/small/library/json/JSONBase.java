@@ -23,6 +23,8 @@ public abstract class JSONBase implements Runnable
 	public static final char CHAR_QUOTE = '`';
 	public static final int NUM_OF_TESTS = 10;
 
+	public static final String QUOTE_CHARACTER = ", quoteCharacter='" + CHAR_QUOTE + "'";
+
 	protected final JSONConfig conf;
 	protected final JSONClass clazz;
 	protected final PrintStream out;
@@ -111,6 +113,7 @@ public abstract class JSONBase implements Runnable
 
 			if (clazz.generateElastic)
 			{
+				final JSONIndexTest indexTest;
 				var lowerCase = clazz.name.toLowerCase();
 
 				try (var out = new PrintStream(new File(output, JSONElastic.getClassName(clazz.name) + ".java")))
@@ -130,12 +133,17 @@ public abstract class JSONBase implements Runnable
 				}
 				try (var out = new PrintStream(new File(output, lowerCase + "-index.json")))
 				{
-					new JSONIndexTest(conf, clazz, out, 1).run();
+					(indexTest = new JSONIndexTest(conf, clazz, out, 1)).run();
 					out.flush();
 				}
 				try (var out = new PrintStream(new File(output, lowerCase + "-update.json")))
 				{
 					new JSONIndexTest(conf, clazz, out, 7).run();
+					out.flush();
+				}
+				try (var out = new PrintStream(new File(output, lowerCase + "-search.json")))
+				{
+					new JSONSearchTest(conf, clazz, out, indexTest.sampleData).run();
 					out.flush();
 				}
 			}

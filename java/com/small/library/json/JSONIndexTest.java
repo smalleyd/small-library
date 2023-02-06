@@ -19,7 +19,7 @@ public class JSONIndexTest extends JSONBase
 {
 	private final int multiplyer;
 	private final ZonedDateTime now = ZonedDateTime.now();
-	List<Object[]> sampleData = new ArrayList<>(NUM_OF_TESTS);	// Holds generated sample data for use in other test fixtures.
+	final List<Object[]> sampleData = new ArrayList<>(NUM_OF_TESTS);	// Holds generated sample data for use in other test fixtures.
 
 	public JSONIndexTest(final JSONConfig conf, final JSONClass clazz, final PrintStream out, final int multiplyer)
 	{
