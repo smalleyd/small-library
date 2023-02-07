@@ -1,9 +1,10 @@
 package com.small.library.json;
 
+import static org.apache.commons.lang3.StringUtils.trimToNull;
+
 import java.io.Serializable;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -21,6 +22,8 @@ public class JSONField implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
+	public static final String FORMAT_CONTAINERIZE = "%s<%s>";
+
 	public static final Set<String> DATES = Set.of("Date", "ZonedDateTime");
 	public static final Set<String> INTEGERS = Set.of("int", "long", "short", "Integer", "Long", "Short");
 	public static final Set<String> NUMBERS = Set.of("byte", "double", "float", "int", "long", "short", "Byte", "Double", "Float", "Integer", "Long", "Short");
@@ -28,6 +31,7 @@ public class JSONField implements Serializable
 
 	public final String name;
 	public final String type;
+	public final String container;	// List, Set, ...
 	public final boolean email;
 	public final boolean notNull;
 	public final boolean notEmpty;
@@ -43,6 +47,7 @@ public class JSONField implements Serializable
 
 	public JSONField(@JsonProperty("name") final String name,
 		@JsonProperty("type") final String type,
+		@JsonProperty("container") final String container,
 		@JsonProperty("email") final Boolean email,
 		@JsonProperty("notNull") final Boolean notNull,
 		@JsonProperty("notEmpty") final Boolean notEmpty,
@@ -56,8 +61,9 @@ public class JSONField implements Serializable
 		@JsonProperty("pattern") final String pattern,
 		@JsonProperty("range") final Boolean range)
 	{
-		this.name = StringUtils.trimToNull(name);
-		this.type = StringUtils.trimToNull(type);
+		this.name = trimToNull(name);
+		this.type = trimToNull(type);
+		this.container = trimToNull(container);
 		this.email = Boolean.TRUE.equals(email);
 		this.notNull = Boolean.TRUE.equals(notNull);
 		this.notEmpty = Boolean.TRUE.equals(notEmpty);
@@ -68,7 +74,7 @@ public class JSONField implements Serializable
 		this.decimalMax = decimalMax;
 		this.sizeMin = sizeMin;
 		this.sizeMax = sizeMax;
-		this.pattern = StringUtils.trimToNull(pattern);
+		this.pattern = trimToNull(pattern);
 		this.range = Boolean.TRUE.equals(range);
 	}
 
@@ -85,6 +91,10 @@ public class JSONField implements Serializable
 	public boolean number() { return NUMBERS.contains(type); }
 	public boolean primitive() { return PRIMITIVES.contains(type); }
 	public boolean string() { return "String".equals(type); }
+	public String type()
+	{
+		return (null == container) ? type : String.format(FORMAT_CONTAINERIZE, container, type);
+	}
 
 	@Override
 	public String toString() { return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE); }
