@@ -75,6 +75,10 @@ public abstract class JSONBase implements Runnable
 		{
 			throw new IllegalArgumentException("Configuration file '" + file.getAbsolutePath() + "' is missing the packageName property.");
 		}
+		if (CollectionUtils.isEmpty(conf.classes))
+		{
+			throw new IllegalArgumentException("Configuration file '" + file.getAbsolutePath() + "' has not defined any classes.");
+		}
 
 		int i = 0;
 		for (var clazz : conf.classes)

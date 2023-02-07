@@ -23,7 +23,7 @@ public class JSONField implements Serializable
 
 	public static final Set<String> DATES = Set.of("Date", "ZonedDateTime");
 	public static final Set<String> INTEGERS = Set.of("int", "long", "short", "Integer", "Long", "Short");
-	public static final Set<String> NUMBERS = Set.of("double", "float", "int", "long", "short", "Double", "Float", "Integer", "Long", "Short");
+	public static final Set<String> NUMBERS = Set.of("byte", "double", "float", "int", "long", "short", "Byte", "Double", "Float", "Integer", "Long", "Short");
 	public static final Set<String> PRIMITIVES = Set.of("boolean", "byte", "char", "double", "float", "int", "long", "short");
 
 	public final String name;
