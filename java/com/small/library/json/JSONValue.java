@@ -70,13 +70,13 @@ public class JSONValue extends JSONBase
 		out.println("\tprivate static final long serialVersionUID = 1L;");
 		out.println();
 		clazz.fields.forEach(v -> {
-			out.print("\t"); annotate(v); out.print("public final "); out.print(v.type); out.print(" "); out.print(v.name); out.println(";");
+			out.print("\t"); annotate(v); out.print("public final "); out.print(v.type()); out.print(" "); out.print(v.name); out.println(";");
 		});
 		out.println();
 		out.print("\tpublic "); out.print(clazz.name); out.println("(");
 		index[0] = 0;
 		clazz.fields.forEach(v -> {
-			out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("\") final "); out.print(v.type); out.print(" "); out.print(v.name);
+			out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("\") final "); out.print(v.type()); out.print(" "); out.print(v.name);
 			out.println((size > ++index[0]) ? "," : ")");
 		});
 		out.println("\t{");
