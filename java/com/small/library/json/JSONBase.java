@@ -1,9 +1,9 @@
 package com.small.library.json;
 
-import java.io.File;
-import java.io.PrintStream;
+import java.io.*;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -80,91 +80,114 @@ public abstract class JSONBase implements Runnable
 			throw new IllegalArgumentException("Configuration file '" + file.getAbsolutePath() + "' has not defined any classes.");
 		}
 
-		int i = 0;
-		for (var clazz : conf.classes)
+		var fileName = file.getAbsolutePath();
+		var classNames = (3 <= args.length) ? StringUtils.trimToNull(args[2]) : null;
+		if (null == classNames)
 		{
-			i++;
-			if (null == clazz.name)
+			int i = -1;
+			for (var clazz : conf.classes)
 			{
-				log.warn("Item '{}' is missing the name property in '{}'.", i, file.getAbsolutePath());
-				continue;	// Skip this file.
+				generate(fileName, conf, clazz, output, ++i);
 			}
-			if (null == clazz.caption)
+		}
+		else
+		{
+			int i = -1;
+			for (var className : classNames.split(","))
 			{
-				log.warn("Item '{}' is missing the caption property in '{}'.", i, file.getAbsolutePath());
-				continue;	// Skip this file.
+				i++;	// Increment even if the class is not in the file.
+				var clazz = conf.clazz(className);
+				if (null == clazz)
+					log.warn("Configuration file '{}' does not contain the class with name '{}'.", file.getAbsolutePath(), className);
+				else
+					generate(fileName, conf, clazz, output, i);
 			}
-			if (CollectionUtils.isEmpty(clazz.fields))
-			{
-				log.warn("Item '{}' has not specified any fields in '{}'.", i, file.getAbsolutePath());
-				continue;	// Skip this file.
-			}
+		}
+	}
 
-			try (var out = new PrintStream(new File(output, clazz.name + ".java")))
+	static void generate(final String fileName, final JSONConfig conf, final JSONClass clazz, final File dir, final int i)
+		throws IOException
+	{
+		if (null == clazz.name)
+		{
+			log.warn("Item '{}' is missing the name property in '{}'.", i, fileName);
+			return;	// Skip this file.
+		}
+		if (null == clazz.caption)
+		{
+			log.warn("Item '{}' is missing the caption property in '{}'.", i, fileName);
+			return;	// Skip this file.
+		}
+		if (CollectionUtils.isEmpty(clazz.fields))
+		{
+			log.warn("Item '{}' has not specified any fields in '{}'.", i, fileName);
+			return;	// Skip this file.
+		}
+
+		try (var out = new PrintStream(new File(dir, clazz.name + ".java")))
+		{
+			new JSONValue(conf, clazz, out).run();
+			out.flush();
+		}
+
+		if (clazz.generateFilter)
+		{
+			try (var out = new PrintStream(new File(dir, JSONFilter.getClassName(clazz.name) + ".java")))
 			{
-				new JSONValue(conf, clazz, out).run();
+				new JSONFilter(conf, clazz, out).run();
+				out.flush();
+			}
+		}
+
+		if (clazz.generateElastic)
+		{
+			final JSONIndexTest indexTest;
+			var lowerCase = clazz.name.toLowerCase();
+
+			try (var out = new PrintStream(new File(dir, JSONElastic.getClassName(clazz.name) + ".java")))
+			{
+				new JSONElastic(conf, clazz, out).run();
+				out.flush();
+			}
+			try (var out = new PrintStream(new File(dir, JSONElasticTest.getClassName(clazz.name) + ".java")))
+			{
+				new JSONElasticTest(conf, clazz, out).run();
+				out.flush();
+			}
+			try (var out = new PrintStream(new File(dir, lowerCase + ".json")))
+			{
+				new JSONElasticMapping(conf, clazz, out).run();
+				out.flush();
+			}
+			try (var out = new PrintStream(new File(dir, lowerCase + "-index.json")))
+			{
+				(indexTest = new JSONIndexTest(conf, clazz, out, 1)).run();
+				out.flush();
+			}
+			try (var out = new PrintStream(new File(dir, lowerCase + "-update.json")))
+			{
+				new JSONIndexTest(conf, clazz, out, 7).run();
+				out.flush();
+			}
+			try (var out = new PrintStream(new File(dir, lowerCase + "-search.json")))
+			{
+				new JSONSearchTest(conf, clazz, out, indexTest.sampleData).run();
+				out.flush();
+			}
+		}
+
+		if (clazz.generateResource)
+		{
+			try (var out = new PrintStream(new File(dir, JSONResource.getClassName(clazz.name) + ".java")))
+			{
+				new JSONResource(conf, clazz, out).run();
 				out.flush();
 			}
 
-			if (clazz.generateFilter)
+			try (var out = new PrintStream(new File(dir, JSONResourceTest.getClassName(clazz.name) + ".java")))
 			{
-				try (var out = new PrintStream(new File(output, JSONFilter.getClassName(clazz.name) + ".java")))
-				{
-					new JSONFilter(conf, clazz, out).run();
-					out.flush();
-				}
-			}
-
-			if (clazz.generateElastic)
-			{
-				final JSONIndexTest indexTest;
-				var lowerCase = clazz.name.toLowerCase();
-
-				try (var out = new PrintStream(new File(output, JSONElastic.getClassName(clazz.name) + ".java")))
-				{
-					new JSONElastic(conf, clazz, out).run();
-					out.flush();
-				}
-				try (var out = new PrintStream(new File(output, JSONElasticTest.getClassName(clazz.name) + ".java")))
-				{
-					new JSONElasticTest(conf, clazz, out).run();
-					out.flush();
-				}
-				try (var out = new PrintStream(new File(output, lowerCase + ".json")))
-				{
-					new JSONElasticMapping(conf, clazz, out).run();
-					out.flush();
-				}
-				try (var out = new PrintStream(new File(output, lowerCase + "-index.json")))
-				{
-					(indexTest = new JSONIndexTest(conf, clazz, out, 1)).run();
-					out.flush();
-				}
-				try (var out = new PrintStream(new File(output, lowerCase + "-update.json")))
-				{
-					new JSONIndexTest(conf, clazz, out, 7).run();
-					out.flush();
-				}
-				try (var out = new PrintStream(new File(output, lowerCase + "-search.json")))
-				{
-					new JSONSearchTest(conf, clazz, out, indexTest.sampleData).run();
-					out.flush();
-				}
-			}
-
-			if (clazz.generateResource)
-			{
-				try (var out = new PrintStream(new File(output, JSONResource.getClassName(clazz.name) + ".java")))
-				{
-					new JSONResource(conf, clazz, out).run();
-					out.flush();
-				}
-
-				try (var out = new PrintStream(new File(output, JSONResourceTest.getClassName(clazz.name) + ".java")))
-				{
-					new JSONResourceTest(conf, clazz, out).run();
-					out.flush();
-				}
+				new JSONResourceTest(conf, clazz, out).run();
+				out.flush();
 			}
 		}
 	}
