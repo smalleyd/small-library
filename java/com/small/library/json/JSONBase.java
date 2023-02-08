@@ -53,6 +53,13 @@ public abstract class JSONBase implements Runnable
 		else appPackage = domainPackage = "";
 	}
 
+	/** Application entry point. The first two arguments are required.
+	 * 
+	 * @param args[0] the configuration file name (JSON). Required.
+	 * @param args[1] the output directory. Required.
+	 * @param args[2] comma separated list of classes to generate to limit output. Optional.
+	 * @throws Exception
+	 */
 	public static void main(final String... args) throws Exception
 	{
 		if (2 > args.length)
@@ -108,6 +115,8 @@ public abstract class JSONBase implements Runnable
 	static void generate(final String fileName, final JSONConfig conf, final JSONClass clazz, final File dir, final int i)
 		throws IOException
 	{
+		var lowerCase = clazz.name.toLowerCase();
+
 		if (null == clazz.name)
 		{
 			log.warn("Item '{}' is missing the name property in '{}'.", i, fileName);
@@ -141,9 +150,6 @@ public abstract class JSONBase implements Runnable
 
 		if (clazz.generateElastic)
 		{
-			final JSONIndexTest indexTest;
-			var lowerCase = clazz.name.toLowerCase();
-
 			try (var out = new PrintStream(new File(dir, JSONElastic.getClassName(clazz.name) + ".java")))
 			{
 				new JSONElastic(conf, clazz, out).run();
@@ -159,21 +165,6 @@ public abstract class JSONBase implements Runnable
 				new JSONElasticMapping(conf, clazz, out).run();
 				out.flush();
 			}
-			try (var out = new PrintStream(new File(dir, lowerCase + "-index.json")))
-			{
-				(indexTest = new JSONIndexTest(conf, clazz, out, 1)).run();
-				out.flush();
-			}
-			try (var out = new PrintStream(new File(dir, lowerCase + "-update.json")))
-			{
-				new JSONIndexTest(conf, clazz, out, 7).run();
-				out.flush();
-			}
-			try (var out = new PrintStream(new File(dir, lowerCase + "-search.json")))
-			{
-				new JSONSearchTest(conf, clazz, out, indexTest.sampleData).run();
-				out.flush();
-			}
 		}
 
 		if (clazz.generateResource)
@@ -187,6 +178,27 @@ public abstract class JSONBase implements Runnable
 			try (var out = new PrintStream(new File(dir, JSONResourceTest.getClassName(clazz.name) + ".java")))
 			{
 				new JSONResourceTest(conf, clazz, out).run();
+				out.flush();
+			}
+		}
+
+		if (clazz.generateResource || clazz.generateElastic)
+		{
+			final JSONIndexTest indexTest;
+
+			try (var out = new PrintStream(new File(dir, lowerCase + "-index.json")))
+			{
+				(indexTest = new JSONIndexTest(conf, clazz, out, 1)).run();
+				out.flush();
+			}
+			try (var out = new PrintStream(new File(dir, lowerCase + "-update.json")))
+			{
+				new JSONIndexTest(conf, clazz, out, 7).run();
+				out.flush();
+			}
+			try (var out = new PrintStream(new File(dir, lowerCase + "-search.json")))
+			{
+				new JSONSearchTest(conf, clazz, out, indexTest.sampleData).run();
 				out.flush();
 			}
 		}
