@@ -55,12 +55,12 @@ public class JSONElasticTest extends JSONBase
 		out.println("import static app.fora.es.ElasticsearchUtils.json;");
 		out.println("import static app.fora.es.ElasticsearchUtils.toMap;");
 		out.println();
-		out.println("import java.time.ZonedDateTime;");
-		out.println("import java.util.Map;");
+		out.println("import java.time.Instant;");
 		out.println("import javax.ws.rs.NotFoundException;");
 		out.println();
 		out.println("import org.elasticsearch.index.query.QueryBuilders;");
 		out.println("import org.junit.jupiter.api.*;");
+		out.println("import org.junit.jupiter.api.extension.ExtendWith;");
 		out.println("import org.junit.jupiter.params.ParameterizedTest;");
 		out.println("import org.junit.jupiter.params.provider.CsvFileSource;");
 		out.println();
@@ -95,6 +95,22 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t{");
 		out.println("\t\tdao = new " + daoName + "(es.client(), true);");
 		out.println("\t}");
+		out.println();
+		out.println("\t@AfterAll");
+		out.println("\tpublic static void afterAll() throws Exception");
+		out.println("\t{");
+		out.println("\t\tdao.drop();");
+		out.println("\t}");
+	}
+
+	public static String actual(final JSONField field)
+	{
+		return field.date() ? field.name + ".getTime()" : field.name;
+	}
+
+	public static String expected(final JSONField field)
+	{
+		return field.date() ? field.name + ".toEpochMilli()" : field.name;
 	}
 
 	private void writeMethods()
@@ -103,9 +119,9 @@ public class JSONElasticTest extends JSONBase
 		var firstField = clazz.fields.get(0).name;
 		var secondField = clazz.fields.get(1).name;
 		var indexParams = "input={0}, " + clazz.fields.stream().map(f -> f.name + "={" + ++i[0] + "}").collect(joining(", "));
-		var indexArgs = "final String input,\n\t\tfinal " + clazz.fields.stream().map(f -> f.type + " " + f.name).collect(joining(",\n\t\tfinal "));
+		var indexArgs = "final String input,\n\t\tfinal " + clazz.fields.stream().map(f -> f.typeForJunit() + " " + f.name).collect(joining(",\n\t\tfinal "));
 		var indexChecks = "\t\tAssertions.assertNotNull(o, \"Exists\");\n" +
-			clazz.fields.stream().map(f -> "\t\tAssertions.assertEquals(" + f.name + ", o." + f.name + ", \"Check " + f.name + "\");").collect(joining("\n"));
+			clazz.fields.stream().map(f -> "\t\tAssertions.assertEquals(" + expected(f) + ", o." + actual(f) + ", \"Check " + f.name + "\");").collect(joining("\n"));
 
 		out.println();
 		out.println("\t@Test");
@@ -185,7 +201,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t{");
 		out.println("\t\tvar _id = " + firstField + " + \"-x\";");
 		out.println("\t\tassertThat(Assertions.assertThrows(NotFoundException.class, () -> dao.getById(_id)))");
-		out.println("\t\t\t.hasMessage(\"The \" + clazz.name + \" with ID '\" + _id + \"' cannot be found.\");");
+		out.println("\t\t\t.hasMessage(\"The " + clazz.name + " with ID '\" + _id + \"' cannot be found.\");");
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"getFirst(" + indexParams + ")\")");
@@ -259,8 +275,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t@Order(115)");
 		out.println("\tpublic void update(" + indexArgs + ") throws Exception");
 		out.println("\t{");
-		out.println("\t\tvar o = dao.update(" + firstField + ", toMap(input));");
-		out.println(indexChecks);
+		out.println("\t\tdao.update(" + firstField + ", toMap(input));");	// Update does not return any value. DLS on 2/8/2023.
 		out.println("\t}");
 		out.println();
 		out.println("\t@Test");
@@ -355,14 +370,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t@Order(245)");
 		out.println("\tpublic void remove_again_count() throws Exception");
 		out.println("\t{");
-		out.println("\t\tcount(9L);");
-		out.println("\t}");
-		out.println();
-		out.println("\t@Test");
-		out.println("\t@Order(1000)");
-		out.println("\tpublic void drop() throws Exception");
-		out.println("\t{");
-		out.println("\t\tdao.drop();");
+		out.println("\t\tcount(0L);");
 		out.println("\t}");
 		out.println();
 		out.println("\tprivate void count(final long expected) throws Exception");

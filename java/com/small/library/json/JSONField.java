@@ -36,6 +36,7 @@ public class JSONField implements Serializable
 	public final boolean notNull;
 	public final boolean notEmpty;
 	public final boolean notBlank;
+	public final boolean identifier;
 	public final Integer min;
 	public final Integer max;
 	public final String decimalMin;
@@ -52,6 +53,7 @@ public class JSONField implements Serializable
 		@JsonProperty("notNull") final Boolean notNull,
 		@JsonProperty("notEmpty") final Boolean notEmpty,
 		@JsonProperty("notBlank") final Boolean notBlank,
+		@JsonProperty("identifier") final Boolean identifier,
 		@JsonProperty("min") final Integer min,
 		@JsonProperty("max") final Integer max,
 		@JsonProperty("decimalMin") final String decimalMin,
@@ -68,6 +70,7 @@ public class JSONField implements Serializable
 		this.notNull = Boolean.TRUE.equals(notNull);
 		this.notEmpty = Boolean.TRUE.equals(notEmpty);
 		this.notBlank = Boolean.TRUE.equals(notBlank);
+		this.identifier = Boolean.TRUE.equals(identifier);
 		this.min = min;
 		this.max = max;
 		this.decimalMin = decimalMin;
@@ -94,6 +97,10 @@ public class JSONField implements Serializable
 	public String type()
 	{
 		return (null == container) ? type : String.format(FORMAT_CONTAINERIZE, container, type);
+	}
+	public String typeForJunit()
+	{
+		return (date()) ? "Instant" : type;
 	}
 
 	@Override

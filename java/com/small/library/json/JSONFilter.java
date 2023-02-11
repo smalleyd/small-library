@@ -43,12 +43,16 @@ public class JSONFilter extends JSONBase
 	{
 		out.print("package "); out.print(appPackage); out.print(".filter"); out.println(";");
 
+		out.println();
 		out.println("import java.math.BigDecimal;");
+		out.println("import java.time.ZonedDateTime;");
 		out.println("import java.util.Date;");
 		out.println();
 		out.println("import org.apache.commons.lang3.StringUtils;");
 		out.println("import org.apache.commons.lang3.builder.ToStringBuilder;");
 		out.println("import org.apache.commons.lang3.builder.ToStringStyle;");
+		out.println();
+		out.println("import com.fasterxml.jackson.annotation.JsonProperty;");
 		out.println();
 		out.println("import " + domainPackage + ".common.model.Filter;");
 		out.println();
@@ -96,10 +100,8 @@ public class JSONFilter extends JSONBase
 	private void writeConstructors()
 	{
 		out.println();
-		out.println("\tpublic " + clazz.name + "(");
+		out.println("\tpublic " + getClassName(clazz.name) + "(");
 
-		var i = 0;
-		var size = clazz.fields.size();
 		for (var v : clazz.fields)
 		{
 			out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("\") final "); out.print(v.objectify()); out.print(" "); out.print(v.name);
@@ -118,11 +120,18 @@ public class JSONFilter extends JSONBase
 				out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("_to\") final "); out.print(v.type); out.print(" "); out.print(v.name); out.print("_to");
 			}
 
-			out.println((size > ++i) ? "," : ")");
+			out.println(",");
 		}
+
+		out.println("\t\t@JsonProperty(\"sort\") final String sort,");
+		out.println("\t\t@JsonProperty(\"asc\") final Boolean asc,");
+		out.println("\t\t@JsonProperty(\"page\") final Integer page,");
+		out.println("\t\t@JsonProperty(\"pageSize\") final Integer pageSize)");
 
 		// Write body.
 		out.println("\t{");
+		out.println("\t\tsuper(sort, asc, page, pageSize);");
+		out.println();
 		for (var v : clazz.fields)
 		{
 			var wrap = v.string() ? "StringUtils.trimToNull(" : "";

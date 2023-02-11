@@ -1,5 +1,7 @@
 package com.small.library.json;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.*;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -18,6 +20,8 @@ public class JSONSearchTest extends JSONBase
 	public static final String REQUEST_EXISTS = CHAR_QUOTE + "{\"has_%s\":true}" + CHAR_QUOTE;
 	public static final String REQUEST_DOES_NOT_EXIST = CHAR_QUOTE + "{\"has_%s\":false}" + CHAR_QUOTE;
 	public static final String REQUEST_RANGE = CHAR_QUOTE + "{\"%s_from\":%s,\"%s_to\":%s}" + CHAR_QUOTE;
+	public static final String charQuote = "" + CHAR_QUOTE;
+
 	private final List<Object[]> sampleData;	// Holds generated sample data for use in other test fixtures.
 
 	public JSONSearchTest(final JSONConfig conf, final JSONClass clazz, final PrintStream out, final List<Object[]> sampleData)
@@ -31,22 +35,25 @@ public class JSONSearchTest extends JSONBase
 	public void run()
 	{
 		var i = -1;
-		var oo = sampleData.get(0);
-		var ids = ",1," + CHAR_QUOTE + ((String) oo[0]) + CHAR_QUOTE;
 		var noIds = ",0,";
+		var oo = sampleData.get(0);
+		var ids = ",1," + ((String) oo[0]).replace('"', CHAR_QUOTE);
+		var allIds = "," + sampleData.size() + "," + sampleData.stream()
+			.map(o -> ((String) o[0]).replaceAll("\"", ""))
+			.collect(joining(",", charQuote, charQuote));
 		for (var f : clazz.fields)
 		{
 			var v = oo[++i];
 			var invalid = invalid(f, v);
 			out.print(String.format(REQUEST, f.name, v));
-			out.println(ids);
+			out.println(f.bool() ? booleanResults(i, v) : ids);
 			out.print(String.format(REQUEST, f.name, invalid));
-			out.println(noIds);
+			out.println(f.bool() ? booleanResults(i, invalid) : noIds);
 
 			if (f.nullable())
 			{
 				out.print(String.format(REQUEST_EXISTS, f.name));
-				out.println(ids);
+				out.println(allIds);	// All fields should be populated by default. DLS on 2/10/2023.
 				out.print(String.format(REQUEST_DOES_NOT_EXIST, f.name));
 				out.println(noIds);
 			}
@@ -60,6 +67,19 @@ public class JSONSearchTest extends JSONBase
 				out.println(noIds);
 			}
 		}
+	}
+
+	String booleanResults(final int i, final Object v)
+	{
+		var count = new int[] { 0 };
+		var value = sampleData
+			.stream()
+			.filter(o -> o[i].equals(v))
+			.peek(o -> count[0]++)
+			.map(o -> ((String) o[0]).replaceAll("\"", ""))
+			.collect(joining(",", charQuote, charQuote));
+
+		return "," + count[0] + "," + value;
 	}
 
 	String invalid(final JSONField field, final Object o)

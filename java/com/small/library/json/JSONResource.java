@@ -70,6 +70,7 @@ public class JSONResource extends JSONBase
 		out.println();
 		out.println("import com.codahale.metrics.annotation.Timed;");
 		out.println();
+		out.println("import " + domainPackage + ".common.model.Results;");
 		out.println("import " + appPackage + ".dao." + daoName + ";");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
 		out.println("import " + appPackage + ".model.OnlyAdd;");
@@ -94,8 +95,6 @@ public class JSONResource extends JSONBase
 		out.println("@Tag(name=\"" + clazz.plural + "\", description=\"" + clazz.caption + "\")");
 		out.println("public class " + className);
 		out.println("{");
-		out.println("\tprivate static final Logger log = LoggerFactory.getLogger(" + className + ".class);");
-		out.println();
 		out.println("\tprivate final " + daoName + " dao;");
 	}
 

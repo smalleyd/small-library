@@ -54,8 +54,9 @@ public class JSONIndexTest extends JSONBase
 
 	public String value(final JSONField field, final int row)
 	{
+		var id = row + 1;
 		var nano = System.nanoTime();
-		var multiplied = (row + 1) * multiplyer;	// Must increase 'row' to at least one otherwise the multiplier will return the same value for zero.
+		var multiplied = id * multiplyer;	// Must increase 'row' to at least one otherwise the multiplier will return the same value for zero.
 
 		if (field.bool())
 			return (0 == (System.currentTimeMillis() % 2)) ? "true" : "false";
@@ -80,6 +81,9 @@ public class JSONIndexTest extends JSONBase
 				return "" + nano;
 		}
 		else
-			return '"' + field.name + "_" + multiplied + '"';
+		{
+			var v = field.name + "_" + (field.identifier ? id : multiplied);	// ID field should not change for updates. DLS on 2/9/2023.
+			return (field.email) ? '"' + v + "@test.com" + '"' : '"' + v + '"';
+		}
 	}
 }
