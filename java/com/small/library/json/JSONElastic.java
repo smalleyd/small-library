@@ -106,6 +106,12 @@ public class JSONElastic extends JSONBase
 	private void writeMethods()
 	{
 		out.println();
+		out.println("\tpublic List<" + clazz.name + "> getByTerm(final String term, final int pageSize) throws IOException");
+		out.println("\t{");
+		out.println("\t\treturn getByQuery(QueryBuilders.multiMatchQuery(term, \"" + clazz.fields.get(1).name + "\"), pageSize);");
+		out.println("\t}");
+
+		out.println();
 		out.println("\t@Override");
 		out.println("\tprotected Logger log() { return log; }");
 
