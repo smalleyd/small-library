@@ -122,9 +122,10 @@ public class JSONResource extends JSONBase
 		out.println("\t@GET");
 		out.println("\t@Timed");
 		out.println("\t@Operation(summary=\"find\", description=\"Finds " + clazz.name + " values by term match.\")");
-		out.println("\tpublic List<" + clazz.name + "> find(@QueryParam(\"term\") @Parameter(name=\"term\", description=\"Represents the term on which to match.\", required=true) @NotBlank final String term) throws IOException");
+		out.println("\tpublic List<" + clazz.name + "> find(@QueryParam(\"term\") @Parameter(name=\"term\", description=\"Represents the term on which to match.\", required=true) @NotBlank final String term,");
+		out.println("\t\t@QueryParam(\"pageSize\") @Parameter(name=\"pageSize\", description=\"Represents the number of records to return.\", required=false) @DefaultValue(\"20\") @Min(1) @Max(1000) final int pageSize) throws IOException");
 		out.println("\t{");
-		out.println("\t\treturn dao.getByTerm(term);");
+		out.println("\t\treturn dao.getByTerm(term, pageSize);");
 		out.println("\t}");
 
 		out.println();
