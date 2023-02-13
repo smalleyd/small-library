@@ -116,8 +116,8 @@ public class JSONElasticTest extends JSONBase
 	private void writeMethods()
 	{
 		var i = new int[] { 0 };
-		var firstField = clazz.fields.get(0).name;
-		var secondField = clazz.fields.get(1).name;
+		var firstField = clazz.fields.get(0).name;	// Should be the identifier.
+		var secondField = clazz.fields.get(1).name;	// Should be a unique field.
 		var indexParams = "input={0}, " + clazz.fields.stream().map(f -> f.name + "={" + ++i[0] + "}").collect(joining(", "));
 		var indexArgs = "final String input,\n\t\tfinal " + clazz.fields.stream().map(f -> f.typeForJunit() + " " + f.name).collect(joining(",\n\t\tfinal "));
 		var indexChecks = "\t\tAssertions.assertNotNull(o, \"Exists\");\n" +
@@ -220,6 +220,27 @@ public class JSONElasticTest extends JSONBase
 		out.println("\tpublic void getFirst_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
 		out.println("\t\tAssertions.assertNull(dao.getFirst(QueryBuilders.termQuery(\"" + secondField + ".keyword\", " + secondField + " + \"-x\")));");
+		out.println("\t}");
+		out.println();
+		out.println("\t@ParameterizedTest(name=\"getByTerm(" + indexParams + ")\")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@Order(20)");
+		out.println("\tpublic void getByTerm(" + indexArgs + ") throws Exception");
+		out.println("\t{");
+		out.println("\t\tvar v = dao.getByTerm(" + secondField + ", " + NUM_OF_TESTS + ");");
+		out.println("\t\tassertThat(v).as(\"Check results\").isNotNull().hasSize(1).containsExactly(readEntity(input));");
+		out.println();
+		out.println("\t\tvar o = v.get(0);");
+		out.println(indexChecks);
+		out.println("\t}");
+		out.println();
+		out.println("\t@ParameterizedTest(name=\"getByTerm_fail(" + indexParams + ")\")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@Order(20)");
+		out.println("\tpublic void getByTerm_fail(" + indexArgs + ") throws Exception");
+		out.println("\t{");
+		out.println("\t\tvar o = dao.getByTerm(\"invalid_\" + " + secondField + ", " + NUM_OF_TESTS + ");");
+		out.println("\t\tassertThat(o).as(\"Check results\").isNotNull().isEmpty();");
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"search(input={0}, size={1}, ids={2})\")");

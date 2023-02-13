@@ -46,9 +46,9 @@ public class JSONSearchTest extends JSONBase
 			var v = oo[++i];
 			var invalid = invalid(f, v);
 			out.print(String.format(REQUEST, f.name, v));
-			out.println(f.bool() ? booleanResults(i, v) : ids);
+			out.println((f.bool() || f.number()) ? finish(i, v) : ids);	// Booleans and Numbers can be repeated for the same field over the span of the sample data.
 			out.print(String.format(REQUEST, f.name, invalid));
-			out.println(f.bool() ? booleanResults(i, invalid) : noIds);
+			out.println((f.bool() || f.number()) ? finish(i, invalid) : noIds);	// Booleans and Numbers can be repeated for the same field over the span of the sample data.
 
 			if (f.nullable())
 			{
@@ -69,7 +69,7 @@ public class JSONSearchTest extends JSONBase
 		}
 	}
 
-	String booleanResults(final int i, final Object v)
+	String finish(final int i, final Object v)	// Finish the search line with the number of occurrences of a particular value and the IDs associated with it.
 	{
 		var count = new int[] { 0 };
 		var value = sampleData

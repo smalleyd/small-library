@@ -90,7 +90,7 @@ public class JSONField implements Serializable
 	}
 
 	public boolean integer() { return INTEGERS.contains(type); }
-	public boolean nullable() { return !primitive(); }
+	public boolean nullable() { return !primitive() && !(notNull || notEmpty || notBlank); }
 	public boolean number() { return NUMBERS.contains(type); }
 	public boolean primitive() { return PRIMITIVES.contains(type); }
 	public boolean string() { return "String".equals(type); }

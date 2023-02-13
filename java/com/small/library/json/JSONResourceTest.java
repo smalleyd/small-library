@@ -130,8 +130,8 @@ public class JSONResourceTest extends JSONBase
 	private void writeMethods()
 	{
 		var i = new int[] { 0 };
-		var firstField = clazz.fields.get(0).name;
-		var secondField = clazz.fields.get(1).name;
+		var firstField = clazz.fields.get(0).name;	// Should be the identifier.
+		var secondField = clazz.fields.get(1).name;	// Should be a unique field.
 		var indexParams = "input={0}, " + clazz.fields.stream().map(f -> f.name + "={" + ++i[0] + "}").collect(joining(", "));
 		var indexArgs = "final String input,\n\t\tfinal " + clazz.fields.stream().map(f -> f.typeForJunit() + " " + f.name).collect(joining(",\n\t\tfinal "));
 		var indexChecks = "\t\tAssertions.assertNotNull(o, \"Exists\");\n" +
@@ -240,7 +240,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t@Order(20)");
 		out.println("\tpublic void after_post_find_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
-		out.println("\t\tvar response = request(target().queryParam(\"term\", " + secondField + " + \"-x\")).get();");
+		out.println("\t\tvar response = request(target().queryParam(\"term\", " + "\"invalid_\" + " + secondField + ")).get();");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");");
 		out.println();
 		out.println("\t\tvar o = response.readEntity(types);");
