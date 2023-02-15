@@ -19,6 +19,7 @@ public class JSONIndexTest extends JSONBase
 {
 	private final int multiplyer;
 	private final ZonedDateTime now = ZonedDateTime.now();
+	final List<String> inputs = new ArrayList<>(NUM_OF_TESTS);
 	final List<Object[]> sampleData = new ArrayList<>(NUM_OF_TESTS);	// Holds generated sample data for use in other test fixtures.
 
 	public JSONIndexTest(final JSONConfig conf, final JSONClass clazz, final PrintStream out, final int multiplyer)
@@ -41,8 +42,11 @@ public class JSONIndexTest extends JSONBase
 			var j = i;	// Must be effectively final to be used in the lambda below.
 			var values = clazz.fields.stream().map(v -> value(v, j)).toArray(Object[]::new);
 
+			var input = String.format(payload, values);
+			inputs.add(input);
+
 			out.print(CHAR_QUOTE);
-			out.print(String.format(payload, values));
+			out.print(input);
 			out.print(CHAR_QUOTE);
 			out.print(",");
 

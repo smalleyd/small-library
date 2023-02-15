@@ -191,6 +191,11 @@ public abstract class JSONBase implements Runnable
 				(indexTest = new JSONIndexTest(conf, clazz, out, 1)).run();
 				out.flush();
 			}
+			try (var out = new PrintStream(new File(dir, lowerCase + "-invalid.json")))
+			{
+				new JSONInvalidTest(conf, clazz, out, indexTest.inputs.get(0), indexTest.sampleData.get(0)).run();
+				out.flush();
+			}
 			try (var out = new PrintStream(new File(dir, lowerCase + "-update.json")))
 			{
 				new JSONIndexTest(conf, clazz, out, 7).run();
