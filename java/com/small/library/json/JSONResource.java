@@ -113,7 +113,7 @@ public class JSONResource extends JSONBase
 		out.println("\t@GET");
 		out.println("\t@Path(\"/{id}\") @Timed");
 		out.println("\t@Operation(summary=\"get\", description=\"Gets a single " + clazz.name + " value by ID.\")");
-		out.println("\tpublic " + clazz.name + " get(@PathParam(\"id\") final String id) throws IOException");
+		out.println("\tpublic " + clazz.name + " get(@PathParam(\"id\") final String id) throws IOException, NotFoundException");
 		out.println("\t{");
 		out.println("\t\treturn dao.getById(id);");
 		out.println("\t}");
@@ -150,7 +150,7 @@ public class JSONResource extends JSONBase
 		out.println("\t@PATCH");
 		out.println("\t@Timed");
 		out.println("\t@Operation(summary=\"patch\", description=\"Patches/merges an existing single " + clazz.name + " value.\")");
-		out.println("\tpublic " + clazz.name + " patch(@NotNull @Valid final " + clazz.name + " value) throws IOException");
+		out.println("\tpublic " + clazz.name + " patch(@NotNull @Valid final " + clazz.name + " value) throws IOException, NotFoundException");
 		out.println("\t{");
 		out.println("\t\treturn dao.update(value);");
 		out.println("\t}");
@@ -162,7 +162,7 @@ public class JSONResource extends JSONBase
 		out.println("\t\tdescription=\"Patches/merges an existing single " + clazz.name + " value.\",");
 		out.println("\t\trequestBody=@RequestBody(content=@Content(schema=@Schema(implementation=" + clazz.name + ".class))))");
 		out.print("\tpublic Response patch(@PathParam(\"id\") final String id,");
-		out.println(" @NotNull final Map<String, Object> value) throws IOException");
+		out.println(" @NotNull final Map<String, Object> value) throws IOException, NotFoundException");
 		out.println("\t{");
 		out.println("\t\tdao.update(id, value);");
 		out.println();
@@ -173,7 +173,7 @@ public class JSONResource extends JSONBase
 		out.println("\t@DELETE");
 		out.println("\t@Path(\"/{id}\") @Timed");
 		out.println("\t@Operation(summary=\"remove\", description=\"Removes an existing " + clazz.name + " value.\")");
-		out.println("\tpublic " + clazz.name + " remove(@PathParam(\"id\") final String id) throws IOException");
+		out.println("\tpublic " + clazz.name + " remove(@PathParam(\"id\") final String id) throws IOException, NotFoundException");
 		out.println("\t{");
 		out.println("\t\treturn dao.remove(id);");
 		out.println("\t}");
