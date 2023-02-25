@@ -155,7 +155,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"post_invalid(input={0}, message={1})\")");
-		out.println("\t@CsvFileSource(resources=\"/people/invalids.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/invalid.json\", quoteCharacter='`')");
 		out.println("\t@Order(10)");
 		out.println("\tpublic void post_invalid(final String input, final String message)");
 		out.println("\t{");
