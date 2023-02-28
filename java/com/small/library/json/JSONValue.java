@@ -1,6 +1,6 @@
 package com.small.library.json;
 
-import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.*;
 
 import java.io.PrintStream;
 import java.util.Date;
@@ -29,6 +29,7 @@ public class JSONValue extends JSONBase
 	{
 		var size = clazz.fields.size();
 		var index = new int[1];
+		var identifiers = clazz.fields.stream().filter(v -> v.identifier).collect(toList());
 
 		out.print("package "); out.print(conf.packageName); out.println(";");
 		out.println();
@@ -112,8 +113,14 @@ public class JSONValue extends JSONBase
 		out.println("\t@Override");
 		out.println("\tpublic int hashCode()");
 		out.println("\t{");
-		out.print("\t\treturn Objects.hash(");
-		out.print(clazz.fields.stream().map(v -> v.name).collect(joining(", ")));
+		if (1 == identifiers.size())
+			out.print("\t\treturn Objects.hashCode(" + identifiers.get(0).name);
+		else
+		{
+			var vv = identifiers.isEmpty() ? clazz.fields : identifiers;
+			out.print("\t\treturn Objects.hash(");
+			out.print(vv.stream().map(v -> v.name).collect(joining(", ")));
+		}
 		out.println(");");
 		out.println("\t}");
 		out.println();
