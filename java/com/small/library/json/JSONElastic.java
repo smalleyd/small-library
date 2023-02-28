@@ -16,6 +16,7 @@ public class JSONElastic extends JSONBase
 	public static final String CLASS_NAME_SUFFIX = "ES";
 
 	private final String className;
+	private final String baseClass;
 	private final String filterName;
 
 	public static String getClassName(final String value)
@@ -29,6 +30,7 @@ public class JSONElastic extends JSONBase
 
 		className = getClassName(clazz.name);
 		filterName = JSONFilter.getClassName(clazz.name);
+		baseClass = clazz.cacheable ? "CachedAbstractDAO" : "AbstractDAO";
 	}
 
 	@Override
@@ -61,7 +63,7 @@ public class JSONElastic extends JSONBase
 		out.println();
 		out.println("import com.fasterxml.jackson.core.type.TypeReference;");
 		out.println();
-		out.println("import " + domainPackage + ".es.AbstractDAO;");
+		out.println("import " + domainPackage + ".es." + baseClass + ";");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
 		out.println("import " + appPackage + ".model." + filterName + ";");
 		out.println();
@@ -78,7 +80,7 @@ public class JSONElastic extends JSONBase
 	private void writeClassDeclaration()
 	{
 		out.println();
-		out.println("public class " + className + " extends AbstractDAO<" + clazz.name + ", " + filterName + ">");
+		out.println("public class " + className + " extends " + baseClass + "<" + clazz.name + ", " + filterName + ">");
 		out.println("{");
 		out.println("\tprivate static final Logger log = LoggerFactory.getLogger(" + className + ".class);");
 		out.println();

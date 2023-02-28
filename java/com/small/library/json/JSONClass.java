@@ -20,6 +20,7 @@ public class JSONClass implements Serializable
 	public final String name;
 	public final String plural;
 	public final String path;
+	public final boolean cacheable;
 	public final String caption;
 	@JsonProperty("implements") public final List<String> implements_;
 	public final boolean generateFilter;
@@ -30,6 +31,7 @@ public class JSONClass implements Serializable
 	public JSONClass(@JsonProperty("name") final String name,
 		@JsonProperty("plural") final String plural,
 		@JsonProperty("path") final String path,
+		@JsonProperty("cacheable") final Boolean cacheable,
 		@JsonProperty("caption") final String caption,
 		@JsonProperty("implements") final List<String> implements_,
 		@JsonProperty("generateFilter") final Boolean generateFilter,
@@ -40,6 +42,7 @@ public class JSONClass implements Serializable
 		this.name = name;
 		this.plural = plural;
 		this.path = path;
+		this.cacheable = Boolean.TRUE.equals(cacheable);
 		this.caption = caption;
 		this.implements_ = implements_;
 		this.generateFilter = Boolean.TRUE.equals(generateFilter);
