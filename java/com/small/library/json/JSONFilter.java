@@ -47,7 +47,9 @@ public class JSONFilter extends JSONBase
 		out.println("import java.math.BigDecimal;");
 		out.println("import java.time.ZonedDateTime;");
 		out.println("import java.util.Date;");
+		out.println("import java.util.List;");
 		out.println();
+		out.println("import org.apache.commons.collections4.CollectionUtils;");
 		out.println("import org.apache.commons.lang3.StringUtils;");
 		out.println("import org.apache.commons.lang3.builder.ToStringBuilder;");
 		out.println("import org.apache.commons.lang3.builder.ToStringStyle;");
@@ -83,7 +85,10 @@ public class JSONFilter extends JSONBase
 		// Write member variables.
 		for (var i : clazz.fields)
 		{
-			out.println("\tpublic final " + i.objectify() + " " + i.name + ";");
+			if (i.identifier)
+				out.println("\tpublic final List<" + i.objectify() + "> " + i.name + "s;");
+			else
+				out.println("\tpublic final " + i.objectify() + " " + i.name + ";");
 
 			if (i.nullable())
 				out.println("\tpublic final Boolean has_" + i.name + ";");
@@ -104,7 +109,14 @@ public class JSONFilter extends JSONBase
 
 		for (var v : clazz.fields)
 		{
-			out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("\") final "); out.print(v.objectify()); out.print(" "); out.print(v.name);
+			if (v.identifier)
+			{
+				out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("s\") final List<"); out.print(v.objectify()); out.print("> "); out.print(v.name); out.print("s");
+			}
+			else
+			{
+				out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("\") final "); out.print(v.objectify()); out.print(" "); out.print(v.name);
+			}
 
 			if (v.nullable())
 			{
@@ -137,7 +149,10 @@ public class JSONFilter extends JSONBase
 			var wrap = v.string() ? "StringUtils.trimToNull(" : "";
 			var wrap_ = v.string() ? ")" : "";
 
-			out.println("\t\tthis." + v.name + " = " + wrap + v.name + wrap_ + ";");
+			if (v.identifier)
+				out.println("\t\tthis." + v.name + "s = " + v.name + "s;");
+			else
+				out.println("\t\tthis." + v.name + " = " + wrap + v.name + wrap_ + ";");
 
 			if (v.nullable())
 				out.println("\t\tthis.has_" + v.name + " = has_" + v.name + ";");
@@ -163,7 +178,10 @@ public class JSONFilter extends JSONBase
 		var size = clazz.fields.size();
 		for (var v : clazz.fields)
 		{
-			out.print("\t\t\t(null == " + v.name + ")");
+			if (v.identifier)
+				out.print("\t\t\tCollectionUtils.isEmpty(" + v.name + "s)");
+			else
+				out.print("\t\t\t(null == " + v.name + ")");
 
 			if (v.nullable())
 			{

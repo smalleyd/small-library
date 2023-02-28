@@ -127,7 +127,9 @@ public class JSONElastic extends JSONBase
 		out.println();
 		for (var v : clazz.fields)
 		{
-			if (v.string())
+			if (v.identifier)
+				out.println("\t\tidsQuery(o, request." + v.name + "s);");
+			else if (v.string())
 				out.println("\t\tmatchQuery(o, \"" + v.name + "\", request." + v.name + ");");
 			else
 				out.println("\t\ttermQuery(o, \"" + v.name + "\", request." + v.name + ");");
