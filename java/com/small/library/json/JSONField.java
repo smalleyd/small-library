@@ -84,6 +84,9 @@ public class JSONField implements Serializable
 	public boolean bool() { return "boolean".equalsIgnoreCase(type); }
 	public boolean date() { return DATES.contains(type); }
 
+	public boolean container() { return (null != container); }
+	public boolean notContainer() { return (null == container); }
+
 	public String objectify()
 	{
 		return primitive() ? type.substring(0, 1).toUpperCase() + type.substring(1) : type;
@@ -96,7 +99,7 @@ public class JSONField implements Serializable
 	public boolean string() { return "String".equals(type); }
 	public String type()
 	{
-		return (null == container) ? type : String.format(FORMAT_CONTAINERIZE, container, type);
+		return notContainer() ? type : String.format(FORMAT_CONTAINERIZE, container, type);
 	}
 	public String typeForJunit()
 	{

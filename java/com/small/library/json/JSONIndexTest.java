@@ -87,7 +87,7 @@ public class JSONIndexTest extends JSONBase
 		else
 		{
 			var v = field.name + "_" + (field.identifier ? id : multiplied);	// ID field should not change for updates. DLS on 2/9/2023.
-			return (field.email) ? '"' + v + "@test.com" + '"' : '"' + v + '"';
+			return '"' + v + (field.email ? "@test.com" : "") + '"';
 		}
 	}
 }
