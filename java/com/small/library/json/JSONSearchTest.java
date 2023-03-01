@@ -17,7 +17,9 @@ import java.util.List;
 public class JSONSearchTest extends JSONBase
 {
 	public static final String REQUEST = CHAR_QUOTE + "{\"%s\":%s}" + CHAR_QUOTE;
+	public static final String REQUEST_ID = CHAR_QUOTE + "{\"%s_id\":%s}" + CHAR_QUOTE;
 	public static final String REQUEST_IDS = CHAR_QUOTE + "{\"%ss\":[%s]}" + CHAR_QUOTE;
+	public static final String REQUEST_NAME = CHAR_QUOTE + "{\"%s_name\":%s}" + CHAR_QUOTE;
 	public static final String REQUEST_EXISTS = CHAR_QUOTE + "{\"has_%s\":true}" + CHAR_QUOTE;
 	public static final String REQUEST_DOES_NOT_EXIST = CHAR_QUOTE + "{\"has_%s\":false}" + CHAR_QUOTE;
 	public static final String REQUEST_RANGE = CHAR_QUOTE + "{\"%s_from\":%s,\"%s_to\":%s}" + CHAR_QUOTE;
@@ -46,11 +48,20 @@ public class JSONSearchTest extends JSONBase
 		{
 			var v = oo[++i];
 			var invalid = invalid(f, v);
-			var req = f.identifier ? REQUEST_IDS : REQUEST;
+			var isEntity = (null != conf.clazz(f.type));
+			var req = f.identifier ? REQUEST_IDS : (isEntity ? REQUEST_ID : REQUEST);
 			out.print(String.format(req, f.name, v));
 			out.println((f.bool() || f.number()) ? finish(i, v) : ids);	// Booleans and Numbers can be repeated for the same field over the span of the sample data.
 			out.print(String.format(req, f.name, invalid));
 			out.println((f.bool() || f.number()) ? finish(i, invalid) : noIds);	// Booleans and Numbers can be repeated for the same field over the span of the sample data.
+
+			if (isEntity)
+			{
+				out.print(String.format(REQUEST_NAME, f.name, v));
+				out.println((f.bool() || f.number()) ? finish(i, v) : ids);	// Booleans and Numbers can be repeated for the same field over the span of the sample data.
+				out.print(String.format(REQUEST_NAME, f.name, invalid));
+				out.println((f.bool() || f.number()) ? finish(i, invalid) : noIds);	// Booleans and Numbers can be repeated for the same field over the span of the sample data.
+			}
 
 			if (f.nullable())
 			{

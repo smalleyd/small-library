@@ -45,7 +45,7 @@ public class JSONElasticMapping extends JSONBase
 		{
 			out.print(indent);
 
-			if (0 == i)
+			if (v.identifier)
 				out.print("\"" + v.name + "\":{\"type\":\"keyword\"}");
 			else if (v.string())
 				out.print("\"" + v.name + "\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}}");
