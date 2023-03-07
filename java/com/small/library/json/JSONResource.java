@@ -141,7 +141,7 @@ public class JSONResource extends JSONBase
 		out.println("\t@PUT");
 		out.println("\t@Timed");
 		out.println("\t@Operation(summary=\"set\", description=\"Updates an existing single " + clazz.name + " value.\")");
-		out.println("\tpublic " + clazz.name + " set(@NotNull @Valid final " + clazz.name + " value) throws IOException");
+		out.println("\tpublic " + clazz.name + " set(@NotNull @Valid @Validated({Default.class, OnlyAdd.class}) final " + clazz.name + " value) throws IOException");
 		out.println("\t{");
 		out.println("\t\treturn dao.index(value);");
 		out.println("\t}");
