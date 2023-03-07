@@ -54,8 +54,7 @@ public class JSONResource extends JSONBase
 		out.println("import java.util.List;");
 		out.println("import java.util.Map;");
 		out.println("import javax.validation.Valid;");
-		out.println("import javax.validation.constraints.NotBlank;");
-		out.println("import javax.validation.constraints.NotNull;");
+		out.println("import javax.validation.constraints.*;");
 		out.println("import javax.validation.groups.Default;");
 		out.println("import javax.ws.rs.*;");
 		out.println("import javax.ws.rs.core.MediaType;");
@@ -71,9 +70,10 @@ public class JSONResource extends JSONBase
 		out.println("import com.codahale.metrics.annotation.Timed;");
 		out.println();
 		out.println("import " + domainPackage + ".common.model.Results;");
+		out.println("import " + appPackage + ".constraint.MapConstraint;");
+		out.println("import " + appPackage + ".constraint.OnlyAdd;");
 		out.println("import " + appPackage + ".dao." + daoName + ";");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
-		out.println("import " + appPackage + ".model.OnlyAdd;");
 		out.println("import " + appPackage + ".model." + filterName + ";");
 		out.println();
 		out.println("/** Represents the RESTful resource that provides access to the Elasticsearch " + clazz.name + " index.");
@@ -92,7 +92,7 @@ public class JSONResource extends JSONBase
 		out.println("@Path(\"/" + clazz.path + "\")");
 		out.println("@Consumes(MediaType.APPLICATION_JSON)");
 		out.println("@Produces(MediaType.APPLICATION_JSON)");
-		out.println("@Tag(name=\"" + clazz.plural + "\", description=\"" + clazz.caption + "\")");
+		out.println("@Tag(name=\"" + clazz.plural + "\", description=\"Handles the " + clazz.caption + ".\")");
 		out.println("public class " + className);
 		out.println("{");
 		out.println("\tprivate final " + daoName + " dao;");
@@ -152,7 +152,7 @@ public class JSONResource extends JSONBase
 		out.println("\t@Operation(summary=\"patch\", description=\"Patches/merges an existing single " + clazz.name + " value.\")");
 		out.println("\tpublic " + clazz.name + " patch(@NotNull @Valid final " + clazz.name + " value) throws IOException, NotFoundException");
 		out.println("\t{");
-		out.println("\t\treturn dao.update(value);");
+		out.println("\t\treturn dao.patch(value);");
 		out.println("\t}");
 
 		out.println();
@@ -161,12 +161,10 @@ public class JSONResource extends JSONBase
 		out.println("\t@Operation(summary=\"patch\",");
 		out.println("\t\tdescription=\"Patches/merges an existing single " + clazz.name + " value.\",");
 		out.println("\t\trequestBody=@RequestBody(content=@Content(schema=@Schema(implementation=" + clazz.name + ".class))))");
-		out.print("\tpublic Response patch(@PathParam(\"id\") final String id,");
-		out.println(" @NotNull final Map<String, Object> value) throws IOException, NotFoundException");
+		out.println("\tpublic " + clazz.name + " patch(@PathParam(\"id\") final String id,");
+		out.println("\t\t@NotNull @MapConstraint(" + clazz.name + ".class) final Map<String, Object> value) throws IOException, NotFoundException");
 		out.println("\t{");
-		out.println("\t\tdao.update(id, value);");
-		out.println();
-		out.println("\t\treturn Response.ok().build();");
+		out.println("\t\treturn dao.patch(id, value);");
 		out.println("\t}");
 
 		out.println();

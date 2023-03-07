@@ -29,12 +29,17 @@ public class JSONIndexTest extends JSONBase
 		this.multiplyer = multiplyer;
 	}
 
+	public static String payload(final JSONField f)
+	{
+		return f.notContainer() ? "\"" + f.name + "\":%s" : "\"" + f.name + "\":[%s]";
+	}
+
 	@Override
 	public void run()
 	{
 		sampleData.clear();
 
-		var payload = clazz.fields.stream().map(v -> "\"" + v.name + "\":%s").collect(joining(",", "{", "}"));
+		var payload = clazz.fields.stream().map(v -> payload(v)).collect(joining(",", "{", "}"));
 		var columns = clazz.fields.stream().map(v -> "%s").collect(joining(","));
 
 		for (int i = 0; i < NUM_OF_TESTS; i++)

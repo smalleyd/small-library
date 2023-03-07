@@ -69,6 +69,10 @@ public class JSONElasticTest extends JSONBase
 		out.println("import " + appPackage + ".ElasticsearchExtension;");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
 		out.println("import " + appPackage + ".model." + filterName + ";");
+
+		if (clazz.cacheable)
+			out.println("import app.fora.redis.JedisConfig;");
+
 		out.println();
 		out.println("/** Functional test class that verifies the Elasticsearch " + clazz.name + " data access object.");
 		out.println(" * ");
@@ -93,7 +97,10 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t@BeforeAll");
 		out.println("\tpublic static void beforeAll() throws Exception");
 		out.println("\t{");
-		out.println("\t\tdao = new " + daoName + "(es.client(), true);");
+		if (clazz.cacheable)
+			out.println("\t\tdao = new " + daoName + "(es.client(), new JedisConfig().pool(), true);");
+		else
+			out.println("\t\tdao = new " + daoName + "(es.client(), true);");
 		out.println("\t}");
 		out.println();
 		out.println("\t@AfterAll");
@@ -113,6 +120,14 @@ public class JSONElasticTest extends JSONBase
 		return field.date() ? field.name + ".toEpochMilli()" : field.name;
 	}
 
+	public static String assertion(final JSONField f)
+	{
+		if (f.notContainer())
+			return "\t\tAssertions.assertEquals(" + expected(f) + ", o." + actual(f) + ", \"Check " + f.name + "\");";
+
+		return "\t\tassertThat(o." + actual(f) + ").as(\"Check " + f.name + "\").hasSize(1).containsExactly(" + expected(f) + ");";
+	}
+
 	private void writeMethods()
 	{
 		var i = new int[] { 0 };
@@ -121,7 +136,7 @@ public class JSONElasticTest extends JSONBase
 		var indexParams = "input={0}, " + clazz.fields.stream().map(f -> f.name + "={" + ++i[0] + "}").collect(joining(", "));
 		var indexArgs = "final String input,\n\t\tfinal " + clazz.fields.stream().map(f -> f.typeForJunit() + " " + f.name).collect(joining(",\n\t\tfinal "));
 		var indexChecks = "\t\tAssertions.assertNotNull(o, \"Exists\");\n" +
-			clazz.fields.stream().map(f -> "\t\tAssertions.assertEquals(" + expected(f) + ", o." + actual(f) + ", \"Check " + f.name + "\");").collect(joining("\n"));
+			clazz.fields.stream().map(f -> assertion(f)).collect(joining("\n"));
 
 		out.println();
 		out.println("\t@Test");

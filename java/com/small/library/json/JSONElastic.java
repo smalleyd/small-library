@@ -60,6 +60,13 @@ public class JSONElastic extends JSONBase
 		out.println("import org.elasticsearch.index.query.QueryBuilder;");
 		out.println("import org.elasticsearch.index.query.QueryBuilders;");
 		out.println("import org.slf4j.*;");
+
+		if (clazz.cacheable)
+		{
+			out.println();
+			out.println("import redis.clients.jedis.JedisPool;");
+		}
+
 		out.println();
 		out.println("import com.fasterxml.jackson.core.type.TypeReference;");
 		out.println();
@@ -92,17 +99,34 @@ public class JSONElastic extends JSONBase
 
 	private void writeConstructors()
 	{
-		out.println();
-		out.println("\tpublic " + className + "(final RestHighLevelClient es)");
-		out.println("\t{");
-		out.println("\t\tthis(es, false);");
-		out.println("\t}");
+		if (clazz.cacheable)
+		{
+			out.println();
+			out.println("\tpublic " + className + "(final RestHighLevelClient es, final JedisPool jedis)");
+			out.println("\t{");
+			out.println("\t\tthis(es, jedis, false);");
+			out.println("\t}");
 
-		out.println();
-		out.println("\tpublic " + className + "(final RestHighLevelClient es, final boolean test)");
-		out.println("\t{");
-		out.println("\t\tsuper(es, INDEX, type, types, test);");
-		out.println("\t}");
+			out.println();
+			out.println("\tpublic " + className + "(final RestHighLevelClient es, final JedisPool jedis, final boolean test)");
+			out.println("\t{");
+			out.println("\t\tsuper(es, INDEX, type, types, jedis, test);");
+			out.println("\t}");
+		}
+		else
+		{
+			out.println();
+			out.println("\tpublic " + className + "(final RestHighLevelClient es)");
+			out.println("\t{");
+			out.println("\t\tthis(es, false);");
+			out.println("\t}");
+
+			out.println();
+			out.println("\tpublic " + className + "(final RestHighLevelClient es, final boolean test)");
+			out.println("\t{");
+			out.println("\t\tsuper(es, INDEX, type, types, test);");
+			out.println("\t}");
+		}
 	}
 
 	private void writeMethods()

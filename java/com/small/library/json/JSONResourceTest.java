@@ -1,8 +1,7 @@
 package com.small.library.json;
 
 import static java.util.stream.Collectors.joining;
-import static com.small.library.json.JSONElasticTest.actual;
-import static com.small.library.json.JSONElasticTest.expected;
+import static com.small.library.json.JSONElasticTest.assertion;
 
 import java.io.*;
 import java.util.Date;
@@ -79,6 +78,10 @@ public class JSONResourceTest extends JSONBase
 		out.println("import " + appPackage + ".dao." + daoName + ";");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
 		out.println("import " + appPackage + ".model." + filterName + ";");
+
+		if (clazz.cacheable)
+			out.println("import app.fora.redis.JedisConfig;");
+
 		out.println();
 		out.println("/** Functional test class that verifies the " + clazz.name + " RESTful resource.");
 		out.println(" * ");
@@ -118,7 +121,10 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t@BeforeAll");
 		out.println("\tpublic static void beforeAll() throws Exception");
 		out.println("\t{");
-		out.println("\t\tdao = new " + daoName + "(es.client(), true);");
+		if (clazz.cacheable)
+			out.println("\t\tdao = new " + daoName + "(es.client(), new JedisConfig().pool(), true);");
+		else
+			out.println("\t\tdao = new " + daoName + "(es.client(), true);");
 		out.println("\t}");
 		out.println();
 		out.println("\t@AfterAll");
@@ -136,7 +142,7 @@ public class JSONResourceTest extends JSONBase
 		var indexParams = "input={0}, " + clazz.fields.stream().map(f -> f.name + "={" + ++i[0] + "}").collect(joining(", "));
 		var indexArgs = "final String input,\n\t\tfinal " + clazz.fields.stream().map(f -> f.typeForJunit() + " " + f.name).collect(joining(",\n\t\tfinal "));
 		var indexChecks = "\t\tAssertions.assertNotNull(o, \"Exists\");\n" +
-			clazz.fields.stream().map(f -> "\t\tAssertions.assertEquals(" + expected(f) + ", o." + actual(f) + ", \"Check " + f.name + "\");").collect(joining("\n"));
+			clazz.fields.stream().map(f -> assertion(f)).collect(joining("\n"));
 
 		out.println();
 		out.println("\t@Test");
@@ -151,7 +157,8 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t@Order(0)");
 		out.println("\tpublic void before_post_get(" + indexArgs + ") throws Exception");
 		out.println("\t{");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_NOT_FOUND, request(" + firstField + ").get().getStatus());");
+		out.println("\t\tvar response = request(" + firstField + ").get();");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_NOT_FOUND, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"post_invalid(input={0}, message={1})\")");
@@ -160,7 +167,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\tpublic void post_invalid(final String input, final String message)");
 		out.println("\t{");
 		out.println("\t\tvar response = request().post(Entity.json(input));");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_INVALID, response.getStatus(), \"Status\");");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_INVALID, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
 		out.println("\t\tvar o = response.readEntity(typeMap);");
 		out.println("\t\tassertThat(o).as(\"Check results\").isNotNull().hasSize(1).contains(MapEntry.entry(\"errors\", List.of(message)));");
@@ -186,7 +193,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\tpublic void post(" + indexArgs + ") throws Exception");
 		out.println("\t{");
 		out.println("\t\tvar response = request().post(Entity.json(input));");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
 		out.println(indexChecks);
@@ -228,7 +235,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\tpublic void after_post_get(" + indexArgs + ") throws Exception");
 		out.println("\t{");
 		out.println("\t\tvar response = request(" + firstField + ").get();");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
 		out.println(indexChecks);
@@ -241,7 +248,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t{");
 		out.println("\t\tvar _id = " + firstField + " + \"-x\";");
 		out.println("\t\tvar response = request(_id).get();");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_NOT_FOUND, response.getStatus());");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_NOT_FOUND, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
 		out.println("\t\tassertThat(response.readEntity(typeMap)).isNotNull().hasSize(1)");
 		out.println("\t\t\t.contains(MapEntry.entry(\"errors\", List.of(\"The " + clazz.name + " with ID '\" + _id + \"' cannot be found.\")));");
@@ -253,7 +260,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\tpublic void after_post_find(" + indexArgs + ") throws Exception");
 		out.println("\t{");
 		out.println("\t\tvar response = request(target().queryParam(\"term\", " + secondField + ")).get();");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
 		out.println("\t\tvar v = response.readEntity(types);");
 		out.println("\t\tassertThat(v).as(\"Check results\").isNotNull().hasSize(1).containsExactly(readEntity(input));");
@@ -268,7 +275,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\tpublic void after_post_find_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
 		out.println("\t\tvar response = request(target().queryParam(\"term\", " + "\"invalid_\" + " + secondField + ")).get();");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
 		out.println("\t\tvar o = response.readEntity(types);");
 		out.println("\t\tassertThat(o).as(\"Check results\").isNotNull().isEmpty();");
@@ -292,7 +299,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tif (null != pageSize) req = req.queryParam(\"pageSize\", pageSize);");
 		out.println();
 		out.println("\t\tvar response = request(req).get();");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_BAD_REQUEST, response.getStatus(), \"Status\");");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_BAD_REQUEST, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
 		out.println("\t\tvar o = response.readEntity(typeMap);");
 		out.println("\t\tassertThat(o).as(\"Check results\").isNotNull().hasSize(1).contains(MapEntry.entry(\"errors\", List.of(message)));");
@@ -304,7 +311,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\tpublic void search(final String input, final int size, final String ids) throws Exception");
 		out.println("\t{");
 		out.println("\t\tvar response = request(\"search\").post(Entity.json(input));");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
 		out.println("\t\tvar o = response.readEntity(typeResults);");
 		out.println("\t\tAssertions.assertNotNull(o, \"Exists\");");
@@ -331,7 +338,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\tpublic void patch_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
 		out.println("\t\tvar response = request(" + firstField + " + \"-x\").method(HttpMethod.PATCH, Entity.json(input));");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_SERVER_ERROR, response.getStatus(), \"Status\");");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_NOT_FOUND, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println("\t}");
 		out.println();
 		out.println("\t@Test");
@@ -347,26 +354,53 @@ public class JSONResourceTest extends JSONBase
 		out.println("\tpublic void patch_fail_get(" + indexArgs + ") throws Exception");
 		out.println("\t{");
 		out.println("\t\tvar response = request(" + firstField + ").get();");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
 		out.println(indexChecks);
 		out.println("\t}");
 		out.println();
+		out.println("\t@ParameterizedTest(name=\"patch_invalid(input={0}, id={1}, message={2})\")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/invalid-patch.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@Order(220)");
+		out.println("\tpublic void patch_invalid(final String input,");
+		out.println("\t\tfinal String id,");
+		out.println("\t\tfinal String message) throws Exception");
+		out.println("\t{");
+		out.println("\t\tvar response = request(id).method(HttpMethod.PATCH, Entity.json(input));");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_INVALID, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
+		out.println("\t\tassertThat(response.readEntity(typeMap)).as(\"Check results\").contains(MapEntry.entry(\"errors\", List.of(message.replaceAll(\"\\\\\\\\n\", \"\\n\"))));");
+		out.println("\t}");
+		out.println();
+		out.println("\t@Test");
+		out.println("\t@Order(225)");
+		out.println("\tpublic void patch_invalid_refresh() throws Exception");
+		out.println("\t{");
+		out.println("\t\tdao.refresh();");
+		out.println("\t}");
+		out.println();
+		out.println("\t@ParameterizedTest(name=\"patch_invalid_get(" + indexParams + ")\")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@Order(230)");
+		out.println("\tpublic void patch_invalid_get(" + indexArgs + ") throws Exception");
+		out.println("\t{");
+		out.println("\t\tpatch_fail_get(input, " + clazz.fields.stream().map(f -> f.name).collect(joining(", ")) + ");");
+		out.println("\t}");
+		out.println();
 		out.println("\t@ParameterizedTest(name=\"patch(" + indexParams + ")\")");
 		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
-		out.println("\t@Order(215)");
+		out.println("\t@Order(240)");
 		out.println("\tpublic void patch(" + indexArgs + ") throws Exception");
 		out.println("\t{");
-		out.println("\t\tvar response = request().method(HttpMethod.PATCH, Entity.json(input));");	// " + firstField + "
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");");
+		out.println("\t\tvar response = request(" + firstField + ").method(HttpMethod.PATCH, Entity.json(input));");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
 		out.println(indexChecks);
 		out.println("\t}");
 		out.println();
 		out.println("\t@Test");
-		out.println("\t@Order(220)");
+		out.println("\t@Order(245)");
 		out.println("\tpublic void patch_refresh() throws Exception");
 		out.println("\t{");
 		out.println("\t\tdao.refresh();");
@@ -374,11 +408,11 @@ public class JSONResourceTest extends JSONBase
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"after_patch_get(" + indexParams + ")\")");
 		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
-		out.println("\t@Order(225)");
+		out.println("\t@Order(250)");
 		out.println("\tpublic void after_patch_get(" + indexArgs + ") throws Exception");
 		out.println("\t{");
 		out.println("\t\tvar response = request(" + firstField + ").get();");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), \"Status\");");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
 		out.println(indexChecks);
@@ -390,7 +424,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\tpublic void remove_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
 		out.println("\t\tvar response = request(" + firstField + " + \"-x\").delete();");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_NOT_FOUND, response.getStatus());");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_NOT_FOUND, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println("\t}");
 		out.println();
 		out.println("\t@Test");
@@ -439,7 +473,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\tpublic void remove_success_get(" + indexArgs + ") throws Exception");
 		out.println("\t{");
 		out.println("\t\tvar response = request(" + firstField + ").get();");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_NOT_FOUND, response.getStatus());");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_NOT_FOUND, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"remove_again(" + indexParams + ")\")");
@@ -448,7 +482,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\tpublic void remove_again(" + indexArgs + ") throws Exception");
 		out.println("\t{");
 		out.println("\t\tvar response = request(" + firstField + ").delete();");
-		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_NOT_FOUND, response.getStatus());");
+		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_NOT_FOUND, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println("\t}");
 		out.println();
 		out.println("\t@Test");
