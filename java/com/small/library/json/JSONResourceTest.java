@@ -1,7 +1,6 @@
 package com.small.library.json;
 
 import static java.util.stream.Collectors.joining;
-import static com.small.library.json.JSONElasticTest.assertion;
 
 import java.io.*;
 import java.util.Date;
@@ -58,6 +57,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("import static app.fora.es.ElasticsearchUtils.json;");
 		out.println();
 		out.println("import java.time.Instant;");
+		out.println("import java.util.Date;");
 		out.println("import java.util.List;");
 		out.println("import javax.ws.rs.HttpMethod;");
 		out.println("import javax.ws.rs.client.*;");
@@ -134,6 +134,21 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 	}
 
+	public static String assertion(final JSONField f, final boolean update)
+	{
+		if ("created_at".equals(f.name))
+			return "\t\tassertThat(o.created_at).as(\"Check created_at\").isNotNull().isNotEqualTo(created_at.toString()).isCloseTo(now, 60000L);";
+		if ("updated_at".equals(f.name))
+		{
+			if (update)
+				return "\t\tassertThat(o.updated_at).as(\"Check updated_at\").isNotNull().isNotEqualTo(updated_at.toString()).isCloseTo(now, 30000L).isAfter(o.created_at)";
+
+			return "\t\tassertThat(o.updated_at).as(\"Check updated_at\").isNotNull().isNotEqualTo(updated_at.toString()).isCloseTo(now, 60000L).isEqualTo(o.created_at)";
+		}
+
+		return JSONElasticTest.assertion(f);
+	}
+
 	private void writeMethods()
 	{
 		var i = new int[] { 0 };
@@ -142,7 +157,9 @@ public class JSONResourceTest extends JSONBase
 		var indexParams = "input={0}, " + clazz.fields.stream().map(f -> f.name + "={" + ++i[0] + "}").collect(joining(", "));
 		var indexArgs = "final String input,\n\t\tfinal " + clazz.fields.stream().map(f -> f.typeForJunit() + " " + f.name).collect(joining(",\n\t\tfinal "));
 		var indexChecks = "\t\tAssertions.assertNotNull(o, \"Exists\");\n" +
-			clazz.fields.stream().map(f -> assertion(f)).collect(joining("\n"));
+			clazz.fields.stream().map(f -> assertion(f, false)).collect(joining("\n"));
+		var updateChecks = "\t\tAssertions.assertNotNull(o, \"Exists\");\n" +
+			clazz.fields.stream().map(f -> assertion(f, true)).collect(joining("\n"));
 
 		out.println();
 		out.println("\t@Test");
@@ -195,6 +212,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tvar response = request().post(Entity.json(input));");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
+		out.println("\t\tvar now = new Date();");
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
 		out.println(indexChecks);
 		out.println("\t}");
@@ -237,6 +255,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tvar response = request(" + firstField + ").get();");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
+		out.println("\t\tvar now = new Date();");
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
 		out.println(indexChecks);
 		out.println("\t}");
@@ -266,6 +285,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tassertThat(v).as(\"Check results\").isNotNull().hasSize(1).containsExactly(readEntity(input));");
 		out.println();
 		out.println("\t\tvar o = v.get(0);");
+		out.println("\t\tvar now = new Date();");
 		out.println(indexChecks);
 		out.println("\t}");
 		out.println();
@@ -356,6 +376,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tvar response = request(" + firstField + ").get();");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
+		out.println("\t\tvar now = new Date();");
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
 		out.println(indexChecks);
 		out.println("\t}");
@@ -395,8 +416,9 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tvar response = request(" + firstField + ").method(HttpMethod.PATCH, Entity.json(input));");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
+		out.println("\t\tvar now = new Date();");
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
-		out.println(indexChecks);
+		out.println(updateChecks);
 		out.println("\t}");
 		out.println();
 		out.println("\t@Test");
@@ -414,8 +436,9 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tvar response = request(" + firstField + ").get();");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
+		out.println("\t\tvar now = new Date();");
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
-		out.println(indexChecks);
+		out.println(updateChecks);
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"remove_fail(" + indexParams + ")\")");
@@ -449,8 +472,9 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tvar response = request(" + firstField + ").delete();");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus());");
 		out.println();
+		out.println("\t\tvar now = new Date();");
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
-		out.println(indexChecks);
+		out.println(updateChecks);
 		out.println("\t}");
 		out.println();
 		out.println("\t@Test");
@@ -509,6 +533,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tAssertions.assertEquals(expected, dao.count(readFilter(query)), \"COUNT: \" + query);");
 		out.println("\t}");
 		out.println();
+		out.println("\t@SuppressWarnings(\"unused\")");
 		out.println("\tprivate " + clazz.name + " readEntity(final String input) throws Exception");
 		out.println("\t{");
 		out.println("\t\treturn json.readValue(input, " + clazz.name + ".class);");
