@@ -71,7 +71,14 @@ public class JSONValue extends JSONBase
 		out.println("\tprivate static final long serialVersionUID = 1L;");
 		out.println();
 		clazz.fields.forEach(v -> {
-			out.print("\t"); annotate(v); out.print("public final "); out.print(v.type()); out.print(" "); out.print(v.name); out.println(";");
+			var a = annotate(v);
+			out.print("\t");
+			if (v.notContainer()) out.print(a);
+			out.print("public final ");
+			out.print(v.type(a));
+			out.print(" ");
+			out.print(v.name);
+			out.println(";");
 		});
 		out.println();
 		out.print("\tpublic "); out.print(clazz.name); out.println("(");
@@ -129,28 +136,32 @@ public class JSONValue extends JSONBase
 		out.println("}");
 	}
 
-	private void annotate(final JSONField v)
+	private String annotate(final JSONField v)
 	{
-		if (v.notBlank) out.print("@NotBlank ");
-		if (v.notEmpty) out.print("@NotEmpty ");
-		if (v.notNull) out.print("@NotNull ");
-		if (v.email) out.print("@Email ");
-		if (null != v.min) { out.print("@Min("); out.print(v.min); out.print(") "); }
-		if (null != v.max) { out.print("@Max("); out.print(v.max); out.print(") "); }
-		if (null != v.decimalMin) { out.print("@DecimalMin("); out.print(v.decimalMin); out.print(") "); }
-		if (null != v.decimalMax) { out.print("@DecimalMax("); out.print(v.decimalMax); out.print(") "); }
+		var o = new StringBuilder();
+
+		if (v.notBlank) o.append("@NotBlank ");
+		if (v.notEmpty) o.append("@NotEmpty ");
+		if (v.notNull) o.append("@NotNull ");
+		if (v.email) o.append("@Email ");
+		if (null != v.min) { o.append("@Min("); o.append(v.min); o.append(") "); }
+		if (null != v.max) { o.append("@Max("); o.append(v.max); o.append(") "); }
+		if (null != v.decimalMin) { o.append("@DecimalMin("); o.append(v.decimalMin); o.append(") "); }
+		if (null != v.decimalMax) { o.append("@DecimalMax("); o.append(v.decimalMax); o.append(") "); }
 
 		var sizeMin = (null != v.sizeMin);
 		var sizeMax = (null != v.sizeMax);
 		if (sizeMin || sizeMax)
 		{
-			out.print("@Size(");
-			if (sizeMin) { out.print("min="); out.print(v.sizeMin); if (sizeMax) out.print(", "); }
-			if (sizeMax) { out.print("max="); out.print(v.sizeMax); }
-			out.print(") ");
+			o.append("@Size(");
+			if (sizeMin) { o.append("min="); o.append(v.sizeMin); if (sizeMax) o.append(", "); }
+			if (sizeMax) { o.append("max="); o.append(v.sizeMax); }
+			o.append(") ");
 		}
 
-		if (null != v.pattern) { out.print("@Pattern(regexp=\""); out.print(v.pattern); out.print("\") "); }
+		if (null != v.pattern) { o.append("@Pattern(regexp=\""); o.append(v.pattern); o.append("\") "); }
+
+		return o.toString();
 	}
 
 	private String toEquals(final String name, final String type, final String term)

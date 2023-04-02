@@ -22,7 +22,7 @@ public class JSONField implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	public static final String FORMAT_CONTAINERIZE = "%s<%s>";
+	public static final String FORMAT_CONTAINERIZE = "%s<%s%s>";
 
 	public static final Set<String> DATES = Set.of("Date", "ZonedDateTime");
 	public static final Set<String> INTEGERS = Set.of("int", "long", "short", "Integer", "Long", "Short");
@@ -97,9 +97,11 @@ public class JSONField implements Serializable
 	public boolean number() { return NUMBERS.contains(type); }
 	public boolean primitive() { return PRIMITIVES.contains(type); }
 	public boolean string() { return "String".equals(type); }
-	public String type()
+
+	public String type() { return type(""); }
+	public String type(final String annotations)
 	{
-		return notContainer() ? type : String.format(FORMAT_CONTAINERIZE, container, type);
+		return notContainer() ? type : String.format(FORMAT_CONTAINERIZE, container, annotations, type);
 	}
 	public String typeForJunit()
 	{

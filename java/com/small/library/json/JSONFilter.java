@@ -48,6 +48,7 @@ public class JSONFilter extends JSONBase
 		out.println("import java.time.ZonedDateTime;");
 		out.println("import java.util.Date;");
 		out.println("import java.util.List;");
+		out.println("import javax.validation.constraints.NotBlank;");
 		out.println();
 		out.println("import org.apache.commons.collections4.CollectionUtils;");
 		out.println("import org.apache.commons.lang3.StringUtils;");
@@ -86,7 +87,10 @@ public class JSONFilter extends JSONBase
 		for (var i : clazz.fields)
 		{
 			if (i.identifier)
-				out.println("\tpublic final List<" + i.objectify() + "> " + i.name + "s;");
+			{
+				var a = i.string() ? "@NotBlank " : "";
+				out.println("\tpublic final List<" + a + i.objectify() + "> " + i.name + "s;");
+			}
 			else if (null != conf.clazz(i.type))
 			{
 				out.println("\tpublic final String " + i.name + "_id;");

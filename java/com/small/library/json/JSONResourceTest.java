@@ -58,6 +58,7 @@ public class JSONResourceTest extends JSONBase
 		out.println();
 		out.println("import java.time.Instant;");
 		out.println("import java.util.*;");
+		out.println("import java.util.stream.Stream;");
 		out.println("import javax.ws.rs.HttpMethod;");
 		out.println("import javax.ws.rs.client.*;");
 		out.println("import javax.ws.rs.core.GenericType;");
@@ -66,8 +67,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("import org.junit.jupiter.api.*;");
 		out.println("import org.junit.jupiter.api.extension.ExtendWith;");
 		out.println("import org.junit.jupiter.params.ParameterizedTest;");
-		out.println("import org.junit.jupiter.params.provider.CsvFileSource;");
-		out.println("import org.junit.jupiter.params.provider.CsvSource;");
+		out.println("import org.junit.jupiter.params.provider.*;");
 		out.println();
 		out.println("import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;");
 		out.println("import io.dropwizard.testing.junit5.ResourceExtension;");
@@ -109,6 +109,9 @@ public class JSONResourceTest extends JSONBase
 		out.println("\tprivate static final String createdAtQuery = \"{\\\"created_at_from\\\":\\\"%s\\\",\\\"created_at_to\\\":\\\"%s\\\"}\";");
 		out.println("\tprivate static final String updatedAtQuery = \"{\\\"updated_at_from\\\":\\\"%s\\\",\\\"updated_at_to\\\":\\\"%s\\\"}\";");
 		out.println();
+		out.println("\tprivate static Date createdAt(final String id) { return createdAt.get(id); }");
+		out.println("\tprivate static Date updatedAt(final String id) { return updatedAt.get(id); }");
+		out.println();
 		out.println("\tpublic static final String TARGET = \"/" + clazz.path + "\";");
 		out.println("\tprivate final ResourceExtension resource = ResourceExtension.builder()");
 		out.println("\t\t.addResource(new AppExceptionMapper())");
@@ -137,16 +140,35 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 	}
 
-	public static String assertion(final JSONField f, final boolean update)
+	public static String assertion(final JSONField f)
 	{
 		if ("created_at".equals(f.name))
 			return "\t\tassertThat(o.created_at).as(\"Check created_at\").isNotNull().isNotEqualTo(created_at.toString()).isCloseTo(now, 60000L);";
 		if ("updated_at".equals(f.name))
-		{
-			if (update)
-				return "\t\tassertThat(o.updated_at).as(\"Check updated_at\").isNotNull().isNotEqualTo(updated_at.toString()).isCloseTo(now, 30000L).isAfter(o.created_at)";
+			return "\t\tassertThat(o.updated_at).as(\"Check updated_at\").isNotNull().isNotEqualTo(updated_at.toString()).isCloseTo(now, 60000L).isEqualTo(o.created_at);";
 
-			return "\t\tassertThat(o.updated_at).as(\"Check updated_at\").isNotNull().isNotEqualTo(updated_at.toString()).isCloseTo(now, 60000L).isEqualTo(o.created_at)";
+		return JSONElasticTest.assertion(f);
+	}
+
+	public static String assertion_(final JSONField f, final int update)
+	{
+		if ("created_at".equals(f.name))
+		{
+			switch (update)
+			{
+				case 1: return "\t\tAssertions.assertEquals(createdAt, o.created_at, \"Check created_at\");";
+				default: return "\t\tAssertions.assertEquals(createdAt(id), o.created_at, \"Check created_at\");";
+			}
+		}
+
+		if ("updated_at".equals(f.name))
+		{
+			switch (update)
+			{
+				case 0: return "\t\tassertThat(o.updated_at).as(\"Check updated_at\").isNotNull().isNotEqualTo(updated_at.toString()).isCloseTo(new Date(), 30000L).isAfter(o.created_at);";
+				case 1: return "\t\tAssertions.assertEquals(createdAt, o.updated_at, \"Check updated_at\");";
+				default: return "\t\tAssertions.assertEquals(updatedAt(id), o.updated_at, \"Check updated_at\");";
+			}
 		}
 
 		return JSONElasticTest.assertion(f);
@@ -160,9 +182,13 @@ public class JSONResourceTest extends JSONBase
 		var indexParams = "input={0}, " + clazz.fields.stream().map(f -> f.name + "={" + ++i[0] + "}").collect(joining(", "));
 		var indexArgs = "final String input,\n\t\tfinal " + clazz.fields.stream().map(f -> f.typeForJunit() + " " + f.name).collect(joining(",\n\t\tfinal "));
 		var indexChecks = "\t\tAssertions.assertNotNull(o, \"Exists\");\n" +
-			clazz.fields.stream().map(f -> assertion(f, false)).collect(joining("\n"));
+			clazz.fields.stream().map(f -> assertion(f)).collect(joining("\n"));
 		var updateChecks = "\t\tAssertions.assertNotNull(o, \"Exists\");\n" +
-			clazz.fields.stream().map(f -> assertion(f, true)).collect(joining("\n"));
+			clazz.fields.stream().map(f -> assertion_(f, 0)).collect(joining("\n"));
+		var indexChecks_ = "\t\tAssertions.assertNotNull(o, \"Exists\");\n" +
+			clazz.fields.stream().map(f -> assertion_(f, 1)).collect(joining("\n"));
+		var updateChecks_ = "\t\tAssertions.assertNotNull(o, \"Exists\");\n" +
+			clazz.fields.stream().map(f -> assertion_(f, 2)).collect(joining("\n"));
 
 		out.println();
 		out.println("\t@Test");
@@ -260,9 +286,9 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tvar response = request(" + firstField + ").get();");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
-		out.println("\t\tvar now = new Date();");
+		out.println("\t\tvar createdAt = createdAt(id);");
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
-		out.println(indexChecks);
+		out.println(indexChecks_);
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"after_post_get_fail(" + indexParams + ")\")");
@@ -290,8 +316,8 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tassertThat(v).as(\"Check results\").isNotNull().hasSize(1).containsExactly(readEntity(input));");
 		out.println();
 		out.println("\t\tvar o = v.get(0);");
-		out.println("\t\tvar now = new Date();");
-		out.println(indexChecks);
+		out.println("\t\tvar createdAt = createdAt(id);");
+		out.println(indexChecks_);
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"after_post_find_fail(" + indexParams + ")\")");
@@ -415,9 +441,9 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tvar response = request(" + firstField + ").get();");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
-		out.println("\t\tvar now = new Date();");
+		out.println("\t\tvar createdAt = createdAt(id);");
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
-		out.println(indexChecks);
+		out.println(indexChecks_);
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"patch_invalid(input={0}, id={1}, message={2})\")");
@@ -455,7 +481,6 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tvar response = request(" + firstField + ").method(HttpMethod.PATCH, Entity.json(input));");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
-		out.println("\t\tvar now = new Date();");
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
 		out.println(updateChecks);
 		out.println();
@@ -477,9 +502,8 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tvar response = request(" + firstField + ").get();");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
-		out.println("\t\tvar now = new Date();");
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
-		out.println(updateChecks);
+		out.println(updateChecks_);
 		out.println("\t}");
 		out.println();
 		out.println("\tpublic static Stream<Map.Entry<String, Date>> search_by_updated_at()");
@@ -543,9 +567,8 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tvar response = request(" + firstField + ").delete();");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus());");
 		out.println();
-		out.println("\t\tvar now = new Date();");
 		out.println("\t\tvar o = response.readEntity(" + clazz.name + ".class);");
-		out.println(updateChecks);
+		out.println(updateChecks_);
 		out.println("\t}");
 		out.println();
 		out.println("\t@Test");
