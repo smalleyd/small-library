@@ -73,7 +73,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("import io.dropwizard.testing.junit5.ResourceExtension;");
 		out.println();
 		out.println("import " + domainPackage + ".common.model.Results;");
-		out.println("import " + appPackage + ".ElasticsearchExtension;");
+		out.println("import " + domainPackage + ".es.ElasticsearchExtension;");
 		out.println("import " + appPackage + ".dao." + daoName + ";");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
 		out.println("import " + appPackage + ".model." + filterName + ";");

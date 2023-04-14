@@ -66,7 +66,7 @@ public class JSONElasticTest extends JSONBase
 		out.println();
 		out.println("import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;");
 		out.println();
-		out.println("import " + appPackage + ".ElasticsearchExtension;");
+		out.println("import " + domainPackage + ".es.ElasticsearchExtension;");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
 		out.println("import " + appPackage + ".model." + filterName + ";");
 
