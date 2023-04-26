@@ -60,6 +60,8 @@ public class JSONResource extends JSONBase
 		out.println("import javax.ws.rs.core.MediaType;");
 		out.println("import javax.ws.rs.core.Response;");
 		out.println();
+		out.println("import org.apache.commons.lang3.StringUtils;");
+		out.println();
 		out.println("import io.dropwizard.validation.Validated;");
 		out.println("import io.swagger.v3.oas.annotations.*;");
 		out.println("import io.swagger.v3.oas.annotations.media.Content;");
@@ -183,6 +185,16 @@ public class JSONResource extends JSONBase
 		out.println("\tpublic Results<" + clazz.name + "> search(@NotNull final " + filterName + " request) throws IOException");
 		out.println("\t{");
 		out.println("\t\treturn dao.search(request);");
+		out.println("\t}");
+
+		out.println();
+		out.println("\t@GET");
+		out.println("\t@Path(\"/scroll/{scrollId}\") @Timed");
+		out.println("\t@Operation(summary=\"scroll\", description=\"Scrolls through the " + clazz.name + " data set with the specified scroll identifier.\")");
+		out.println("\tpublic Results<" + clazz.name + "> scroll(@PathParam(\"scrollId\") final String scrollId,");
+		out.println("\t\t@QueryParam(\"time\") @Parameter(name=\"time\", description=\"Optional scroll timeout value.\", required=false) final String time) throws IOException");
+		out.println("\t{");
+		out.println("\t\treturn StringUtils.isNotBlank(time) ? dao.scroll(scrollId, time) : dao.scroll(scrollId);");
 		out.println("\t}");
 	}
 

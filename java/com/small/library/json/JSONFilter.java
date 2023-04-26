@@ -153,11 +153,12 @@ public class JSONFilter extends JSONBase
 		out.println("\t\t@JsonProperty(\"sort\") final String sort,");
 		out.println("\t\t@JsonProperty(\"asc\") final Boolean asc,");
 		out.println("\t\t@JsonProperty(\"page\") final Integer page,");
-		out.println("\t\t@JsonProperty(\"pageSize\") final Integer pageSize)");
+		out.println("\t\t@JsonProperty(\"pageSize\") final Integer pageSize,");
+		out.println("\t\t@JsonProperty(\"scroll\") final String scroll)");
 
 		// Write body.
 		out.println("\t{");
-		out.println("\t\tsuper(sort, asc, page, pageSize);");
+		out.println("\t\tsuper(sort, asc, page, pageSize, scroll);");
 		out.println();
 		for (var v : clazz.fields)
 		{
