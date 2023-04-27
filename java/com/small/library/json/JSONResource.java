@@ -58,7 +58,6 @@ public class JSONResource extends JSONBase
 		out.println("import javax.validation.groups.Default;");
 		out.println("import javax.ws.rs.*;");
 		out.println("import javax.ws.rs.core.MediaType;");
-		out.println("import javax.ws.rs.core.Response;");
 		out.println();
 		out.println("import org.apache.commons.lang3.StringUtils;");
 		out.println();

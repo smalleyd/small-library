@@ -56,10 +56,12 @@ public class JSONElastic extends JSONBase
 		out.println("import java.util.*;");
 		out.println("import javax.ws.rs.NotFoundException;");
 		out.println();
-		out.println("import org.elasticsearch.client.RestHighLevelClient;");
-		out.println("import org.elasticsearch.index.query.QueryBuilder;");
-		out.println("import org.elasticsearch.index.query.QueryBuilders;");
 		out.println("import org.slf4j.*;");
+		out.println();
+		out.println("import co.elastic.clients.elasticsearch.ElasticsearchClient;");
+		out.println("import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;");
+		out.println("import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;");
+		out.println("import co.elastic.clients.elasticsearch._types.query_dsl.Query;");
 
 		if (clazz.cacheable)
 		{
@@ -102,13 +104,13 @@ public class JSONElastic extends JSONBase
 		if (clazz.cacheable)
 		{
 			out.println();
-			out.println("\tpublic " + className + "(final RestHighLevelClient es, final JedisPool jedis)");
+			out.println("\tpublic " + className + "(final ElasticsearchClient es, final JedisPool jedis)");
 			out.println("\t{");
 			out.println("\t\tthis(es, jedis, false);");
 			out.println("\t}");
 
 			out.println();
-			out.println("\tpublic " + className + "(final RestHighLevelClient es, final JedisPool jedis, final boolean test)");
+			out.println("\tpublic " + className + "(final ElasticsearchClient es, final JedisPool jedis, final boolean test)");
 			out.println("\t{");
 			out.println("\t\tsuper(es, INDEX, type, types, jedis, test);");
 			out.println("\t}");
@@ -116,13 +118,13 @@ public class JSONElastic extends JSONBase
 		else
 		{
 			out.println();
-			out.println("\tpublic " + className + "(final RestHighLevelClient es)");
+			out.println("\tpublic " + className + "(final ElasticsearchClient es)");
 			out.println("\t{");
 			out.println("\t\tthis(es, false);");
 			out.println("\t}");
 
 			out.println();
-			out.println("\tpublic " + className + "(final RestHighLevelClient es, final boolean test)");
+			out.println("\tpublic " + className + "(final ElasticsearchClient es, final boolean test)");
 			out.println("\t{");
 			out.println("\t\tsuper(es, INDEX, type, types, test);");
 			out.println("\t}");
@@ -134,7 +136,7 @@ public class JSONElastic extends JSONBase
 		out.println();
 		out.println("\tpublic List<" + clazz.name + "> getByTerm(final String term, final int pageSize) throws IOException");
 		out.println("\t{");
-		out.println("\t\treturn getByQuery(QueryBuilders.multiMatchQuery(term, \"" + clazz.fields.get(1).name + "\"), pageSize);");
+		out.println("\t\treturn getByQuery(MatchQuery.of(i -> i.field(\"" + clazz.fields.get(1).name + "\").query(term)), pageSize);");
 		out.println("\t}");
 
 		out.println();
@@ -147,36 +149,36 @@ public class JSONElastic extends JSONBase
 
 		out.println();
 		out.println("\t@Override");
-		out.println("\tprotected QueryBuilder buildQuery_(final " + filterName + " request)");
+		out.println("\tprotected Query buildQuery_(final " + filterName + " request)");
 		out.println("\t{");
-		out.println("\t\tvar o = QueryBuilders.boolQuery();");
-		out.println();
+		out.println("\t\treturn BoolQuery.of(o -> {");
 		for (var v : clazz.fields)
 		{
 			if (v.identifier)
-				out.println("\t\tidsQuery(o, request." + v.name + "s);");
+				out.println("\t\t\tidsQuery(o, request." + v.name + "s);");
 			else if (v.string())
-				out.println("\t\tmatchQuery(o, \"" + v.name + "\", request." + v.name + ");");
+				out.println("\t\t\tmatchQuery(o, \"" + v.name + "\", request." + v.name + ");");
 			else if (null != conf.clazz(v.type))
 			{
-				out.println("\t\ttermQuery(o, \"" + v.name + ".id\", request." + v.name + "_id);");
-				out.println("\t\tmatchQuery(o, \"" + v.name + ".name\", request." + v.name + "_name);");
+				out.println("\t\t\ttermQuery(o, \"" + v.name + ".id\", request." + v.name + "_id);");
+				out.println("\t\t\tmatchQuery(o, \"" + v.name + ".name\", request." + v.name + "_name);");
 			}
 			else
-				out.println("\t\ttermQuery(o, \"" + v.name + "\", request." + v.name + ");");
+				out.println("\t\t\ttermQuery(o, \"" + v.name + "\", request." + v.name + ");");
 				
 			if (v.nullable())
 			{
-				out.println("\t\texistsQuery(o, \"" + v.name + "\", request.has_" + v.name + ");");
+				out.println("\t\t\texistsQuery(o, \"" + v.name + "\", request.has_" + v.name + ");");
 			}
 
 			if (v.range)
 			{
-				out.println("\t\trangeQuery(o, \"" + v.name + "\", request." + v.name + "_from, request." + v.name + "_to);");
+				out.println("\t\t\trangeQuery(o, \"" + v.name + "\", request." + v.name + "_from, request." + v.name + "_to);");
 			}
 		}
 		out.println();
-		out.println("\t\treturn o;");
+		out.println("\t\t\treturn o;");
+		out.println("\t\t})._toQuery();");
 		out.println("\t}");
 	}
 

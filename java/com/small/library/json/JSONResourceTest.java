@@ -76,6 +76,12 @@ public class JSONResourceTest extends JSONBase
 		out.println("import " + domainPackage + ".es.ElasticsearchExtension;");
 		out.println("import " + appPackage + ".dao." + daoName + ";");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
+		for (var f : clazz.fields)
+		{
+			var c = conf.clazz(f.type);
+			if (null != c)
+				out.println("import " + appPackage + ".domain." + c.name + ";");
+		}
 		out.println("import " + appPackage + ".model." + filterName + ";");
 
 		if (clazz.cacheable)

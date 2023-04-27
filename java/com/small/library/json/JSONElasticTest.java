@@ -58,7 +58,6 @@ public class JSONElasticTest extends JSONBase
 		out.println("import java.time.Instant;");
 		out.println("import javax.ws.rs.NotFoundException;");
 		out.println();
-		out.println("import org.elasticsearch.index.query.QueryBuilders;");
 		out.println("import org.junit.jupiter.api.*;");
 		out.println("import org.junit.jupiter.api.extension.ExtendWith;");
 		out.println("import org.junit.jupiter.params.ParameterizedTest;");
@@ -66,8 +65,16 @@ public class JSONElasticTest extends JSONBase
 		out.println();
 		out.println("import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;");
 		out.println();
+		out.println("import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;");
+		out.println();
 		out.println("import " + domainPackage + ".es.ElasticsearchExtension;");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
+		for (var f : clazz.fields)
+		{
+			var c = conf.clazz(f.type);
+			if (null != c)
+				out.println("import " + appPackage + ".domain." + c.name + ";");
+		}
 		out.println("import " + appPackage + ".model." + filterName + ";");
 
 		if (clazz.cacheable)
@@ -224,7 +231,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t@Order(20)");
 		out.println("\tpublic void getFirst(" + indexArgs + ") throws Exception");
 		out.println("\t{");
-		out.println("\t\tvar o = dao.getFirst(QueryBuilders.termQuery(\"" + secondField + ".keyword\", " + secondField + "));");
+		out.println("\t\tvar o = dao.getFirst(TermQuery.of(q -> q.field(\"" + secondField + ".keyword\").value(" + secondField + ")));");
 		out.println("\t\tassertThat(o).as(\"Check results\").isNotNull().isEqualTo(readEntity(input));");
 		out.println(indexChecks);
 		out.println("\t}");
@@ -234,7 +241,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t@Order(20)");
 		out.println("\tpublic void getFirst_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
-		out.println("\t\tAssertions.assertNull(dao.getFirst(QueryBuilders.termQuery(\"" + secondField + ".keyword\", " + secondField + " + \"-x\")));");
+		out.println("\t\tAssertions.assertNull(dao.getFirst(TermQuery.of(q -> q.field(\"" + secondField + ".keyword\").value(" + secondField + " + \"-x\"))));");
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"getByTerm(" + indexParams + ")\")");
@@ -287,7 +294,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t@Order(100)");
 		out.println("\tpublic void update_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
-		out.println("\t\tAssertions.assertThrows(org.elasticsearch.ElasticsearchStatusException.class, () -> dao.update(" + firstField + " + \"-x\", toMap(input)));");
+		out.println("\t\tAssertions.assertThrows(co.elastic.clients.elasticsearch._types.ElasticsearchException.class, () -> dao.update(" + firstField + " + \"-x\", toMap(input)));");
 		out.println("\t}");
 		out.println();
 		out.println("\t@Test");
