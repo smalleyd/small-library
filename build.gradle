@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-version = '3.0'
+version = '3.1'
 
 // Add Gradle OneJar Plugin, see https://github.com/rholder/gradle-one-jar
 buildscript {
