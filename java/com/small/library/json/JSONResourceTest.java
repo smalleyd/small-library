@@ -205,7 +205,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"before_post_get(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(0)");
 		out.println("\tpublic void before_post_get(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -214,7 +214,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"post_invalid(input={0}, message={1})\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/invalid.json\", quoteCharacter='`')");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/invalid.csv\", quoteCharacter='`')");
 		out.println("\t@Order(10)");
 		out.println("\tpublic void post_invalid(final String input, final String message)");
 		out.println("\t{");
@@ -240,7 +240,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"post(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(100)");
 		out.println("\tpublic void post(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -269,7 +269,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"after_post_exists(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(110)");
 		out.println("\tpublic void after_post_exists(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -277,7 +277,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"after_post_exists_fail(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(110)");
 		out.println("\tpublic void after_post_exists_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -285,7 +285,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"after_post_get(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(110)");
 		out.println("\tpublic void after_post_get(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -298,7 +298,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"after_post_get_fail(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(110)");
 		out.println("\tpublic void after_post_get_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -311,7 +311,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"after_post_find(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(110)");
 		out.println("\tpublic void after_post_find(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -327,7 +327,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"after_post_find_fail(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(110)");
 		out.println("\tpublic void after_post_find_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -363,7 +363,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"search(input={0}, size={1}, ids={2})\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/search.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/search.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(110)");
 		out.println("\tpublic void search(final String input, int size, final String ids) throws Exception");
 		out.println("\t{");
@@ -406,7 +406,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"count(input={0}, size={1})\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/search.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/search.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(110)");
 		out.println("\tpublic void count(final String input, int size) throws Exception");
 		out.println("\t{");
@@ -470,7 +470,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"patch_fail(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(200)");
 		out.println("\tpublic void patch_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -486,7 +486,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"patch_fail_get(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(210)");
 		out.println("\tpublic void patch_fail_get(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -499,7 +499,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"patch_invalid(input={0}, id={1}, message={2})\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/invalid-patch.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/invalid-patch.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(220)");
 		out.println("\tpublic void patch_invalid(final String input,");
 		out.println("\t\tfinal String id,");
@@ -518,7 +518,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"patch_invalid_get(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(230)");
 		out.println("\tpublic void patch_invalid_get(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -526,7 +526,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"patch(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(240)");
 		out.println("\tpublic void patch(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -547,7 +547,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"after_patch_get(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(250)");
 		out.println("\tpublic void after_patch_get(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -589,7 +589,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"remove_fail(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(300)");
 		out.println("\tpublic void remove_fail(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -612,7 +612,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"remove_success(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(315)");
 		out.println("\tpublic void remove_success(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -638,7 +638,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"remove_success_get(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(330)");
 		out.println("\tpublic void remove_success_get(" + indexArgs + ") throws Exception");
 		out.println("\t{");
@@ -647,7 +647,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"remove_again(" + indexParams + ")\")");
-		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.json\"" + QUOTE_CHARACTER + ")");
+		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/update.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(335)");
 		out.println("\tpublic void remove_again(" + indexArgs + ") throws Exception");
 		out.println("\t{");

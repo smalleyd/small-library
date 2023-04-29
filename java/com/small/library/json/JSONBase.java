@@ -186,27 +186,27 @@ public abstract class JSONBase implements Runnable
 		{
 			final JSONIndexTest indexTest;
 
-			try (var out = new PrintStream(new File(dir, lowerCase + "-index.json")))
+			try (var out = new PrintStream(new File(dir, lowerCase + "-index.csv")))
 			{
 				(indexTest = new JSONIndexTest(conf, clazz, out, 1)).run();
 				out.flush();
 			}
-			try (var out = new PrintStream(new File(dir, lowerCase + "-invalid.json")))
+			try (var out = new PrintStream(new File(dir, lowerCase + "-invalid.csv")))
 			{
 				new JSONInvalidTest(conf, clazz, out, indexTest.inputs.get(0), indexTest.sampleData.get(0)).run();
 				out.flush();
 			}
-			try (var out = new PrintStream(new File(dir, lowerCase + "-invalid-patch.json")))
+			try (var out = new PrintStream(new File(dir, lowerCase + "-invalid-patch.csv")))
 			{
 				new JSONInvalidPatchTest(conf, clazz, out, indexTest.inputs.get(0), indexTest.sampleData.get(0)).run();
 				out.flush();
 			}
-			try (var out = new PrintStream(new File(dir, lowerCase + "-update.json")))
+			try (var out = new PrintStream(new File(dir, lowerCase + "-update.csv")))
 			{
 				new JSONIndexTest(conf, clazz, out, 7).run();
 				out.flush();
 			}
-			try (var out = new PrintStream(new File(dir, lowerCase + "-search.json")))
+			try (var out = new PrintStream(new File(dir, lowerCase + "-search.csv")))
 			{
 				new JSONSearchTest(conf, clazz, out, indexTest.sampleData).run();
 				out.flush();
