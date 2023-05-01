@@ -91,10 +91,11 @@ public class JSONFilter extends JSONBase
 				var a = i.string() ? "@NotBlank " : "";
 				out.println("\tpublic final List<" + a + i.objectify() + "> " + i.name + "s;");
 			}
-			else if (null != conf.clazz(i.type))
+			else if (conf.clazz_exists(i.type))
 			{
-				out.println("\tpublic final String " + i.name + "_id;");
-				out.println("\tpublic final String " + i.name + "_name;");
+				var c = conf.clazz(i.type);
+				out.println("\tpublic final String " + i.name + "_" + c.fields.get(0).name + ";");
+				out.println("\tpublic final String " + i.name + "_" + c.fields.get(1).name + ";");
 			}
 			else
 				out.println("\tpublic final " + i.objectify() + " " + i.name + ";");
@@ -122,11 +123,14 @@ public class JSONFilter extends JSONBase
 			{
 				out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("s\") final List<"); out.print(v.objectify()); out.print("> "); out.print(v.name); out.print("s");
 			}
-			else if (null != conf.clazz(v.type))
+			else if (conf.clazz_exists(v.type))
 			{
-				out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("_id\") final String "); out.print(v.name); out.print("_id");
+				var c = conf.clazz(v.type);
+				var first = c.fields.get(0).name;
+				var second = c.fields.get(1).name;
+				out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("_" + first + "\") final String "); out.print(v.name); out.print("_" + first + "");
 				out.println(",");
-				out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("_name\") final String "); out.print(v.name); out.print("_name");
+				out.print("\t\t@JsonProperty(\""); out.print(v.name); out.print("_" + second + "\") final String "); out.print(v.name); out.print("_" + second);
 			}
 			else
 			{
@@ -167,10 +171,13 @@ public class JSONFilter extends JSONBase
 
 			if (v.identifier)
 				out.println("\t\tthis." + v.name + "s = " + v.name + "s;");
-			else if (null != conf.clazz(v.type))
+			else if (conf.clazz_exists(v.type))
 			{
-				out.println("\t\tthis." + v.name + "_id = StringUtils.trimToNull(" + v.name + "_id);");
-				out.println("\t\tthis." + v.name + "_name = StringUtils.trimToNull(" + v.name + "_name);");
+				var c = conf.clazz(v.type);
+				var first = c.fields.get(0).name;
+				var second = c.fields.get(1).name;
+				out.println("\t\tthis." + v.name + "_" + first + " = StringUtils.trimToNull(" + v.name + "_" + first + ");");
+				out.println("\t\tthis." + v.name + "_" + second + " = StringUtils.trimToNull(" + v.name + "_" + second + ");");
 			}
 			else
 				out.println("\t\tthis." + v.name + " = " + wrap + v.name + wrap_ + ";");
@@ -201,11 +208,12 @@ public class JSONFilter extends JSONBase
 		{
 			if (v.identifier)
 				out.print("\t\t\tCollectionUtils.isEmpty(" + v.name + "s)");
-			else if (null != conf.clazz(v.type))
+			else if (conf.clazz_exists(v.type))
 			{
-				out.print("\t\t\t(null == " + v.name + "_id)");
+				var c = conf.clazz(v.type);
+				out.print("\t\t\t(null == " + v.name + "_" + c.fields.get(0).name + ")");
 				out.println(" &&");
-				out.print("\t\t\t(null == " + v.name + "_name)");
+				out.print("\t\t\t(null == " + v.name + "_" + c.fields.get(1).name + ")");
 			}
 			else
 				out.print("\t\t\t(null == " + v.name + ")");

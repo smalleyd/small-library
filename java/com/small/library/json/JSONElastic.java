@@ -158,10 +158,13 @@ public class JSONElastic extends JSONBase
 				out.println("\t\t\tidsQuery(o, request." + v.name + "s);");
 			else if (v.string())
 				out.println("\t\t\tmatchQuery(o, \"" + v.name + "\", request." + v.name + ");");
-			else if (null != conf.clazz(v.type))
+			else if (conf.clazz_exists(v.type))
 			{
-				out.println("\t\t\ttermQuery(o, \"" + v.name + ".id\", request." + v.name + "_id);");
-				out.println("\t\t\tmatchQuery(o, \"" + v.name + ".name\", request." + v.name + "_name);");
+				var c = conf.clazz(v.type);
+				var first = c.fields.get(0).name;
+				var second = c.fields.get(1).name;
+				out.println("\t\t\ttermQuery(o, \"" + v.name + "." + first + "\", request." + v.name + "_" + first + ");");
+				out.println("\t\t\tmatchQuery(o, \"" + v.name + "." + second + "\", request." + v.name + "_" + second + ");");
 			}
 			else
 				out.println("\t\t\ttermQuery(o, \"" + v.name + "\", request." + v.name + ");");

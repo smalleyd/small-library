@@ -31,6 +31,7 @@ public class JSONConfig implements Serializable
 
 	private final Map<String, JSONClass> classes_;
 
+	public boolean clazz_exists(final String name) { return classes_.containsKey(name); }
 	public JSONClass clazz(final String name) { return classes_.get(name); }
 
 	public JSONConfig(@JsonProperty("packageName") final String packageName,
