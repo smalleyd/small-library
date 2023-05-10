@@ -35,6 +35,9 @@ public class JSONInvalidPatchTest extends JSONBase
 	@Override
 	public void run()
 	{
+		out.println(",`id_1`,`The request body must not be empty`");
+		out.println("`{}`,`id_1`,`The request body must not be empty`");
+
 		var i = -1;
 		var id = ((String) sampleData[0]).replace('"', CHAR_QUOTE);
 		var validFields = clazz.fields.stream().map(f -> f.name).sorted().collect(joining(", "));

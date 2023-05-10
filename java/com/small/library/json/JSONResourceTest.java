@@ -69,6 +69,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("import org.junit.jupiter.params.ParameterizedTest;");
 		out.println("import org.junit.jupiter.params.provider.*;");
 		out.println();
+		out.println("import io.dropwizard.jersey.validation.ValidationErrorMessage;");
 		out.println("import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;");
 		out.println("import io.dropwizard.testing.junit5.ResourceExtension;");
 		out.println();
@@ -507,7 +508,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t{");
 		out.println("\t\tvar response = request(id).method(HttpMethod.PATCH, Entity.json(input));");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_INVALID, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
-		out.println("\t\tassertThat(response.readEntity(typeMap)).as(\"Check results\").contains(MapEntry.entry(\"errors\", List.of(message.replaceAll(\"\\\\\\\\n\", \"\\n\"))));");
+		out.println("\t\tassertThat(response.readEntity(ValidationErrorMessage.class).getErrors()).as(\"Check results\").contains(message.replaceAll(\"\\\\\\\\n\", \"\\n\"));");
 		out.println("\t}");
 		out.println();
 		out.println("\t@Test");

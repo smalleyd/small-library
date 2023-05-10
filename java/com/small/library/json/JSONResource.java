@@ -163,7 +163,7 @@ public class JSONResource extends JSONBase
 		out.println("\t\tdescription=\"Patches/merges an existing single " + clazz.name + " value.\",");
 		out.println("\t\trequestBody=@RequestBody(content=@Content(schema=@Schema(implementation=" + clazz.name + ".class))))");
 		out.println("\tpublic " + clazz.name + " patch(@PathParam(\"id\") final String id,");
-		out.println("\t\t@NotNull @MapConstraint(" + clazz.name + ".class) final Map<String, Object> value) throws IOException, NotFoundException");
+		out.println("\t\t@NotEmpty @MapConstraint(" + clazz.name + ".class) final Map<String, Object> value) throws IOException, NotFoundException");
 		out.println("\t{");
 		out.println("\t\treturn dao.patch(id, value);");
 		out.println("\t}");
