@@ -53,6 +53,24 @@ public abstract class JSONBase implements Runnable
 		else appPackage = domainPackage = "";
 	}
 
+	/** Converts a camel case name to a snake case name. */
+	public static String indexName(final String value)
+	{
+		var chars = value.toCharArray();
+		var o = new StringBuilder().append(Character.toLowerCase(chars[0]));
+
+		for (int i = 1; i < chars.length; i++)
+		{
+			var c = chars[i];
+			if (Character.isUpperCase(c))
+				o.append('_').append(Character.toLowerCase(c));
+			else
+				o.append(c);
+		}
+
+		return o.toString();
+	}
+
 	/** Application entry point. The first two arguments are required.
 	 * 
 	 * @param args[0] the configuration file name (JSON). Required.
@@ -115,7 +133,7 @@ public abstract class JSONBase implements Runnable
 	static void generate(final String fileName, final JSONConfig conf, final JSONClass clazz, final File dir, final int i)
 		throws IOException
 	{
-		var lowerCase = clazz.name.toLowerCase();
+		var indexName = indexName(clazz.name);
 
 		if (null == clazz.name)
 		{
@@ -160,7 +178,7 @@ public abstract class JSONBase implements Runnable
 				new JSONElasticTest(conf, clazz, out).run();
 				out.flush();
 			}
-			try (var out = new PrintStream(new File(dir, lowerCase + ".json")))
+			try (var out = new PrintStream(new File(dir, indexName + ".json")))
 			{
 				new JSONElasticMapping(conf, clazz, out).run();
 				out.flush();
@@ -186,27 +204,27 @@ public abstract class JSONBase implements Runnable
 		{
 			final JSONIndexTest indexTest;
 
-			try (var out = new PrintStream(new File(dir, lowerCase + "-index.csv")))
+			try (var out = new PrintStream(new File(dir, indexName + "-index.csv")))
 			{
 				(indexTest = new JSONIndexTest(conf, clazz, out, 1)).run();
 				out.flush();
 			}
-			try (var out = new PrintStream(new File(dir, lowerCase + "-invalid.csv")))
+			try (var out = new PrintStream(new File(dir, indexName + "-invalid.csv")))
 			{
 				new JSONInvalidTest(conf, clazz, out, indexTest.inputs.get(0), indexTest.sampleData.get(0)).run();
 				out.flush();
 			}
-			try (var out = new PrintStream(new File(dir, lowerCase + "-invalid-patch.csv")))
+			try (var out = new PrintStream(new File(dir, indexName + "-invalid-patch.csv")))
 			{
 				new JSONInvalidPatchTest(conf, clazz, out, indexTest.inputs.get(0), indexTest.sampleData.get(0)).run();
 				out.flush();
 			}
-			try (var out = new PrintStream(new File(dir, lowerCase + "-update.csv")))
+			try (var out = new PrintStream(new File(dir, indexName + "-update.csv")))
 			{
 				new JSONIndexTest(conf, clazz, out, 7).run();
 				out.flush();
 			}
-			try (var out = new PrintStream(new File(dir, lowerCase + "-search.csv")))
+			try (var out = new PrintStream(new File(dir, indexName + "-search.csv")))
 			{
 				new JSONSearchTest(conf, clazz, out, indexTest.sampleData).run();
 				out.flush();
