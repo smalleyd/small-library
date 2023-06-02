@@ -94,7 +94,7 @@ public class JSONElastic extends JSONBase
 		out.println("\tprivate static final Logger log = LoggerFactory.getLogger(" + className + ".class);");
 		out.println();
 		out.println("\tpublic static final String NAME = \"" + clazz.name + "\";");
-		out.println("\tpublic static final String INDEX = \"" + clazz.name.toLowerCase() + "\";");
+		out.println("\tpublic static final String INDEX = \"" + indexName(clazz.name) + "\";");
 		out.println("\tpublic static final TypeReference<" + clazz.name + "> type = new TypeReference<>() {};");
 		out.println("\tpublic static final TypeReference<List<" + clazz.name + ">> types = new TypeReference<>() {};");
 	}
