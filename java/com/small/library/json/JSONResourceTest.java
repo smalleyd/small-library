@@ -240,12 +240,14 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tcount(0L);");
 		out.println("\t}");
 		out.println();
+		out.println("\tprivate static int post = -1;");
+		out.println();
 		out.println("\t@ParameterizedTest(name=\"post(" + indexParams + ")\")");
 		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/index.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(100)");
 		out.println("\tpublic void post(" + indexArgs + ") throws Exception");
 		out.println("\t{");
-		out.println("\t\tvar response = request().post(Entity.json(input));");
+		out.println("\t\tvar response = request().method((0 == (++post % 2)) ? HttpMethod.POST : HttpMethod.PUT, Entity.json(input));");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
 		out.println("\t\tvar now = new Date();");
@@ -460,7 +462,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t@Order(125)");
 		out.println("\tpublic void scroll_end() throws Exception");
 		out.println("\t{");
-		out.println("\t\tvar response = request(\"scroll/\" + scrollId).get();");
+		out.println("\t\tvar response = request(target().path(\"scroll/\" + scrollId).queryParam(\"time\", \"30s\")).get();");
 		out.println("\t\tAssertions.assertEquals(HTTP_STATUS_OK, response.getStatus(), () -> \"Status: \" + response.readEntity(String.class));");
 		out.println();
 		out.println("\t\tvar o = response.readEntity(typeResults);");
