@@ -45,10 +45,10 @@ public class JSONValue extends JSONBase
 		}
 		out.println();
 		out.println("import org.apache.commons.lang3.StringUtils;");
-		out.println("import org.apache.commons.lang3.builder.ToStringBuilder;");
-		out.println("import org.apache.commons.lang3.builder.ToStringStyle;");
 		out.println();
 		out.println("import com.fasterxml.jackson.annotation.JsonProperty;");
+		out.println();
+		out.println("import " + domainPackage + ".common.ObjectUtils;");
 		out.println();
 		out.print("/** Value object that represents the "); out.print(clazz.caption); out.println(".");
 		out.println(" * ");
@@ -132,7 +132,7 @@ public class JSONValue extends JSONBase
 		out.println("\t}");
 		out.println();
 		out.println("\t@Override");
-		out.println("\tpublic String toString() { return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE); }");
+		out.println("\tpublic String toString() { return ObjectUtils.toString(this); }");
 		out.println("}");
 	}
 

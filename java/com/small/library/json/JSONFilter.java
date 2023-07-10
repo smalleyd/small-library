@@ -52,8 +52,6 @@ public class JSONFilter extends JSONBase
 		out.println();
 		out.println("import org.apache.commons.collections4.CollectionUtils;");
 		out.println("import org.apache.commons.lang3.StringUtils;");
-		out.println("import org.apache.commons.lang3.builder.ToStringBuilder;");
-		out.println("import org.apache.commons.lang3.builder.ToStringStyle;");
 		out.println();
 		out.println("import com.fasterxml.jackson.annotation.JsonProperty;");
 		out.println();
@@ -236,13 +234,13 @@ public class JSONFilter extends JSONBase
 		out.println("\t}");
 	}
 
-	private void writeToString()
-	{
+	private void writeToString() {}	// Not needed because Filter has an implementation. DLS on 7/9/2023.
+	/*{
 		// Start section.
 		out.println();
 		out.println("\t@Override");
 		out.println("\tpublic String toString() { return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE); }");
-	}
+	}*/
 
 	/** Output method - writes the class footer. */
 	private void writeFooter()
