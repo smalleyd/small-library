@@ -379,6 +379,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tAssertions.assertNotNull(o, \"Exists\");");
 		out.println("\t\tAssertions.assertEquals((long) size, o.total, \"Check total\");");
 		out.println("\t\tassertThat(o.data).as(\"Check data\").isNotNull().hasSize(size);");
+		out.println("\t\tAssertions.assertNull(o.scrollId, \"Check scollId\");");
 		out.println();
 		out.println("\t\tif (0 < size)");
 		out.println("\t\t\tassertThat(o.data.stream().map(v -> v.id()).toArray(String[]::new))");
