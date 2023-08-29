@@ -97,6 +97,7 @@ public class JSONElastic extends JSONBase
 		out.println("\tpublic static final String INDEX = \"" + indexName(clazz.name) + "\";");
 		out.println("\tpublic static final TypeReference<" + clazz.name + "> type = new TypeReference<>() {};");
 		out.println("\tpublic static final TypeReference<List<" + clazz.name + ">> types = new TypeReference<>() {};");
+		out.println("\tpublic static final TypeReference<" + filterName + "> typeFilter = new TypeReference<>() {};");
 	}
 
 	private void writeConstructors()
@@ -112,7 +113,7 @@ public class JSONElastic extends JSONBase
 			out.println();
 			out.println("\tpublic " + className + "(final ElasticsearchClient es, final JedisPool jedis, final boolean test)");
 			out.println("\t{");
-			out.println("\t\tsuper(es, INDEX, type, types, jedis, test);");
+			out.println("\t\tsuper(es, INDEX, type, types, typeFilter, jedis, test);");
 			out.println("\t}");
 		}
 		else
@@ -126,7 +127,7 @@ public class JSONElastic extends JSONBase
 			out.println();
 			out.println("\tpublic " + className + "(final ElasticsearchClient es, final boolean test)");
 			out.println("\t{");
-			out.println("\t\tsuper(es, INDEX, type, types, test);");
+			out.println("\t\tsuper(es, INDEX, type, types, typeFilter, test);");
 			out.println("\t}");
 		}
 	}
