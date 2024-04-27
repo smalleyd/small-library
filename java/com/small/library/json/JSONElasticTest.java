@@ -61,6 +61,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("import org.junit.jupiter.api.*;");
 		out.println("import org.junit.jupiter.api.extension.ExtendWith;");
 		out.println("import org.junit.jupiter.params.ParameterizedTest;");
+		out.println("import org.junit.jupiter.params.converter.ConvertWith;");
 		out.println("import org.junit.jupiter.params.provider.CsvFileSource;");
 		out.println();
 		out.println("import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;");
@@ -68,6 +69,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;");
 		out.println();
 		out.println("import " + domainPackage + ".es.ElasticsearchExtension;");
+		out.println("import " + domainPackage + ".junit.params.StringsArgumentConverter;");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
 		for (var f : clazz.fields)
 		{
@@ -268,7 +270,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t@ParameterizedTest(name=\"search(input={0}, size={1}, ids={2})\")");
 		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/search.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(20)");
-		out.println("\tpublic void search(final String input, final int size, final String ids) throws Exception");
+		out.println("\tpublic void search(final String input, final int size, @ConvertWith(StringsArgumentConverter.class) final String... ids) throws Exception");
 		out.println("\t{");
 		out.println("\t\tvar o = dao.search(readFilter(input));");
 		out.println("\t\tAssertions.assertNotNull(o, \"Exists\");");
@@ -278,7 +280,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t\tif (0 < size)");
 		out.println("\t\t\tassertThat(o.data.stream().map(v -> v.id()).toArray(String[]::new))");
 		out.println("\t\t\t\t.as(\"Check ids\")");
-		out.println("\t\t\t\t.containsExactly(ids.split(\",\"));");
+		out.println("\t\t\t\t.containsExactly(ids);");
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"count(input={0}, size={1})\")");

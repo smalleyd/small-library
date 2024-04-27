@@ -67,6 +67,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("import org.junit.jupiter.api.*;");
 		out.println("import org.junit.jupiter.api.extension.ExtendWith;");
 		out.println("import org.junit.jupiter.params.ParameterizedTest;");
+		out.println("import org.junit.jupiter.params.converter.ConvertWith;");
 		out.println("import org.junit.jupiter.params.provider.*;");
 		out.println();
 		out.println("import io.dropwizard.jersey.validation.ValidationErrorMessage;");
@@ -75,6 +76,7 @@ public class JSONResourceTest extends JSONBase
 		out.println();
 		out.println("import " + domainPackage + ".common.model.Results;");
 		out.println("import " + domainPackage + ".es.ElasticsearchExtension;");
+		out.println("import " + domainPackage + ".junit.params.StringsArgumentConverter;");
 		out.println("import " + appPackage + ".dao." + daoName + ";");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
 		for (var f : clazz.fields)
@@ -368,7 +370,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t@ParameterizedTest(name=\"search(input={0}, size={1}, ids={2})\")");
 		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/search.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(110)");
-		out.println("\tpublic void search(final String input, int size, final String ids) throws Exception");
+		out.println("\tpublic void search(final String input, int size, @ConvertWith(StringsArgumentConverter.class) final String... ids) throws Exception");
 		out.println("\t{");
 		out.println("\t\tif (input.contains(\"created_at\") || input.contains(\"updated_at\")) size = 0;	// Generated inputs will not be the same as the timestamps.");
 		out.println();
@@ -384,7 +386,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t\tif (0 < size)");
 		out.println("\t\t\tassertThat(o.data.stream().map(v -> v.id()).toArray(String[]::new))");
 		out.println("\t\t\t\t.as(\"Check ids\")");
-		out.println("\t\t\t\t.containsExactly(ids.split(\",\"));");
+		out.println("\t\t\t\t.containsExactly(ids);");
 		out.println("\t}");
 		out.println();
 		out.println("\tpublic static Stream<Map.Entry<String, Date>> search_by_created_at()");
