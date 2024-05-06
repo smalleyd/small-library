@@ -1,21 +1,23 @@
 apply plugin: 'java'
-apply plugin: 'com.github.johnrengelman.shadow'
 
-version = '3.1'
+version = '4.0'
 
 // Add Gradle OneJar Plugin, see https://github.com/rholder/gradle-one-jar
 buildscript {
   repositories {
     jcenter()
+    gradlePluginPortal()
   }
 
   dependencies {
-    classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.3'
+    classpath 'com.github.johnrengelman:shadow:8.1.1'
   }
 }
 
-sourceCompatibility = '1.12'
-targetCompatibility = '1.12'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+sourceCompatibility = '1.17'
+targetCompatibility = '1.17'
 
 sourceSets.main.java.srcDirs = [ 'java' ]
 sourceSets.main.resources.srcDirs = [ 'res' ]
@@ -25,14 +27,14 @@ repositories {
 }
 
 dependencies {
-	compile 'commons-codec:commons-codec:1.12',
+	implementation 'commons-codec:commons-codec:1.12',
 		'org.apache.commons:commons-collections4:4.3',
 	    'org.apache.commons:commons-dbcp2:2.6.0',
 	    'org.apache.commons:commons-lang3:3.9',
 		'com.fasterxml.jackson.core:jackson-databind:2.9.8',
 		'ch.qos.logback:logback-classic:1.2.3'
 	        
-	runtime 'mysql:mysql-connector-java:8.0.16'
+	runtimeOnly 'mysql:mysql-connector-java:8.0.16'
 }
 
 // Builds a single fat jar.
