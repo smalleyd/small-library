@@ -33,8 +33,6 @@ dependencies {
 	    'org.apache.commons:commons-lang3:3.9',
 		'com.fasterxml.jackson.core:jackson-databind:2.9.8',
 		'ch.qos.logback:logback-classic:1.2.3'
-	        
-	runtimeOnly 'mysql:mysql-connector-java:8.0.16'
 }
 
 // Builds a single fat jar.
