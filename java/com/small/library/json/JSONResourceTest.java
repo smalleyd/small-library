@@ -56,7 +56,6 @@ public class JSONResourceTest extends JSONBase
 		out.println("import static org.fest.assertions.api.Assertions.assertThat;");
 		out.println("import static app.fora.es.ElasticsearchUtils.json;");
 		out.println();
-		out.println("import java.time.Instant;");
 		out.println("import java.util.*;");
 		out.println("import java.util.stream.Stream;");
 		out.println("import javax.ws.rs.HttpMethod;");
@@ -76,6 +75,7 @@ public class JSONResourceTest extends JSONBase
 		out.println();
 		out.println("import " + domainPackage + ".common.model.Results;");
 		out.println("import " + domainPackage + ".es.ElasticsearchExtension;");
+		out.println("import " + domainPackage + ".junit.params.DateArgumentConverter;");
 		out.println("import " + domainPackage + ".junit.params.StringsArgumentConverter;");
 		out.println("import " + appPackage + ".dao." + daoName + ";");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
@@ -152,9 +152,9 @@ public class JSONResourceTest extends JSONBase
 	public static String assertion(final JSONField f)
 	{
 		if ("created_at".equals(f.name))
-			return "\t\tassertThat(o.created_at).as(\"Check created_at\").isNotNull().isNotEqualTo(created_at.toString()).isCloseTo(now, 60000L);";
+			return "\t\tassertThat(o.created_at).as(\"Check created_at\").isNotNull().isNotEqualTo(created_at).isCloseTo(now, 60000L);";
 		if ("updated_at".equals(f.name))
-			return "\t\tassertThat(o.updated_at).as(\"Check updated_at\").isNotNull().isNotEqualTo(updated_at.toString()).isCloseTo(now, 60000L).isEqualTo(o.created_at);";
+			return "\t\tassertThat(o.updated_at).as(\"Check updated_at\").isNotNull().isNotEqualTo(updated_at).isCloseTo(now, 60000L).isEqualTo(o.created_at);";
 
 		return JSONElasticTest.assertion(f);
 	}

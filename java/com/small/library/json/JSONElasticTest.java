@@ -55,7 +55,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("import static app.fora.es.ElasticsearchUtils.json;");
 		out.println("import static app.fora.es.ElasticsearchUtils.toMap;");
 		out.println();
-		out.println("import java.time.Instant;");
+		out.println("import java.util.Date;");
 		out.println("import javax.ws.rs.NotFoundException;");
 		out.println();
 		out.println("import org.junit.jupiter.api.*;");
@@ -69,6 +69,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;");
 		out.println();
 		out.println("import " + domainPackage + ".es.ElasticsearchExtension;");
+		out.println("import " + domainPackage + ".junit.params.DateArgumentConverter;");
 		out.println("import " + domainPackage + ".junit.params.StringsArgumentConverter;");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
 		for (var f : clazz.fields)
@@ -119,22 +120,12 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t}");
 	}
 
-	public static String actual(final JSONField field)
-	{
-		return field.date() ? field.name + ".getTime()" : field.name;
-	}
-
-	public static String expected(final JSONField field)
-	{
-		return field.date() ? field.name + ".toEpochMilli()" : field.name;
-	}
-
 	public static String assertion(final JSONField f)
 	{
 		if (f.notContainer())
-			return "\t\tAssertions.assertEquals(" + expected(f) + ", o." + actual(f) + ", \"Check " + f.name + "\");";
+			return "\t\tAssertions.assertEquals(%1$s, o.%1$s, \"Check %1$s\");".formatted(f.name);
 
-		return "\t\tassertThat(o." + actual(f) + ").as(\"Check " + f.name + "\").hasSize(1).containsExactly(" + expected(f) + ");";
+		return "\t\tassertThat(o.%1$s).as(\"Check %1$s\").hasSize(%1$s.length).containsExactly(%1$s);".formatted(f.name);
 	}
 
 	private void writeMethods()
