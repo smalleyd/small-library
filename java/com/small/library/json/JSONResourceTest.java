@@ -56,6 +56,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("import static org.fest.assertions.api.Assertions.assertThat;");
 		out.println("import static app.fora.es.ElasticsearchUtils.json;");
 		out.println();
+		out.println("import java.time.Instant;");
 		out.println("import java.util.*;");
 		out.println("import java.util.stream.Stream;");
 		out.println("import javax.ws.rs.HttpMethod;");
@@ -700,7 +701,7 @@ public class JSONResourceTest extends JSONBase
 		out.println("\t{");
 		out.println("\t\tvar instant = Instant.ofEpochMilli(value.getTime());");
 		out.println();
-		out.println("\t\treturn String.format(template, instant, instant);");
+		out.println("\t\treturn template.formatted(instant, instant);");
 		out.println("\t}");
 	}
 
