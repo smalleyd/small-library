@@ -49,12 +49,9 @@ public class JSONValueTest extends JSONBase
 		out.print("package "); out.print(appPackage); out.print(".domain"); out.println(";");
 
 		out.println();
-		out.println("import static org.fest.assertions.api.Assertions.assertThat;");
-		out.println();
 		out.println("import java.util.Date;");
 		out.println();
 		out.println("import org.junit.jupiter.api.*;");
-		out.println("import org.junit.jupiter.api.extension.ExtendWith;");
 		out.println("import org.junit.jupiter.params.ParameterizedTest;");
 		out.println("import org.junit.jupiter.params.converter.ConvertWith;");
 		out.println("import org.junit.jupiter.params.provider.CsvSource;");
