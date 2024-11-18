@@ -175,7 +175,7 @@ public class JSONResourceTest extends JSONBase
 		{
 			switch (update)
 			{
-				case 0: return "\t\tassertThat(o.updated_at).as(\"Check updated_at\").isNotNull().isNotEqualTo(updated_at.toString()).isCloseTo(new Date(), 30000L).isAfter(o.created_at);";
+				case 0: return "\t\tassertThat(o.updated_at).as(\"Check updated_at\").isNotNull().isNotEqualTo(updated_at).isCloseTo(new Date(), 30000L).isAfter(o.created_at);";
 				case 1: return "\t\tAssertions.assertEquals(createdAt, o.updated_at, \"Check updated_at\");";
 				default: return "\t\tAssertions.assertEquals(updatedAt(id), o.updated_at, \"Check updated_at\");";
 			}
