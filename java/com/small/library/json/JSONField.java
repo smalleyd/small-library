@@ -24,6 +24,7 @@ public class JSONField implements Serializable
 
 	public static final String FORMAT_DATE = "@ConvertWith(DateArgumentConverter.class) Date";
 	public static final String FORMAT_CONTAINER = "@ConvertWith(StringsArgumentConverter.class) %s[]";
+	public static final String FORMAT_CONTAINER_JSON = "@ConvertWith(JsonArgumentConverter.class) %s[]";
 	public static final String FORMAT_CONTAINERIZE = "%s<%s%s>";
 
 	public static final Set<String> DATES = Set.of("Date", "ZonedDateTime");
@@ -108,7 +109,12 @@ public class JSONField implements Serializable
 	public String typeForJunit()
 	{
 		if (container())
-			return FORMAT_CONTAINER.formatted(type);
+		{
+			if (string())
+				return FORMAT_CONTAINER.formatted(type);
+			else
+				return FORMAT_CONTAINER_JSON.formatted(type);
+		}
 
 		return (date()) ? FORMAT_DATE : type;
 	}
