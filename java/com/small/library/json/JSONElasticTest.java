@@ -280,12 +280,12 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t\t\t\t.containsExactly(ids);");
 		out.println("\t}");
 		out.println();
-		out.println("\t@ParameterizedTest(name=\"count(input={0}, size={1})\")");
+		out.println("\t@ParameterizedTest(name=\"count(filter={0}, size={1})\")");
 		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/search.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(20)");
-		out.println("\tpublic void count(final String input, final int size) throws Exception");
+		out.println("\tpublic void count(@ConvertWith(JsonArgumentConverter.class) final " + filterName + " filter, final int size) throws Exception");
 		out.println("\t{");
-		out.println("\t\tAssertions.assertEquals((long) size, dao.count(readFilter(input)));");
+		out.println("\t\tAssertions.assertEquals((long) size, dao.count(filter));");
 		out.println("\t}");
 		out.println();
 		out.println("\t@ParameterizedTest(name=\"update_fail(" + indexParams + ")\")");
