@@ -70,6 +70,7 @@ public class JSONElasticTest extends JSONBase
 		out.println();
 		out.println("import " + domainPackage + ".es.ElasticsearchExtension;");
 		out.println("import " + domainPackage + ".junit.params.DateArgumentConverter;");
+		out.println("import " + domainPackage + ".junit.params.JsonArgumentConverter;");
 		out.println("import " + domainPackage + ".junit.params.StringsArgumentConverter;");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
 		for (var f : clazz.fields)
@@ -138,8 +139,8 @@ public class JSONElasticTest extends JSONBase
 		var i = new int[] { 0 };
 		var firstField = clazz.fields.get(0).name;	// Should be the identifier.
 		var secondField = clazz.fields.get(1).name;	// Should be a unique field.
-		var indexParams = "input={0}, " + clazz.fields.stream().map(f -> f.name + "={" + ++i[0] + "}").collect(joining(", "));
-		var indexArgs = "final String input,\n\t\tfinal " + clazz.fields.stream().map(f -> f.typeForJunit() + " " + f.name).collect(joining(",\n\t\tfinal "));
+		var indexParams = "value={0}, " + clazz.fields.stream().map(f -> f.name + "={" + ++i[0] + "}").collect(joining(", "));
+		var indexArgs = "@ConvertWith(JsonArgumentConverter.class) final " + clazz.name + " value,\n\t\tfinal " + clazz.fields.stream().map(f -> f.typeForJunit() + " " + f.name).collect(joining(",\n\t\tfinal "));
 		var indexChecks = "\t\tAssertions.assertNotNull(o, \"Exists\");\n" +
 			clazz.fields.stream().map(f -> assertion(f)).collect(joining("\n"));
 
@@ -171,7 +172,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t@Order(10)");
 		out.println("\tpublic void index(" + indexArgs + ") throws Exception");
 		out.println("\t{");
-		out.println("\t\tvar o = dao.index(readEntity(input));");
+		out.println("\t\tvar o = dao.index(value);");
 		out.println(indexChecks);
 		out.println("\t}");
 		out.println();
@@ -230,7 +231,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\tpublic void getFirst(" + indexArgs + ") throws Exception");
 		out.println("\t{");
 		out.println("\t\tvar o = dao.getFirst(TermQuery.of(q -> q.field(\"" + secondField + ".keyword\").value(" + secondField + ")));");
-		out.println("\t\tassertThat(o).as(\"Check results\").isNotNull().isEqualTo(readEntity(input));");
+		out.println("\t\tassertThat(o).as(\"Check results\").isNotNull().isEqualTo(value);");
 		out.println(indexChecks);
 		out.println("\t}");
 		out.println();
@@ -248,7 +249,7 @@ public class JSONElasticTest extends JSONBase
 		out.println("\tpublic void getByTerm(" + indexArgs + ") throws Exception");
 		out.println("\t{");
 		out.println("\t\tvar v = dao.getByTerm(" + secondField + ", " + NUM_OF_TESTS + ");");
-		out.println("\t\tassertThat(v).as(\"Check results\").isNotNull().hasSize(1).containsExactly(readEntity(input));");
+		out.println("\t\tassertThat(v).as(\"Check results\").isNotNull().hasSize(1).containsExactly(value);");
 		out.println();
 		out.println("\t\tvar o = v.get(0);");
 		out.println(indexChecks);
@@ -263,12 +264,12 @@ public class JSONElasticTest extends JSONBase
 		out.println("\t\tassertThat(o).as(\"Check results\").isNotNull().isEmpty();");
 		out.println("\t}");
 		out.println();
-		out.println("\t@ParameterizedTest(name=\"search(input={0}, size={1}, ids={2})\")");
+		out.println("\t@ParameterizedTest(name=\"search(filter={0}, size={1}, ids={2})\")");
 		out.println("\t@CsvFileSource(resources=\"/" + clazz.path + "/search.csv\"" + QUOTE_CHARACTER + ")");
 		out.println("\t@Order(20)");
-		out.println("\tpublic void search(final String input, final int size, @ConvertWith(StringsArgumentConverter.class) final String... ids) throws Exception");
+		out.println("\tpublic void search(@ConvertWith(JsonArgumentConverter.class) final " + filterName + " filter,\n\t\tfinal int size,\n\t\t@ConvertWith(StringsArgumentConverter.class) final String... ids) throws Exception");
 		out.println("\t{");
-		out.println("\t\tvar o = dao.search(readFilter(input));");
+		out.println("\t\tvar o = dao.search(filter);");
 		out.println("\t\tAssertions.assertNotNull(o, \"Exists\");");
 		out.println("\t\tAssertions.assertEquals((long) size, o.total, \"Check total\");");
 		out.println("\t\tassertThat(o.data).as(\"Check data\").isNotNull().hasSize(size);");
