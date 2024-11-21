@@ -60,6 +60,7 @@ public class JSONValueTest extends JSONBase
 		out.println();
 		out.println("import " + domainPackage + ".junit.params.DateArgumentConverter;");
 		out.println("import " + domainPackage + ".junit.params.JsonArgumentConverter;");
+		out.println("import " + domainPackage + ".junit.params.StringsArgumentConverter;");
 
 		out.println();
 		out.println("/** Unit test class that verifies the " + clazz.name + " domain object.");
