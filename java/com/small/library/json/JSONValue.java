@@ -144,8 +144,8 @@ public class JSONValue extends JSONBase
 		if (v.notEmpty) o.append("@NotEmpty ");
 		if (v.notNull) o.append("@NotNull ");
 		if (v.email) o.append("@Email ");
-		if (null != v.min) { o.append("@Min("); o.append(v.min); o.append(") "); }
-		if (null != v.max) { o.append("@Max("); o.append(v.max); o.append(") "); }
+		if (null != v.min) { o.append("@Min("); o.append(v.min); o.append("L) "); }
+		if (null != v.max) { o.append("@Max("); o.append(v.max); o.append("L) "); }
 		if (null != v.decimalMin) { o.append("@DecimalMin(\""); o.append(v.decimalMin); o.append("\") "); }
 		if (null != v.decimalMax) { o.append("@DecimalMax(\""); o.append(v.decimalMax); o.append("\") "); }
 
