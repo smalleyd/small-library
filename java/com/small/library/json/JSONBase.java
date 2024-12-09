@@ -170,6 +170,11 @@ public abstract class JSONBase implements Runnable
 				new JSONFilter(conf, clazz, out).run();
 				out.flush();
 			}
+			try (var out = new PrintStream(new File(dir, JSONFilterTest.getClassName(clazz.name) + ".java")))
+			{
+				new JSONFilterTest(conf, clazz, out).run();
+				out.flush();
+			}
 		}
 
 		if (clazz.generateElastic)
