@@ -61,7 +61,7 @@ public class JSONFilterTest extends JSONBase
 		out.println("import " + domainPackage + ".junit.params.StringsArgumentConverter;");
 
 		out.println();
-		out.println("/** Unit test class that verifies the " + className + " domain object.");
+		out.println("/** Unit test class that verifies the " + implClassName + " domain object.");
 		out.println(" * ");
 		out.println(" * @author " + conf.author);
 		out.println(" * @version " + conf.version);
