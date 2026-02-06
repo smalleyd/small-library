@@ -70,8 +70,6 @@ public class JSONElastic extends JSONBase
 		}
 
 		out.println();
-		out.println("import com.fasterxml.jackson.core.type.TypeReference;");
-		out.println();
 		out.println("import " + domainPackage + ".es." + baseClass + ";");
 		out.println("import " + appPackage + ".domain." + clazz.name + ";");
 		out.println("import " + appPackage + ".model." + filterName + ";");
@@ -95,9 +93,6 @@ public class JSONElastic extends JSONBase
 		out.println();
 		out.println("\tpublic static final String NAME = \"" + clazz.name + "\";");
 		out.println("\tpublic static final String INDEX = \"" + indexName(clazz.name) + "\";");
-		out.println("\tpublic static final TypeReference<" + clazz.name + "> type = new TypeReference<>() {};");
-		out.println("\tpublic static final TypeReference<List<" + clazz.name + ">> types = new TypeReference<>() {};");
-		out.println("\tpublic static final TypeReference<" + filterName + "> typeFilter = new TypeReference<>() {};");
 	}
 
 	private void writeConstructors()
@@ -113,7 +108,7 @@ public class JSONElastic extends JSONBase
 			out.println();
 			out.println("\tpublic " + className + "(final ElasticsearchClient es, final JedisPool jedis, final boolean test)");
 			out.println("\t{");
-			out.println("\t\tsuper(es, INDEX, type, types, typeFilter, jedis, test);");
+			out.println("\t\tsuper(es, INDEX, %s.class, %s.class, jedis, test);".formatted(clazz.name, filterName));
 			out.println("\t}");
 		}
 		else
@@ -127,7 +122,7 @@ public class JSONElastic extends JSONBase
 			out.println();
 			out.println("\tpublic " + className + "(final ElasticsearchClient es, final boolean test)");
 			out.println("\t{");
-			out.println("\t\tsuper(es, INDEX, type, types, typeFilter, test);");
+			out.println("\t\tsuper(es, INDEX, %s.class, %s.class, test);".formatted(clazz.name, filterName));
 			out.println("\t}");
 		}
 	}
