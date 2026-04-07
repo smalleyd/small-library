@@ -181,7 +181,7 @@ public class JSONResource extends JSONBase
 		out.println("\t@POST");
 		out.println("\t@Path(\"/search\") @Timed");
 		out.println("\t@Operation(summary=\"search\", description=\"Searches the " + clazz.name + " data set.\")");
-		out.println("\tpublic Results<" + clazz.name + "> search(@NotNull final " + filterName + " request) throws IOException");
+		out.println("\tpublic Results<" + clazz.name + "> search(@NotNull @Valid final " + filterName + " request) throws IOException");
 		out.println("\t{");
 		out.println("\t\treturn dao.search(request);");
 		out.println("\t}");
