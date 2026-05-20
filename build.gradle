@@ -5,19 +5,21 @@ version = '4.0'
 // Add Gradle OneJar Plugin, see https://github.com/rholder/gradle-one-jar
 buildscript {
   repositories {
-    jcenter()
+    mavenCentral()
     gradlePluginPortal()
   }
 
   dependencies {
-    classpath 'com.github.johnrengelman:shadow:8.1.1'
+    classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.4.1'
   }
 }
 
-apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.gradleup.shadow'
 
-sourceCompatibility = '1.17'
-targetCompatibility = '1.17'
+java {
+  sourceCompatibility = 25
+  targetCompatibility = 25
+}
 
 sourceSets.main.java.srcDirs = [ 'java' ]
 sourceSets.main.resources.srcDirs = [ 'res' ]

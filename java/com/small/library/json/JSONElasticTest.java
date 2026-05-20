@@ -134,6 +134,14 @@ public class JSONElasticTest extends JSONBase
 		return "\t\tassertThat(%2$s.%1$s).as(\"Check %1$s\").hasSize(%1$s.length).containsExactly(%1$s);".formatted(f.name, param);
 	}
 
+	public static String assertionX(final JSONField f, final String param)
+	{
+		if (f.notContainer())
+			return "\t\tAssertions.assertEquals(%1$s, %2$s.%1$s(), \"Check %1$s\");".formatted(f.name, param);
+
+		return "\t\tassertThat(%2$s.%1$s()).as(\"Check %1$s\").hasSize(%1$s.length).containsExactly(%1$s);".formatted(f.name, param);
+	}
+
 	private void writeMethods()
 	{
 		var i = new int[] { 0 };

@@ -153,13 +153,19 @@ public abstract class JSONBase implements Runnable
 
 		try (var out = new PrintStream(new File(dir, clazz.name + ".java")))
 		{
-			new JSONValue(conf, clazz, out).run();
+			if (clazz.generateRecord)
+				new JSONRecord(conf, clazz, out).run();
+			else
+				new JSONValue(conf, clazz, out).run();
 			out.flush();
 		}
 
 		try (var out = new PrintStream(new File(dir, clazz.name + "Test.java")))
 		{
-			new JSONValueTest(conf, clazz, out).run();
+			if (clazz.generateRecord)
+				new JSONRecordTest(conf, clazz, out).run();
+			else
+				new JSONValueTest(conf, clazz, out).run();
 			out.flush();
 		}
 
