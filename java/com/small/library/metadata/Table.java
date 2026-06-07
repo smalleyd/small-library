@@ -34,6 +34,12 @@ public class Table implements Serializable
 	public final String remarks;
 	private final DBMetadata metadata;
 
+	// Lazy loaded
+	private List<Column> columns = null; 
+	private List<Index> indexes = null;
+	private List<ForeignKey> importedKeys = null;
+	private List<ForeignKey> exportedKeys = null;
+
 	public Table(final ResultSet rs, final DBMetadata metadata) throws SQLException
 	{
 		catalog = rs.getString(1);
@@ -50,9 +56,25 @@ public class Table implements Serializable
 		this.metadata = metadata;
 	}
 
-	public List<Column> getColumns() throws SQLException { return metadata.getColumns(this); }
-	public List<Index> getIndexes() throws SQLException { return metadata.getIndexes(this); }
+	public List<Column> getColumns() throws SQLException
+	{
+		return (null != columns) ? columns : (columns = metadata.getColumns(this));
+	}
+
+	public List<Index> getIndexes() throws SQLException
+	{
+		return (null != indexes) ? indexes : (indexes = metadata.getIndexes(this));
+	}
+
 	public List<PrimaryKey> getPrimaryKeys() throws SQLException { return metadata.getPrimaryKeys(this); }
-	public List<ForeignKey> getImportedKeys() throws SQLException { return metadata.getImportedKeys(this); }
-	public List<ForeignKey> getExportedKeys() throws SQLException { return metadata.getExportedKeys(this); }
+
+	public List<ForeignKey> getImportedKeys() throws SQLException
+	{
+		return (null != importedKeys) ? importedKeys : (importedKeys = metadata.getImportedKeys(this));
+	}
+
+	public List<ForeignKey> getExportedKeys() throws SQLException
+	{
+		return (null != exportedKeys) ? exportedKeys : (exportedKeys = metadata.getExportedKeys(this));
+	}
 }

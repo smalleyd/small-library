@@ -101,7 +101,11 @@ public class TablesHtml
 		throws SQLException, IOException
 	{
 		var metadata = new DBMetadata(dataSource);
-		var tables = metadata.getTables(schemaNamePattern, "TABLE");
+		var tables = metadata
+			.getTables(schemaNamePattern, "TABLE")
+			.stream()
+			.filter(i -> !i.name.startsWith("."))	// Exclude Elastic build-in indices.
+			.toList();
 		
 		writeHeader(metadata.getCatalog());
 		writeContents(tables);
@@ -144,6 +148,10 @@ public class TablesHtml
 		writeDetailHeader("Table Name");
 		writeDetailHeader("Comments");
 		writeDetailHeader("# Records");
+		writeDetailHeader("# Columns");
+		writeDetailHeader("# Indices");
+		writeDetailHeader("# Imported<br />Keys");
+		writeDetailHeader("# Exported<br />Keys");
 		closeRow();
 
 		String count = null;
@@ -163,6 +171,10 @@ public class TablesHtml
 			writeDetail(createLink("#" + record.name, record.name));
 			writeDetail(record.remarks);
 			writeDetail(count);
+			writeDetail(record.getColumns().size());
+			writeDetail(record.getIndexes().size());
+			writeDetail(record.getImportedKeys().size());
+			writeDetail(record.getExportedKeys().size());
 			closeRow();
 
 			System.out.println(record.name + " - Row Count: " + count);
