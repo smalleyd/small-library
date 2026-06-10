@@ -7,3 +7,8 @@ build
 .svn/
 **/.svn
 
+.idea/
+gradle/
+gradlew
+gradlew.bat
+
