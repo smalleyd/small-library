@@ -1,17 +1,12 @@
 package com.small.library.ejb.gen;
 
-import com.small.library.generator.ColumnInfo;
 import com.small.library.generator.GeneratorException;
 import com.small.library.metadata.Table;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.List;
-
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 
 /***************************************************************************************
 *
@@ -212,7 +207,6 @@ public class EntityBeanLombok extends EntityBeanBase
 			if (!info.isImportedKey)
 				continue;
 
-			var name = info.importedKeyName;
 			var memberName = info.importedKeyMemberName;
 			var objectName = info.importedObjectName;
 
