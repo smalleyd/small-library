@@ -158,6 +158,15 @@ public class DBMetadata
 		}
 	}
 
+	public List<Table> getTablesX(final String schemaNamePattern, final String... types) throws SQLException
+	{
+		try (var connection = dataSource.getConnection();
+		     var rs = connection.getMetaData().getTables(connection.getCatalog(), schemaNamePattern, null, types))
+		{
+			return toList(r -> new Table(r, this), rs, Table.class);
+		}
+	}
+
 	public List<TypeInfo> getTypeInfo() throws SQLException
 	{
 		try (var connection = dataSource.getConnection();

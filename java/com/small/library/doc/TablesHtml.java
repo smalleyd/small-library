@@ -102,7 +102,7 @@ public class TablesHtml
 	{
 		var metadata = new DBMetadata(dataSource);
 		var tables = metadata
-			.getTables(schemaNamePattern, "TABLE")
+			.getTablesX(schemaNamePattern, "TABLE")
 			.stream()
 			.filter(i -> !i.name.startsWith("."))	// Exclude Elastic build-in indices.
 			.toList();
